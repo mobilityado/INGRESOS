@@ -1,7 +1,7 @@
 (() => {
   const $ = id => document.getElementById(id);
   const money = new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN"});
-  const state = { workbook:null, rows:[], headers:[], summary:null, charts:[] };
+  const state = { workbook:null, rows:[], headers:[], summary:null, brandSummary:[], charts:[] };
 
   const normalize = v => String(v ?? "").replace(/\s+/g," ").trim().toLowerCase();
   const number = v => {
@@ -39,7 +39,16 @@
   function processWorkbook(scroll){
     try{
       const ws=state.workbook.Sheets[$("sheetSelect").value];
-      const rows=XLSX.utils.sheet_to_json(ws,{defval:"",raw:true});
+      const matrix=XLSX.utils.sheet_to_json(ws,{header:1,defval:"",raw:true});
+      const headerIndex=matrix.findIndex(row=>{
+        const normalized=row.map(normalize);
+        return normalized.includes("vta man") && normalized.includes("vta abor") && normalized.includes("vta prepago");
+      });
+      if(headerIndex<0) throw new Error("No se encontró la fila de encabezados Vta Man, Vta Abor y Vta Prepago.");
+      const headers=matrix[headerIndex].map(v=>String(v??"").trim());
+      const rows=matrix.slice(headerIndex+1)
+        .filter(row=>row.some(v=>String(v??"").trim()!==""))
+        .map(row=>Object.fromEntries(headers.map((h,i)=>[h||`Columna ${i+1}`,row[i]??""])));
       if(!rows.length) throw new Error("La hoja seleccionada no contiene registros.");
       processRows(rows,scroll);
     }catch(err){ setStatusError(err.message); }
@@ -68,6 +77,16 @@
       count:filtered.length
     };
     summary.total=summary.canje+summary.abordo+summary.prepago;
+
+    const groups=new Map();
+    rows.forEach(r=>{
+      const brand=marcaH ? (String(r[marcaH]??"").trim() || "SIN MARCA") : "SIN MARCA";
+      if(!groups.has(brand)) groups.set(brand,{marca:brand,canje:0,abordo:0,prepago:0,count:0,total:0});
+      const g=groups.get(brand);
+      g.canje+=number(r[canjeH]); g.abordo+=number(r[abordoH]); g.prepago+=number(r[prepagoH]); g.count++;
+      g.total=g.canje+g.abordo+g.prepago;
+    });
+    state.brandSummary=[...groups.values()].sort((a,b)=>b.total-a.total);
     state.rows=filtered; state.headers=Object.keys(rows[0]); state.summary=summary;
     render();
     if(scroll) $("dashboard").scrollIntoView({behavior:"smooth"});
@@ -90,8 +109,17 @@
     $("summaryBody").innerHTML=[
       ["Canje",s.canje],["Abordo",s.abordo],["Prepago",s.prepago]
     ].map(([n,v])=>`<tr><td>${n}</td><td>${money.format(v)}</td><td>${(v/total*100).toFixed(2)}%</td></tr>`).join("");
-    renderPreview(); renderCharts();
+    renderPreview(); renderBrandSummary(); renderCharts();
     $("dashboard").classList.remove("hidden");
+  }
+
+
+  function renderBrandSummary(){
+    const body=$("brandBody");
+    if(!body) return;
+    const grand=state.brandSummary.reduce((a,b)=>a+b.total,0)||1;
+    body.innerHTML=state.brandSummary.map(g=>`<tr><td>${escapeHtml(g.marca)}</td><td>${money.format(g.canje)}</td><td>${money.format(g.abordo)}</td><td>${money.format(g.prepago)}</td><td><strong>${money.format(g.total)}</strong></td><td>${g.count.toLocaleString("es-MX")}</td><td>${(g.total/grand*100).toFixed(2)}%</td></tr>`).join("");
+    $("brandCount").textContent=`${state.brandSummary.length} marcas detectadas`;
   }
 
   function renderPreview(){
@@ -125,6 +153,8 @@
     ["B4","B5","B6","B7"].forEach(c=>ws[c]&&(ws[c].z='"$"#,##0.00'));
     ["C4","C5","C6","C7"].forEach(c=>ws[c]&&(ws[c].z="0.00%"));
     XLSX.utils.book_append_sheet(wb,ws,"Resumen");
+    const marcas=state.brandSummary.map(g=>({Marca:g.marca,Canje:g.canje,Abordo:g.abordo,Prepago:g.prepago,Total:g.total,Registros:g.count}));
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(marcas),"Resumen por marca");
     XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(state.rows),"Registros procesados");
     XLSX.writeFile(wb,`${title.replace(/\s+/g,"_")}.xlsx`);
   };

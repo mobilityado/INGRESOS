@@ -78,8 +78,8 @@
             </label>
             <label>Filtrar columna Marca
               <select id="brandMode">
-                <option value="nonempty" selected>Solo marcas no vacías</option>
-                <option value="all">Todos los registros</option>
+                <option value="nonempty">Solo marcas no vacías</option>
+                <option value="all" selected>Todos los registros</option>
                 <option value="empty">Solo marca vacía</option>
               </select>
             </label>
@@ -93,7 +93,7 @@
         <div class="rule"><span>Canje</span><strong>Vta Man</strong></div>
         <div class="rule"><span>Abordo</span><strong>Vta Abor</strong></div>
         <div class="rule"><span>Prepago</span><strong>Vta Prepago</strong></div>
-        <div class="rule"><span>TRT VB</span><strong>Marca no vacía</strong></div>
+        <div class="rule"><span>Reporte general</span><strong>Todas las marcas</strong></div>
         <p class="hint">Estas reglas reproducen los importes de tu formato actual. Puedes modificarlas en “Opciones avanzadas”.</p>
       </article>
     </section>
@@ -133,6 +133,20 @@
             <thead><tr><th>Concepto</th><th>Importe</th><th>Participación</th></tr></thead>
             <tbody id="summaryBody"></tbody>
             <tfoot><tr><th>Total</th><th id="tableTotal">$0.00</th><th>100%</th></tr></tfoot>
+          </table>
+        </div>
+      </article>
+
+
+      <article class="panel">
+        <div class="panel-head">
+          <h3>Resumen individual por marca</h3>
+          <span id="brandCount" class="muted"></span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Marca</th><th>Canje</th><th>Abordo</th><th>Prepago</th><th>Total</th><th>Registros</th><th>Participación</th></tr></thead>
+            <tbody id="brandBody"></tbody>
           </table>
         </div>
       </article>
