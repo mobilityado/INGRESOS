@@ -67,6 +67,7 @@
       <button data-view="comparativos"><span>↗</span>Comparativos</button>
       <button data-view="reportes"><span>▤</span>Reportes</button>
       <button data-view="aplicaciones"><span>◫</span>Aplicaciones</button>
+      <button data-view="usuarios" class="admin-nav"><span>👥</span>Usuarios</button>
       <button data-view="configuracion"><span>⚙</span>Configuración</button>
     </nav>
     <div class="side-footer">
@@ -244,6 +245,49 @@
         <div class="apps-grid" id="appsGrid"></div>
       </section>
 
+      
+      <section class="view" data-view-panel="usuarios">
+        <div class="page-intro">
+          <span class="pill">ADMINISTRACIÓN</span>
+          <h2>Usuarios y accesos</h2>
+          <p>Crea usuarios, cambia roles, activa o desactiva cuentas y restablece contraseñas.</p>
+        </div>
+
+        <div class="user-admin-grid">
+          <article class="card user-form-card">
+            <div class="card-title"><small>NUEVO USUARIO</small><h3>Registrar acceso</h3></div>
+            <form id="createUserForm" class="admin-form">
+              <label>Nombre completo<input id="newUserName" required placeholder="Nombre del colaborador"></label>
+              <label>Usuario<input id="newUsername" required placeholder="Usuario de acceso"></label>
+              <label>Contraseña temporal<input id="newUserPassword" type="password" required minlength="4" placeholder="Contraseña temporal"></label>
+              <label>Rol
+                <select id="newUserRole">
+                  <option value="CONSULTA">Consulta</option>
+                  <option value="SUPERVISOR">Supervisor</option>
+                  <option value="GERENCIA">Gerencia</option>
+                  <option value="ADMIN">Administrador</option>
+                </select>
+              </label>
+              <button class="btn primary" type="submit">Crear usuario</button>
+            </form>
+          </article>
+
+          <article class="card user-list-card">
+            <div class="section-head">
+              <div class="card-title"><small>DIRECTORIO</small><h3>Usuarios registrados</h3></div>
+              <button id="reloadUsersBtn" class="btn compact">↻ Actualizar</button>
+            </div>
+            <div id="usersAdminMessage" class="message">Carga la lista para administrar usuarios.</div>
+            <div class="table-wrap">
+              <table class="users-table">
+                <thead><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Estado</th><th>Último acceso</th><th>Acciones</th></tr></thead>
+                <tbody id="usersAdminBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+
       <section class="view" data-view-panel="configuracion">
         <div class="page-intro"><span class="pill">CONFIGURACIÓN</span><h2>Estado de la plataforma</h2><p>Información técnica y preferencias locales.</p></div>
         <div class="settings-grid">
@@ -259,6 +303,22 @@
 </div>
 
 <div id="historyModal" class="modal hidden"><div class="modal-card"><div class="section-head"><div><small class="kicker">HISTÓRICO LOCAL</small><h3>Administrar periodos</h3></div><button id="closeModalBtn" class="icon-btn dark">×</button></div><div id="historyAdmin"></div></div></div>
+
+<div id="resetPasswordModal" class="modal hidden">
+  <div class="modal-card small-modal">
+    <div class="section-head">
+      <div><small class="kicker">SEGURIDAD</small><h3>Restablecer contraseña</h3></div>
+      <button id="closeResetModalBtn" class="icon-btn dark">×</button>
+    </div>
+    <p id="resetUserLabel" class="muted"></p>
+    <form id="resetPasswordForm" class="admin-form">
+      <input id="resetUsername" type="hidden">
+      <label>Nueva contraseña<input id="resetNewPassword" type="password" required minlength="4" placeholder="Nueva contraseña"></label>
+      <button class="btn primary" type="submit">Guardar nueva contraseña</button>
+    </form>
+  </div>
+</div>
+
 <div id="toast" class="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>

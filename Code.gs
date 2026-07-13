@@ -1,38 +1,29 @@
 /**
- * RECAUDACIÓN 365 ENTERPRISE
- * API segura con autenticación y sesiones temporales.
+ * RECAUDACIÓN 365 ENTERPRISE v13
+ * Autenticación, sesiones y administración de usuarios.
  *
- * PASOS:
- * 1. Pega este archivo en Extensiones > Apps Script.
- * 2. Cambia ID_HOJA si utilizas otro Google Sheets.
- * 3. Implementa como Aplicación web:
- *    - Ejecutar como: Yo
- *    - Quién tiene acceso: Cualquier persona con el enlace
- * 4. Copia la URL terminada en /exec y colócala en config.js.
+ * USUARIOS admite:
+ * CONTRASEÑA | USUARIO | NOMBRE | ROL | ACTIVO | SALT
  *
- * La hoja puede permanecer privada. Los usuarios nunca se descargan a GitHub.
+ * Compatibilidad:
+ * - Las contraseñas existentes en texto siguen funcionando.
+ * - Al crear o restablecer una contraseña desde la aplicación se guarda SHA-256 + SALT.
  */
 
 const ID_HOJA = '1t7_19QrIufcoX-osGVlm4sZ4fpGt4ljP26wwg8nh-Tc';
 const HOJA_USUARIOS = 'USUARIOS';
-const MARCAS = {
-  TRT: 'TRT',
-  TRTVB: 'TRT VB',
-  AAO: 'AAO',
-  AAOVB: 'AAO VB'
-};
-const DURACION_SESION_SEGUNDOS = 21600; // 6 horas
+const HOJA_ACCESOS = 'ACCESOS';
+const MARCAS = { TRT:'TRT', TRTVB:'TRT VB', AAO:'AAO', AAOVB:'AAO VB' };
+const DURACION_SESION_SEGUNDOS = 21600;
+const ROLES_VALIDOS = ['CONSULTA','SUPERVISOR','GERENCIA','ADMIN'];
 
 function doGet() {
-  return respuesta({ error: false, message: 'API Recaudación 365 activa' });
+  return respuesta({ error:false, message:'API Recaudación 365 v13 activa' });
 }
 
 function doPost(e) {
   try {
-    if (!e || !e.postData || !e.postData.contents) {
-      throw new Error('Solicitud vacía.');
-    }
-
+    if (!e || !e.postData || !e.postData.contents) throw new Error('Solicitud vacía.');
     const data = JSON.parse(e.postData.contents);
     const action = String(data.action || '').trim();
 
@@ -42,238 +33,286 @@ function doPost(e) {
     if (action === 'logout') return cerrarSesion(data.token);
 
     const session = obtenerSesion(data.token);
-    if (!session) {
-      return respuesta({ error: true, authExpired: true, message: 'Sesión inválida o expirada.' });
-    }
+    if (!session) return respuesta({ error:true, authExpired:true, message:'Sesión inválida o expirada.' });
 
     if (action === 'getData') return obtenerDatos(session);
     if (action === 'getUsers') return obtenerUsuariosAdmin(session);
+    if (action === 'createUser') return crearUsuario(session, data);
+    if (action === 'updateUser') return actualizarUsuario(session, data);
+    if (action === 'resetPassword') return restablecerPassword(session, data);
 
-    return respuesta({ error: true, message: 'Acción no reconocida.' });
+    return respuesta({ error:true, message:'Acción no reconocida.' });
   } catch (error) {
-    return respuesta({ error: true, message: error.message });
+    return respuesta({ error:true, message:error.message });
   }
 }
 
 function listarUsuariosPublicos() {
   const usuarios = leerUsuarios()
     .filter(u => u.active)
-    .map(u => ({
-      username: u.username,
-      name: u.name
-    }))
-    .sort((a, b) => String(a.name).localeCompare(String(b.name), 'es'));
-
-  return respuesta({
-    error: false,
-    users: usuarios
-  });
+    .map(u => ({ username:u.username, name:u.name }))
+    .sort((a,b) => String(a.name).localeCompare(String(b.name),'es'));
+  return respuesta({ error:false, users:usuarios });
 }
 
 function login(data) {
   const username = normalizarCredencial(data.username);
   const password = normalizarCredencial(data.password);
+  if (!username || !password) return respuesta({ error:true, message:'Selecciona usuario y escribe la contraseña.' });
 
-  if (!username || !password) {
-    return respuesta({ error: true, message: 'Escribe usuario y contraseña.' });
-  }
-
-  const usuarios = leerUsuarios();
-  const usuario = usuarios.find(u =>
+  const usuario = leerUsuarios().find(u =>
     normalizarCredencial(u.username) === username &&
-    normalizarCredencial(u.password) === password &&
+    verificarPassword(password, u.password, u.salt) &&
     u.active
   );
 
   if (!usuario) {
     Utilities.sleep(450);
-    return respuesta({ error: true, message: 'Usuario o contraseña incorrectos.' });
+    return respuesta({ error:true, message:'Usuario o contraseña incorrectos.' });
   }
 
   const token = Utilities.getUuid() + Utilities.getUuid();
-  const session = {
-    username: usuario.username,
-    name: usuario.name,
-    role: usuario.role,
-    createdAt: new Date().toISOString()
-  };
-
-  CacheService.getScriptCache().put(
-    'session_' + token,
-    JSON.stringify(session),
-    DURACION_SESION_SEGUNDOS
-  );
-
+  const session = { username:usuario.username, name:usuario.name, role:usuario.role, createdAt:new Date().toISOString() };
+  CacheService.getScriptCache().put('session_'+token, JSON.stringify(session), DURACION_SESION_SEGUNDOS);
   registrarAcceso(usuario.username, usuario.name);
 
   return respuesta({
-    error: false,
-    token: token,
-    expiresIn: DURACION_SESION_SEGUNDOS,
-    user: {
-      username: usuario.username,
-      name: usuario.name,
-      role: usuario.role
-    }
+    error:false, token, expiresIn:DURACION_SESION_SEGUNDOS,
+    user:{ username:usuario.username, name:usuario.name, role:usuario.role }
   });
 }
 
 function validarSesion(token) {
   const session = obtenerSesion(token);
-  if (!session) {
-    return respuesta({ error: true, authExpired: true, message: 'Sesión expirada.' });
-  }
-  return respuesta({
-    error: false,
-    user: {
-      username: session.username,
-      name: session.name,
-      role: session.role
-    }
-  });
+  if (!session) return respuesta({ error:true, authExpired:true, message:'Sesión expirada.' });
+  return respuesta({ error:false, user:{ username:session.username, name:session.name, role:session.role } });
 }
 
 function cerrarSesion(token) {
-  if (token) CacheService.getScriptCache().remove('session_' + token);
-  return respuesta({ error: false, message: 'Sesión cerrada.' });
+  if (token) CacheService.getScriptCache().remove('session_'+token);
+  return respuesta({ error:false, message:'Sesión cerrada.' });
 }
 
 function obtenerSesion(token) {
   if (!token) return null;
-  const value = CacheService.getScriptCache().get('session_' + token);
-  if (!value) return null;
-  return JSON.parse(value);
+  const value = CacheService.getScriptCache().get('session_'+token);
+  return value ? JSON.parse(value) : null;
+}
+
+function exigirAdmin(session) {
+  if (String(session.role).toUpperCase() !== 'ADMIN') throw new Error('No tienes permisos de administrador.');
+}
+
+function obtenerUsuariosAdmin(session) {
+  exigirAdmin(session);
+  const accesos = obtenerUltimosAccesos();
+  const users = leerUsuarios().map(u => ({
+    username:u.username, name:u.name, role:u.role, active:u.active,
+    lastAccess:accesos[u.username] || ''
+  }));
+  return respuesta({ error:false, users });
+}
+
+function crearUsuario(session, data) {
+  exigirAdmin(session);
+  const name = limpiarNombre(data.name);
+  const username = normalizarCredencial(data.username);
+  const password = normalizarCredencial(data.password);
+  const role = validarRol(data.role);
+
+  if (!name || !username || !password) throw new Error('Completa nombre, usuario y contraseña.');
+  if (password.length < 4) throw new Error('La contraseña debe tener al menos 4 caracteres.');
+
+  const usuarios = leerUsuarios();
+  if (usuarios.some(u => normalizarCredencial(u.username).toLowerCase() === username.toLowerCase())) {
+    throw new Error('Ese usuario ya existe.');
+  }
+
+  const hoja = obtenerHojaUsuariosPreparada();
+  const headers = obtenerMapaEncabezados(hoja);
+  const salt = Utilities.getUuid();
+  const hash = crearHash(password, salt);
+  const row = new Array(hoja.getLastColumn()).fill('');
+
+  row[headers.CONTRASENA] = hash;
+  row[headers.USUARIO] = username;
+  row[headers.NOMBRE] = name;
+  row[headers.ROL] = role;
+  row[headers.ACTIVO] = 'SI';
+  row[headers.SALT] = salt;
+
+  hoja.appendRow(row);
+  return respuesta({ error:false, message:'Usuario creado.' });
+}
+
+function actualizarUsuario(session, data) {
+  exigirAdmin(session);
+  const username = normalizarCredencial(data.username);
+  const hoja = obtenerHojaUsuariosPreparada();
+  const headers = obtenerMapaEncabezados(hoja);
+  const row = buscarFilaUsuario(hoja, headers, username);
+  if (row < 2) throw new Error('Usuario no encontrado.');
+
+  if (data.role != null) hoja.getRange(row, headers.ROL + 1).setValue(validarRol(data.role));
+  if (data.active != null) {
+    if (username === session.username && data.active === false) throw new Error('No puedes desactivar tu propia cuenta.');
+    hoja.getRange(row, headers.ACTIVO + 1).setValue(data.active ? 'SI' : 'NO');
+  }
+  return respuesta({ error:false, message:'Usuario actualizado.' });
+}
+
+function restablecerPassword(session, data) {
+  exigirAdmin(session);
+  const username = normalizarCredencial(data.username);
+  const password = normalizarCredencial(data.password);
+  if (password.length < 4) throw new Error('La contraseña debe tener al menos 4 caracteres.');
+
+  const hoja = obtenerHojaUsuariosPreparada();
+  const headers = obtenerMapaEncabezados(hoja);
+  const row = buscarFilaUsuario(hoja, headers, username);
+  if (row < 2) throw new Error('Usuario no encontrado.');
+
+  const salt = Utilities.getUuid();
+  hoja.getRange(row, headers.CONTRASENA + 1).setValue(crearHash(password, salt));
+  hoja.getRange(row, headers.SALT + 1).setValue(salt);
+  return respuesta({ error:false, message:'Contraseña restablecida.' });
+}
+
+function obtenerHojaUsuariosPreparada() {
+  const hoja = SpreadsheetApp.openById(ID_HOJA).getSheetByName(HOJA_USUARIOS);
+  if (!hoja) throw new Error('No existe la pestaña USUARIOS.');
+
+  const required = ['CONTRASEÑA','USUARIO','NOMBRE','ROL','ACTIVO','SALT'];
+  const current = hoja.getLastColumn() > 0 ? hoja.getRange(1,1,1,hoja.getLastColumn()).getDisplayValues()[0] : [];
+  const normalized = current.map(normalizarEncabezado);
+
+  required.forEach(header => {
+    if (!normalized.includes(normalizarEncabezado(header))) {
+      hoja.getRange(1, hoja.getLastColumn()+1).setValue(header);
+      normalized.push(normalizarEncabezado(header));
+    }
+  });
+
+  hoja.getRange(1,1,1,hoja.getLastColumn())
+    .setBackground('#071a31').setFontColor('#ffffff').setFontWeight('bold');
+  hoja.setFrozenRows(1);
+  return hoja;
+}
+
+function obtenerMapaEncabezados(hoja) {
+  const headers = hoja.getRange(1,1,1,hoja.getLastColumn()).getDisplayValues()[0].map(normalizarEncabezado);
+  return {
+    CONTRASENA:headers.indexOf('CONTRASENA'),
+    USUARIO:headers.indexOf('USUARIO'),
+    NOMBRE:headers.indexOf('NOMBRE'),
+    ROL:headers.indexOf('ROL'),
+    ACTIVO:headers.indexOf('ACTIVO'),
+    SALT:headers.indexOf('SALT')
+  };
+}
+
+function buscarFilaUsuario(hoja, headers, username) {
+  const last = hoja.getLastRow();
+  if (last < 2) return -1;
+  const values = hoja.getRange(2, headers.USUARIO+1, last-1, 1).getDisplayValues();
+  const idx = values.findIndex(r => normalizarCredencial(r[0]).toLowerCase() === username.toLowerCase());
+  return idx < 0 ? -1 : idx + 2;
+}
+
+function leerUsuarios() {
+  const hoja = obtenerHojaUsuariosPreparada();
+  const valores = hoja.getDataRange().getDisplayValues();
+  if (valores.length < 2) return [];
+  const h = obtenerMapaEncabezados(hoja);
+
+  return valores.slice(1)
+    .filter(row => row.some(cell => String(cell).trim() !== ''))
+    .map(row => ({
+      password:String(row[h.CONTRASENA] || '').trim(),
+      username:String(row[h.USUARIO] || '').trim(),
+      name:limpiarNombre(row[h.NOMBRE]),
+      role:validarRol(row[h.ROL] || 'CONSULTA'),
+      active:!['NO','INACTIVO','FALSE','0'].includes(String(row[h.ACTIVO] || 'SI').trim().toUpperCase()),
+      salt:String(row[h.SALT] || '').trim()
+    }));
+}
+
+function verificarPassword(input, stored, salt) {
+  if (!salt) return normalizarCredencial(input) === normalizarCredencial(stored);
+  return crearHash(input, salt) === stored;
+}
+
+function crearHash(password, salt) {
+  const bytes = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    String(password) + '|' + String(salt),
+    Utilities.Charset.UTF_8
+  );
+  return bytes.map(b => {
+    const v = b < 0 ? b + 256 : b;
+    return ('0' + v.toString(16)).slice(-2);
+  }).join('');
 }
 
 function obtenerDatos(session) {
   const libro = SpreadsheetApp.openById(ID_HOJA);
   const data = {};
-
   Object.keys(MARCAS).forEach(key => {
     const hoja = libro.getSheetByName(MARCAS[key]);
-    if (!hoja) throw new Error('No existe la pestaña ' + MARCAS[key]);
+    if (!hoja) throw new Error('No existe la pestaña '+MARCAS[key]);
     data[key] = hojaAObjetos(hoja);
   });
-
-  return respuesta({
-    error: false,
-    user: session.username,
-    generatedAt: new Date().toISOString(),
-    data: data
-  });
-}
-
-function leerUsuarios() {
-  const hoja = SpreadsheetApp.openById(ID_HOJA).getSheetByName(HOJA_USUARIOS);
-  if (!hoja) throw new Error('No existe la pestaña USUARIOS.');
-
-  const valores = hoja.getDataRange().getDisplayValues();
-  if (valores.length < 2) return [];
-
-  const headers = valores[0].map(normalizarEncabezado);
-  const iPassword = buscarColumna(headers, ['CONTRASENA', 'PASSWORD', 'CLAVE']);
-  const iUser = buscarColumna(headers, ['USUARIO', 'USER']);
-  const iName = buscarColumna(headers, ['NOMBRE', 'NAME']);
-  const iRole = buscarColumna(headers, ['ROL', 'ROLE']);
-  const iActive = buscarColumna(headers, ['ACTIVO', 'ACTIVE', 'ESTATUS']);
-
-  if (iPassword < 0 || iUser < 0 || iName < 0) {
-    throw new Error('USUARIOS debe contener CONTRASEÑA, USUARIO y NOMBRE.');
-  }
-
-  return valores.slice(1)
-    .filter(row => row.some(cell => String(cell).trim() !== ''))
-    .map(row => ({
-      password: String(row[iPassword] || '').trim(),
-      username: String(row[iUser] || '').trim(),
-      name: limpiarNombre(row[iName]),
-      role: iRole >= 0 ? String(row[iRole] || 'CONSULTA').trim().toUpperCase() : 'CONSULTA',
-      active: iActive < 0 ? true : !['NO', 'INACTIVO', 'FALSE', '0'].includes(String(row[iActive] || '').trim().toUpperCase())
-    }));
-}
-
-function obtenerUsuariosAdmin(session) {
-  if (String(session.role).toUpperCase() !== 'ADMIN') {
-    return respuesta({ error: true, message: 'No tienes permisos de administrador.' });
-  }
-  const users = leerUsuarios().map(u => ({
-    username: u.username,
-    name: u.name,
-    role: u.role,
-    active: u.active
-  }));
-  return respuesta({ error: false, users: users });
+  return respuesta({ error:false, user:session.username, generatedAt:new Date().toISOString(), data });
 }
 
 function hojaAObjetos(hoja) {
   const valores = hoja.getDataRange().getDisplayValues();
-  if (!valores.length) return [];
-
-  const indiceEncabezado = valores.findIndex(row => {
-    const normalized = row.map(normalizarEncabezado);
-    return normalized.includes('VTA MAN') &&
-           normalized.includes('VTA ABOR') &&
-           normalized.includes('VTA PREPAGO');
+  const indice = valores.findIndex(row => {
+    const n = row.map(normalizarEncabezado);
+    return n.includes('VTA MAN') && n.includes('VTA ABOR') && n.includes('VTA PREPAGO');
   });
+  if (indice < 0) throw new Error('No se encontraron encabezados válidos en '+hoja.getName());
 
-  if (indiceEncabezado < 0) {
-    throw new Error('No se encontraron encabezados válidos en ' + hoja.getName());
-  }
-
-  const encabezados = valores[indiceEncabezado].map((value, index) =>
-    String(value || '').replace(/\s+/g, ' ').trim() || 'Columna ' + (index + 1)
-  );
-
-  return valores.slice(indiceEncabezado + 1)
+  const headers = valores[indice].map((v,i) => String(v||'').replace(/\s+/g,' ').trim() || 'Columna '+(i+1));
+  return valores.slice(indice+1)
     .filter(row => row.some(cell => String(cell).trim() !== ''))
     .map(row => {
-      const obj = {};
-      encabezados.forEach((header, i) => obj[header] = row[i] || '');
-      return obj;
+      const obj={};headers.forEach((header,i)=>obj[header]=row[i]||'');return obj;
     });
 }
 
 function registrarAcceso(username, name) {
   const libro = SpreadsheetApp.openById(ID_HOJA);
-  let hoja = libro.getSheetByName('ACCESOS');
-
+  let hoja = libro.getSheetByName(HOJA_ACCESOS);
   if (!hoja) {
-    hoja = libro.insertSheet('ACCESOS');
-    hoja.appendRow(['FECHA', 'USUARIO', 'NOMBRE']);
-    hoja.getRange(1, 1, 1, 3)
-      .setBackground('#071a31')
-      .setFontColor('#ffffff')
-      .setFontWeight('bold');
+    hoja = libro.insertSheet(HOJA_ACCESOS);
+    hoja.appendRow(['FECHA','USUARIO','NOMBRE']);
+    hoja.getRange(1,1,1,3).setBackground('#071a31').setFontColor('#ffffff').setFontWeight('bold');
     hoja.setFrozenRows(1);
   }
-
-  hoja.appendRow([new Date(), username, name]);
-  hoja.getRange(hoja.getLastRow(), 1).setNumberFormat('dd/mm/yyyy hh:mm:ss');
+  hoja.appendRow([new Date(),username,name]);
+  hoja.getRange(hoja.getLastRow(),1).setNumberFormat('dd/mm/yyyy hh:mm:ss');
 }
 
-function buscarColumna(headers, options) {
-  return headers.findIndex(header => options.includes(header));
+function obtenerUltimosAccesos() {
+  const hoja = SpreadsheetApp.openById(ID_HOJA).getSheetByName(HOJA_ACCESOS);
+  if (!hoja || hoja.getLastRow() < 2) return {};
+  const values = hoja.getRange(2,1,hoja.getLastRow()-1,3).getDisplayValues();
+  const result={};
+  values.forEach(row => { if(row[1]) result[row[1]] = row[0]; });
+  return result;
+}
+
+function validarRol(value) {
+  const role = String(value || 'CONSULTA').trim().toUpperCase();
+  return ROLES_VALIDOS.includes(role) ? role : 'CONSULTA';
 }
 
 function normalizarEncabezado(value) {
-  return String(value || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .toUpperCase();
+  return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim().toUpperCase();
 }
-
-function normalizarCredencial(value) {
-  return String(value == null ? '' : value).trim();
-}
-
-function limpiarNombre(value) {
-  return String(value || '').replace(/\s+/g, ' ').trim();
-}
-
+function normalizarCredencial(value) { return String(value==null?'':value).trim(); }
+function limpiarNombre(value) { return String(value||'').replace(/\s+/g,' ').trim(); }
 function respuesta(obj) {
-  return ContentService
-    .createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }

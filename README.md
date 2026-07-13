@@ -1,75 +1,51 @@
-# Recaudación 365 Enterprise v11
+# Recaudación 365 Enterprise v13
 
-Plataforma ejecutiva con autenticación basada en la pestaña `USUARIOS` y selección de usuario mediante lista desplegable.
+## Novedades
 
-## Estructura detectada
+- Inicio de sesión con lista desplegable.
+- Panel exclusivo para administradores.
+- Crear usuarios desde la plataforma.
+- Cambiar roles.
+- Activar y desactivar cuentas.
+- Restablecer contraseñas.
+- Consultar el último acceso.
+- Registro automático en la pestaña `ACCESOS`.
+- Contraseñas nuevas almacenadas con SHA-256 y SALT.
+- Compatibilidad con las contraseñas actuales en texto.
 
-La pestaña actual contiene:
+## Primera configuración
 
-- `CONTRASEÑA`
-- `USUARIO`
-- `NOMBRE`
+La pestaña `USUARIOS` puede comenzar así:
 
-También se admiten opcionalmente:
-
-- `ROL`: `ADMIN`, `GERENCIA`, `SUPERVISOR` o `CONSULTA`
-- `ACTIVO`: `SI`/`NO`, `TRUE`/`FALSE`, `1`/`0`
-
-Cuando `ROL` no existe, el sistema asigna `CONSULTA`.
-Cuando `ACTIVO` no existe, el usuario se considera activo.
-
-## Seguridad
-
-La pestaña `USUARIOS` no se descarga al navegador ni se publica en GitHub.
-
-La validación ocurre en Google Apps Script y genera una sesión temporal de seis horas. La hoja de Google Sheets puede mantenerse privada.
-
-> Recomendación: en una siguiente etapa conviene sustituir las contraseñas visibles por hashes. Esta versión mantiene compatibilidad con la estructura actual.
-
-## Configuración
-
-1. Abre el Google Sheets.
-2. Ve a **Extensiones > Apps Script**.
-3. Sustituye el código por `Code.gs`.
-4. Implementa como **Aplicación web**:
-   - Ejecutar como: **Yo**
-   - Acceso: **Cualquier persona con el enlace**
-5. Copia la URL que termina en `/exec`.
-6. Abre `config.js`.
-7. Sustituye:
-
-```javascript
-API_URL: "PEGA_AQUI_LA_URL_DE_APPS_SCRIPT_EXEC"
+```text
+CONTRASEÑA | USUARIO | NOMBRE
 ```
 
-8. Sube todos los archivos a GitHub.
-9. Presiona `Ctrl + F5`.
+El script agregará automáticamente:
 
-## Registro de accesos
+```text
+ROL | ACTIVO | SALT
+```
 
-El script crea automáticamente una pestaña `ACCESOS` con:
+Para ver el panel de usuarios, asigna `ADMIN` en la columna `ROL` a tu cuenta.
 
-- Fecha y hora
-- Usuario
-- Nombre
+## Instalación
 
-## Importante
+1. Copia `Code.gs` en Apps Script.
+2. Pulsa **Implementar > Administrar implementaciones**.
+3. Edita la implementación.
+4. Selecciona **Nueva versión**.
+5. Ejecutar como: **Yo**.
+6. Acceso: **Cualquier persona**.
+7. Copia la URL de App web terminada en `/exec`.
+8. Pégala en `config.js`.
+9. Reemplaza los archivos del repositorio.
+10. Presiona `Ctrl + F5`.
 
-Para que las pestañas se lean correctamente, sus nombres deben ser:
+## URL correcta
 
-- `TRT`
-- `TRT VB`
-- `AAO`
-- `AAO VB`
+```javascript
+API_URL: "https://script.google.com/macros/s/AKfycb.../exec"
+```
 
-
-## Lista desplegable de usuarios
-
-La pantalla de acceso consulta únicamente:
-
-- `USUARIO`
-- `NOMBRE`
-
-La contraseña nunca se envía en esa lista. Después de elegir el usuario, la contraseña se valida en Apps Script.
-
-Solo aparecen usuarios activos.
+No utilices la dirección `docs.google.com/spreadsheets`.

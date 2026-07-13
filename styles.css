@@ -51,3 +51,22 @@ body.dark .app-header{background:rgba(10,22,38,.92)}body.dark .pill,body.dark .q
 .select-icon select:focus{outline:none}
 .refresh-users-btn{align-self:flex-start;border:0;background:transparent;color:var(--blue);font-size:9px;font-weight:800;cursor:pointer;padding:0;margin:-12px 0 18px}
 .refresh-users-btn:hover{text-decoration:underline}
+
+.admin-nav.hidden-role{display:none!important}
+.user-admin-grid{display:grid;grid-template-columns:360px 1fr;gap:15px}
+.user-form-card,.user-list-card{padding:22px;border-radius:18px}
+.admin-form{display:flex;flex-direction:column;gap:14px;margin-top:18px}
+.admin-form .btn{margin-top:4px}
+.users-table{min-width:900px}
+.users-table td:last-child{white-space:nowrap}
+.user-action{border:0;border-radius:8px;padding:7px 9px;font-size:8px;font-weight:800;cursor:pointer;margin:2px}
+.user-action.edit{background:#e8f0ff;color:#175bd8}
+.user-action.reset{background:#fff0d8;color:#9d6505}
+.user-action.toggle{background:#e5f7ee;color:#08704d}
+.user-action.disable{background:#fde8e8;color:#a03030}
+.role-select{min-width:110px;margin:0;padding:7px 8px;font-size:9px}
+.state-pill{display:inline-block;padding:5px 8px;border-radius:999px;font-size:8px;font-weight:900}
+.state-pill.active{background:#ddf7ec;color:#08704d}
+.state-pill.inactive{background:#fde8e8;color:#a03030}
+.small-modal{width:min(460px,100%)}
+@media(max-width:1000px){.user-admin-grid{grid-template-columns:1fr}}

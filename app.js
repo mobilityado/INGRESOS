@@ -133,12 +133,12 @@ function renderHomeChart(){
   if(!state.summary)return;
   const canvas=$("homeChart");if(canvas)state.platformCharts.push(new Chart(canvas,{type:"bar",data:{labels:state.brands.map(b=>b.name),datasets:[{label:"Ingreso total",data:state.brands.map(b=>b.total),borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money.format(c.raw)}}},scales:{y:{ticks:{callback:v=>money.format(v)},grid:{color:"rgba(148,163,184,.15)"}},x:{grid:{display:false}}}}}))
 }
-const pageTitles={inicio:"Centro ejecutivo",ingresos:"Ingresos 360",comparativos:"Comparativos",reportes:"Reportes ejecutivos",aplicaciones:"Centro de aplicaciones",configuracion:"Configuración"};
+const pageTitles={inicio:"Centro ejecutivo",ingresos:"Ingresos 360",comparativos:"Comparativos",reportes:"Reportes ejecutivos",aplicaciones:"Centro de aplicaciones",usuarios:"Usuarios y accesos",configuracion:"Configuración"};
 function openView(name){
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.dataset.viewPanel===name));
   document.querySelectorAll(".side-nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===name));
   $("pageTitle").textContent=pageTitles[name]||"Recaudación 360";$("sidebar").classList.remove("open");window.scrollTo({top:0,behavior:"smooth"});
-  if(name==="comparativos")populateCompareSelectors();if(name==="aplicaciones")renderApps();if(name==="configuracion")renderSettings();
+  if(name==="comparativos")populateCompareSelectors();if(name==="aplicaciones")renderApps();if(name==="usuarios")loadAdminUsers();if(name==="configuracion")renderSettings();
 }
 document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>openView(b.dataset.view));
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>openView(b.dataset.go));
@@ -180,7 +180,9 @@ function setUserInterface(user){
   $("userInitial").textContent=String(user.name||user.username||"U").trim().charAt(0).toUpperCase();
   $("dropUserName").textContent=user.name||user.username;
   $("dropUserId").textContent=`Usuario: ${user.username}`;
-  document.querySelectorAll(".admin-only").forEach(el=>el.classList.toggle("hidden-role",String(user.role||"").toUpperCase()!=="ADMIN"));
+  const isAdmin=String(user.role||"").toUpperCase()==="ADMIN";
+  document.querySelectorAll(".admin-only,.admin-nav").forEach(el=>el.classList.toggle("hidden-role",!isAdmin));
+  if(!isAdmin && document.querySelector('[data-view-panel="usuarios"]')?.classList.contains("active")) openView("inicio");
 }
 function showApp(){
   $("loginScreen").classList.add("hidden");
@@ -224,6 +226,76 @@ function escapeAttr(value){
   return escapeHtml(value).replace(/`/g,"&#096;");
 }
 $("refreshUsersBtn").onclick=()=>loadLoginUsers();
+
+
+async function loadAdminUsers(){
+  const body=$("usersAdminBody"),msg=$("usersAdminMessage");
+  if(!body)return;
+  try{
+    msg.className="message";msg.textContent="Cargando usuarios...";
+    const result=await apiRequest("getUsers");
+    const users=Array.isArray(result.users)?result.users:[];
+    body.innerHTML=users.map(u=>`
+      <tr>
+        <td><b>${escapeHtml(u.name)}</b></td>
+        <td>${escapeHtml(u.username)}</td>
+        <td>
+          <select class="role-select" data-role-user="${escapeAttr(u.username)}">
+            ${["CONSULTA","SUPERVISOR","GERENCIA","ADMIN"].map(r=>`<option value="${r}" ${r===u.role?"selected":""}>${r}</option>`).join("")}
+          </select>
+        </td>
+        <td><span class="state-pill ${u.active?"active":"inactive"}">${u.active?"ACTIVO":"INACTIVO"}</span></td>
+        <td>${u.lastAccess?escapeHtml(u.lastAccess):"Sin registro"}</td>
+        <td>
+          <button class="user-action edit" data-save-role="${escapeAttr(u.username)}">Guardar rol</button>
+          <button class="user-action reset" data-reset-user="${escapeAttr(u.username)}" data-reset-name="${escapeAttr(u.name)}">Contraseña</button>
+          <button class="user-action ${u.active?"disable":"toggle"}" data-toggle-user="${escapeAttr(u.username)}" data-next-active="${u.active?"false":"true"}">${u.active?"Desactivar":"Activar"}</button>
+        </td>
+      </tr>`).join("");
+    msg.className="message success";msg.textContent=`${users.length} usuarios registrados.`;
+    bindUserAdminActions();
+  }catch(err){
+    msg.className="message danger";msg.textContent=err.message;
+  }
+}
+function bindUserAdminActions(){
+  document.querySelectorAll("[data-save-role]").forEach(btn=>btn.onclick=async()=>{
+    const username=btn.dataset.saveRole;
+    const role=document.querySelector(`[data-role-user="${CSS.escape(username)}"]`).value;
+    try{await apiRequest("updateUser",{username,role});toast("Rol actualizado");loadAdminUsers()}catch(e){toast(e.message)}
+  });
+  document.querySelectorAll("[data-toggle-user]").forEach(btn=>btn.onclick=async()=>{
+    try{await apiRequest("updateUser",{username:btn.dataset.toggleUser,active:btn.dataset.nextActive==="true"});toast("Estado actualizado");loadAdminUsers();loadLoginUsers()}catch(e){toast(e.message)}
+  });
+  document.querySelectorAll("[data-reset-user]").forEach(btn=>btn.onclick=()=>{
+    $("resetUsername").value=btn.dataset.resetUser;
+    $("resetUserLabel").textContent=`Usuario: ${btn.dataset.resetName} (${btn.dataset.resetUser})`;
+    $("resetNewPassword").value="";
+    $("resetPasswordModal").classList.remove("hidden");
+  });
+}
+$("createUserForm").onsubmit=async e=>{
+  e.preventDefault();
+  try{
+    await apiRequest("createUser",{
+      name:$("newUserName").value.trim(),
+      username:$("newUsername").value.trim(),
+      password:$("newUserPassword").value,
+      role:$("newUserRole").value
+    });
+    e.target.reset();toast("Usuario creado correctamente");loadAdminUsers();loadLoginUsers();
+  }catch(err){toast(err.message)}
+};
+$("reloadUsersBtn").onclick=()=>loadAdminUsers();
+$("resetPasswordForm").onsubmit=async e=>{
+  e.preventDefault();
+  try{
+    await apiRequest("resetPassword",{username:$("resetUsername").value,password:$("resetNewPassword").value});
+    $("resetPasswordModal").classList.add("hidden");toast("Contraseña actualizada");
+  }catch(err){toast(err.message)}
+};
+$("closeResetModalBtn").onclick=()=>$("resetPasswordModal").classList.add("hidden");
+$("resetPasswordModal").onclick=e=>{if(e.target===$("resetPasswordModal"))$("resetPasswordModal").classList.add("hidden")};
 
 async function restoreSession(){
   try{
