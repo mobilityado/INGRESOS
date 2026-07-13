@@ -94,6 +94,7 @@ function renderBrandPanels(){
 }
 function renderHistory(){
   const h=getHistory().sort((a,b)=>a.key.localeCompare(b.key));$("historyList").innerHTML=h.length?h.slice().reverse().map(x=>`<div class="history-row"><div><b>${x.label}</b><small>${x.count.toLocaleString("es-MX")} registros</small></div><strong>${money.format(x.total)}</strong></div>`).join(""):"<p class='message'>Aún no hay periodos guardados.</p>";
+  if($("activityHistory"))$("activityHistory").textContent=`${h.length} periodos guardados`;
   $("historyAdmin").innerHTML=h.length?h.slice().reverse().map(x=>`<div class="history-row"><div><b>${x.label}</b><small>${money.format(x.total)}</small></div><button data-delete="${x.key}">Eliminar</button></div>`).join(""):"<p class='message'>No hay histórico guardado.</p>";
   document.querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>{setHistory(getHistory().filter(x=>x.key!==b.dataset.delete));renderHistory();renderCharts();toast("Periodo eliminado")})
 }
@@ -121,8 +122,12 @@ function renderPlatform(){
   animateValue($("homeTotal"),s.total);$("homeTotalDetail").textContent=`${m} ${y} · ${s.count.toLocaleString("es-MX")} registros`;
   $("homeLeader").textContent=leader.name;$("homeLeaderDetail").textContent=`${pct(leader.total,s.total)} del total`;
   $("homeRows").textContent=s.count.toLocaleString("es-MX");
+  if($("heroTotal"))$("heroTotal").textContent=money.format(s.total);
+  if($("heroLeader"))$("heroLeader").textContent=leader.name;
+  if($("heroRows"))$("heroRows").textContent=s.count.toLocaleString("es-MX");
+  if($("heroUpdated"))$("heroUpdated").textContent="Ahora";
   const months=["ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"],key=`${y}-${String(months.indexOf(m)+1).padStart(2,"0")}`,prev=[...hist].filter(h=>h.key<key).sort((a,b)=>b.key.localeCompare(a.key))[0];
-  if(prev){const v=(s.total-prev.total)/(prev.total||1)*100;$("homeVariation").textContent=`${v>=0?"+":""}${v.toFixed(2)}%`;$("homeVariationDetail").textContent=`vs. ${prev.label}`}else{$("homeVariation").textContent="—";$("homeVariationDetail").textContent="Sin periodo anterior"}
+  if(prev){const v=(s.total-prev.total)/(prev.total||1)*100;$("homeVariation").textContent=`${v>=0?"+":""}${v.toFixed(2)}%`;$("homeVariationDetail").textContent=`vs. ${prev.label}`;if($("heroVariation"))$("heroVariation").textContent=`${v>=0?"Aumento":"Disminución"} de ${Math.abs(v).toFixed(2)}% vs. ${prev.label}`}else{$("homeVariation").textContent="—";$("homeVariationDetail").textContent="Sin periodo anterior";if($("heroVariation"))$("heroVariation").textContent="Sin comparativo disponible"}
   const concepts=[["Canje",s.canje],["Abordo",s.abordo],["Prepago",s.prepago]].sort((a,b)=>b[1]-a[1]);
   $("homeInsights").innerHTML=`<div class="insight"><i>↗</i><div><b>${leader.name}</b> es la marca líder con ${money.format(leader.total)}.</div></div><div class="insight"><i>◉</i><div><b>${concepts[0][0]}</b> concentra ${pct(concepts[0][1],s.total)} del ingreso.</div></div><div class="insight"><i>▥</i><div>El ticket promedio es de <b>${money.format(s.total/(s.count||1))}</b>.</div></div>`;
   $("managementPreview").innerHTML=`<h3>Resumen ejecutivo · ${m} ${y}</h3><p>El ingreso general fue de <b>${money.format(s.total)}</b>, integrado por ${s.count.toLocaleString("es-MX")} registros. ${leader.name} encabezó la recaudación con ${pct(leader.total,s.total)} de participación. ${concepts[0][0]} fue el concepto principal, con ${money.format(concepts[0][1])}.</p>${prev?`<p>En comparación con ${prev.label}, el resultado ${s.total>=prev.total?"aumentó":"disminuyó"} ${Math.abs((s.total-prev.total)/(prev.total||1)*100).toFixed(2)}%.</p>`:"<p>No existe todavía un periodo previo guardado para calcular variación.</p>"}`;
@@ -166,7 +171,8 @@ $("runCompareBtn").onclick=()=>{
   $("compareResults").classList.remove("hidden");
 };
 function renderApps(){
-  const apps=window.APP_CONFIG?.APPS||[];$("appsGrid").innerHTML=apps.map(a=>`<article class="card app-card"><span class="app-status ${a.url?"ready":"pending"}">${a.url?"Disponible":"Configurar URL"}</span><div class="app-icon">${a.icon}</div><h3>${a.name}</h3><p>${a.description}</p>${a.url?`<a class="btn primary" href="${a.url}" target="_blank" rel="noopener">Abrir aplicación</a>`:`<button class="btn" disabled>Dirección pendiente</button>`}</article>`).join("")
+  const apps=window.APP_CONFIG?.APPS||[];
+  $("appsGrid").innerHTML=apps.map(a=>`<article class="card app-card"><span class="app-status ${a.url?"ready":"pending"}">${a.url?"Disponible":"Configurar URL"}</span><div class="app-icon">${a.icon}</div><h3>${a.name}</h3><p>${a.description}</p>${a.url?`<a class="btn primary" href="${a.url}" target="_blank" rel="noopener">Abrir aplicación</a>`:`<button class="btn" disabled>Dirección pendiente</button>`}</article>`).join("")
 }
 function renderSettings(){$("sheetIdPreview").textContent=apiUrl()&&!apiUrl().includes("PEGA_AQUI")?"API segura configurada":"API pendiente de configurar";$("historyCount").textContent=`${getHistory().length} periodos almacenados`}
 $("reportPrintBtn").onclick=()=>{if(!state.summary){toast("Primero carga la información");return}openView("ingresos");setTimeout(()=>window.print(),250)};
@@ -180,6 +186,11 @@ function setUserInterface(user){
   $("userInitial").textContent=String(user.name||user.username||"U").trim().charAt(0).toUpperCase();
   $("dropUserName").textContent=user.name||user.username;
   $("dropUserId").textContent=`Usuario: ${user.username}`;
+  if($("welcomeUserName"))$("welcomeUserName").textContent=user.name||user.username;
+  if($("profileName"))$("profileName").textContent=user.name||user.username;
+  if($("profileUsername"))$("profileUsername").textContent=`Usuario: ${user.username}`;
+  if($("profileRole"))$("profileRole").textContent=user.role||"CONSULTA";
+  if($("profileInitial"))$("profileInitial").textContent=String(user.name||user.username||"U").trim().charAt(0).toUpperCase();
   const isAdmin=String(user.role||"").toUpperCase()==="ADMIN";
   document.querySelectorAll(".admin-only,.admin-nav").forEach(el=>el.classList.toggle("hidden-role",!isAdmin));
   if(!isAdmin && document.querySelector('[data-view-panel="usuarios"]')?.classList.contains("active")) openView("inicio");
@@ -336,6 +347,52 @@ $("logoutBtn").onclick=()=>logout();
 $("userMenuBtn").onclick=()=>$("userDropdown").classList.toggle("hidden");
 document.addEventListener("click",e=>{if(!e.target.closest(".user-menu"))$("userDropdown").classList.add("hidden")});
 $("togglePassword").onclick=()=>{const p=$("loginPassword"),show=p.type==="password";p.type=show?"text":"password";$("togglePassword").textContent=show?"Ocultar":"Ver"};
+
+
+function answerCopilot(question){
+  const q=String(question||"").trim();
+  if(!q)return;
+  const box=$("copilotMessages");
+  box.insertAdjacentHTML("beforeend",`<div class="copilot-message user">${escapeHtml(q)}</div>`);
+  let answer="";
+  if(!state.summary){
+    answer="Primero actualiza la información para que pueda analizar los ingresos.";
+  }else{
+    const s=state.summary,sorted=[...state.brands].sort((a,b)=>b.total-a.total),leader=sorted[0],lowest=sorted.at(-1);
+    const concepts=[["Canje",s.canje],["Abordo",s.abordo],["Prepago",s.prepago]].sort((a,b)=>b[1]-a[1]);
+    const nq=normalize(q);
+    if(nq.includes("MARCA")&&nq.includes("LIDER")) answer=`${leader.name} es la marca líder con ${money.format(leader.total)}, equivalente a ${pct(leader.total,s.total)} del ingreso general.`;
+    else if(nq.includes("CONCEPTO")||nq.includes("GENERA MAS")) answer=`${concepts[0][0]} es el concepto principal con ${money.format(concepts[0][1])}, que representa ${pct(concepts[0][1],s.total)} del total.`;
+    else if(nq.includes("TRT")||nq.includes("AAO")){
+      const b=state.brands.find(x=>nq.includes(x.name));
+      answer=b?`${b.name} registró ${money.format(b.total)}: Canje ${money.format(b.canje)}, Abordo ${money.format(b.abordo)} y Prepago ${money.format(b.prepago)}.`:"No pude identificar la marca solicitada.";
+    }else if(nq.includes("RESUMEN")||nq.includes("PASO")||nq.includes("PERIODO")){
+      answer=`El ingreso general es ${money.format(s.total)} con ${s.count.toLocaleString("es-MX")} registros. ${leader.name} lidera la recaudación y ${concepts[0][0]} es el concepto dominante. La marca con menor participación es ${lowest.name}.`;
+    }else if(nq.includes("TOTAL")||nq.includes("INGRESO")){
+      answer=`El ingreso general del periodo es ${money.format(s.total)}.`;
+    }else{
+      answer=`Puedo responder sobre el total general, la marca líder, cada marca, el concepto principal y el resumen ejecutivo.`;
+    }
+  }
+  box.insertAdjacentHTML("beforeend",`<div class="copilot-message answer">${escapeHtml(answer)}</div>`);
+  box.scrollTop=box.scrollHeight;
+}
+$("copilotForm").onsubmit=e=>{e.preventDefault();answerCopilot($("copilotInput").value);$("copilotInput").value=""};
+document.querySelectorAll("[data-question]").forEach(btn=>btn.onclick=()=>answerCopilot(btn.dataset.question));
+
+$("profileBtn").onclick=()=>{
+  $("userDropdown").classList.add("hidden");
+  $("profileModal").classList.remove("hidden");
+};
+$("closeProfileModalBtn").onclick=()=>$("profileModal").classList.add("hidden");
+$("profileModal").onclick=e=>{if(e.target===$("profileModal"))$("profileModal").classList.add("hidden")};
+$("selfPasswordForm").onsubmit=async e=>{
+  e.preventDefault();
+  try{
+    await apiRequest("changeOwnPassword",{currentPassword:$("selfCurrentPassword").value,newPassword:$("selfNewPassword").value});
+    e.target.reset();$("profileModal").classList.add("hidden");toast("Tu contraseña fue actualizada");
+  }catch(err){toast(err.message)}
+};
 
 renderApps();renderSettings();populateCompareSelectors();loadLoginUsers();restoreSession();
 
