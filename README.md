@@ -1,25 +1,31 @@
-# Sistema de Ingresos 360 — Diseño Ejecutivo v8
+# Ingresos 360 Executive Plus — Versión 9
 
-Esta versión conserva la conexión directa con Google Sheets y renueva por completo la presentación visual.
+## Funciones incluidas
 
-## Cambios de diseño
-
-- Encabezado institucional más sobrio.
-- Jerarquía visual de nivel ejecutivo.
-- Botón principal para Google Sheets.
-- Carga de Excel presentada como respaldo.
-- Indicadores de cobertura, fuente y salida.
-- Tarjetas KPI más limpias.
-- Gráficas y tablas con mejor contraste.
-- Mejor experiencia en pantallas grandes y dispositivos móviles.
-- Modo oscuro refinado.
-- Impresión y PDF más limpios.
+- Conexión directa con Google Sheets.
+- Lectura automática de TRT, TRTVB, AAO y AAOVB.
+- Concentrado general.
+- Panel individual por marca.
+- Ranking de marcas.
+- Gráficas generales e individuales.
+- Análisis automático del periodo.
+- Histórico mensual guardado en el navegador.
+- Comparativo contra el periodo anterior.
+- Exportación a Excel.
+- PDF mediante impresión.
+- Diseño móvil y modo oscuro.
 
 ## Instalación
 
-1. Reemplaza todos los archivos del repositorio.
-2. Espera a que GitHub Pages termine de publicar.
-3. Presiona `Ctrl + F5`.
-4. Usa **Actualizar desde Google Sheets**.
+1. Reemplaza los archivos del repositorio de GitHub por los incluidos en este ZIP.
+2. Espera a que GitHub Pages publique la actualización.
+3. Presiona Ctrl + F5.
+4. Pulsa “Actualizar Google Sheets”.
 
-La configuración de las cuatro pestañas permanece en `config.js`.
+## Histórico
+
+El histórico se guarda en el navegador mediante localStorage. Para conservarlo en varios equipos sería necesario agregar una hoja histórica en Google Sheets o una base de datos.
+
+## Nota sobre mapa regional
+
+No se incluyó un mapa de México porque las fuentes actuales identifican marcas, no estados o regiones geográficas. Mostrar un mapa sin esos datos produciría información incorrecta.

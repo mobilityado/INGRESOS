@@ -3,98 +3,131 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#081a33">
-  <title>Ingresos 360 | Recaudación</title>
-  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <meta name="theme-color" content="#071a31">
+  <title>Ingresos 360 Executive</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <div class="brand-lockup">
-        <div class="logo-mark"><span>R</span></div>
-        <div>
-          <p class="eyebrow light">RECAUDACIÓN · INTELIGENCIA OPERATIVA</p>
-          <h1>Ingresos <em>360</em></h1>
-          <p class="subtitle">Panel ejecutivo multimarcas</p>
-        </div>
+<header class="app-header">
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-mark">R</div>
+      <div><small>RECAUDACIÓN · INTELIGENCIA OPERATIVA</small><h1>Ingresos <em>360</em></h1></div>
+    </div>
+    <div class="header-tools">
+      <span class="connection"><i></i> Google Sheets</span>
+      <button id="themeBtn" class="icon-btn" title="Cambiar tema">◐</button>
+    </div>
+  </div>
+</header>
+
+<main class="shell">
+  <section class="hero">
+    <div>
+      <span class="pill">PANEL EJECUTIVO MULTIMARCA</span>
+      <h2>Control, comparación y análisis de ingresos</h2>
+      <p>Concentrado general y análisis individual de TRT, TRTVB, AAO y AAOVB, con histórico mensual, conclusiones automáticas y exportación ejecutiva.</p>
+    </div>
+    <div class="hero-actions">
+      <button id="loadSheetsBtn" class="btn primary"><span>↻</span><div><b>Actualizar Google Sheets</b><small>Leer las cuatro pestañas</small></div></button>
+      <label class="btn outline"><input id="fileInput" type="file" accept=".xlsx,.xls" multiple hidden><span>＋</span><div><b>Cargar respaldo Excel</b><small>Uno o varios archivos</small></div></label>
+    </div>
+  </section>
+
+  <section class="control-panel card">
+    <div class="section-head">
+      <div><small class="kicker">PREPARACIÓN</small><h3>Periodo y fuentes</h3></div>
+      <span id="statusBadge" class="status neutral">Sin información</span>
+    </div>
+    <div class="period-grid">
+      <label>Mes<select id="month">
+        <option>ENERO</option><option>FEBRERO</option><option>MARZO</option><option>ABRIL</option><option>MAYO</option><option selected>JUNIO</option>
+        <option>JULIO</option><option>AGOSTO</option><option>SEPTIEMBRE</option><option>OCTUBRE</option><option>NOVIEMBRE</option><option>DICIEMBRE</option>
+      </select></label>
+      <label>Año<input id="year" type="number" value="2026" min="2020" max="2100"></label>
+      <button id="saveSnapshotBtn" class="btn compact" disabled>Guardar mes en histórico</button>
+      <button id="clearHistoryBtn" class="btn compact ghost">Administrar histórico</button>
+    </div>
+    <div class="brand-source-grid" id="brandSources">
+      <article data-brand="TRT"><i></i><div><b>TRT</b><small>Pendiente</small></div><span>—</span></article>
+      <article data-brand="TRTVB"><i></i><div><b>TRTVB</b><small>Pendiente</small></div><span>—</span></article>
+      <article data-brand="AAO"><i></i><div><b>AAO</b><small>Pendiente</small></div><span>—</span></article>
+      <article data-brand="AAOVB"><i></i><div><b>AAOVB</b><small>Pendiente</small></div><span>—</span></article>
+    </div>
+    <div id="messageBox" class="message">Actualiza Google Sheets o carga el respaldo Excel.</div>
+    <details><summary>Configuración avanzada de columnas</summary>
+      <div class="advanced-grid">
+        <label>Canje<input id="canjeCol" value="Vta Man"></label>
+        <label>Abordo<input id="abordoCol" value="Vta Abor"></label>
+        <label>Prepago<input id="prepagoCol" value="Vta Prepago"></label>
       </div>
-      <div class="header-meta">
-        <div class="header-status"><span class="live-dot"></span><div><small>FUENTE PRINCIPAL</small><b>Google Sheets</b></div></div>
-        <div class="header-brands"><span>TRT</span><span>TRTVB</span><span>AAO</span><span>AAOVB</span></div>
-        <button id="themeBtn" class="icon-btn" title="Cambiar apariencia">◐</button>
+    </details>
+  </section>
+
+  <section id="dashboard" class="hidden">
+    <div class="dashboard-head">
+      <div><small class="kicker">PANORAMA GENERAL</small><h2 id="reportTitle">INGRESOS GENERALES</h2><p id="generatedAt"></p></div>
+      <div class="action-row">
+        <button id="exportBtn" class="btn compact">↓ Excel</button>
+        <button id="printBtn" class="btn compact">▣ PDF / Imprimir</button>
       </div>
     </div>
-  </header>
 
-  <main class="container">
-    <section class="hero-card glass executive-hero">
-      <div class="hero-copy">
-        <div class="hero-label-row"><span class="badge">CENTRO DE CONTROL</span><span class="period-chip">TRT · TRTVB · AAO · AAOVB</span></div>
-        <h2>Visión ejecutiva de ingresos, Servicio Intermedio</h2>
-        <p>Consolida las cuatro marcas, compara su participación y consulta cada operación de forma individual con indicadores listos para presentación.</p>
-        <div class="hero-proof">
-          <div><strong>4</strong><span>marcas integradas</span></div>
-          <div><strong>1</strong><span>concentrado general</span></div>
-          <div><strong>100%</strong><span>procesamiento local</span></div>
-        </div>
+    <div class="executive-kpis">
+      <article><span>Total general</span><strong id="totalKpi">$0.00</strong><small id="totalRows">0 registros</small></article>
+      <article><span>Marca líder</span><strong id="leaderKpi">—</strong><small id="leaderShare">—</small></article>
+      <article><span>Concepto principal</span><strong id="conceptKpi">—</strong><small id="conceptShare">—</small></article>
+      <article><span>Variación mensual</span><strong id="variationKpi">Sin histórico</strong><small id="variationDetail">Guarda al menos dos meses</small></article>
+    </div>
+
+    <div class="metric-grid">
+      <article class="metric"><span>Canje</span><strong id="canjeKpi"></strong><small id="canjePct"></small></article>
+      <article class="metric"><span>Abordo</span><strong id="abordoKpi"></strong><small id="abordoPct"></small></article>
+      <article class="metric"><span>Prepago</span><strong id="prepagoKpi"></strong><small id="prepagoPct"></small></article>
+    </div>
+
+    <nav class="tabs" id="tabs">
+      <button class="active" data-tab="general">General</button>
+      <button data-tab="historico">Histórico</button>
+      <button data-tab="TRT">TRT</button><button data-tab="TRTVB">TRTVB</button>
+      <button data-tab="AAO">AAO</button><button data-tab="AAOVB">AAOVB</button>
+    </nav>
+
+    <section class="tab-panel active" data-panel="general">
+      <div class="chart-grid">
+        <article class="card chart-card"><div class="card-title"><small>COMPARATIVO</small><h3>Ingresos por marca y concepto</h3></div><canvas id="brandChart"></canvas></article>
+        <article class="card chart-card"><div class="card-title"><small>PARTICIPACIÓN</small><h3>Aportación al total</h3></div><canvas id="shareChart"></canvas></article>
       </div>
-      <div class="hero-actions executive-actions">
-        <button id="loadApiBtn" class="primary-source-btn"><span class="source-icon">↻</span><span><b>Actualizar desde Google Sheets</b><small>Consulta las 4 pestañas en tiempo real</small></span></button>
-        <label class="upload-btn upload-secondary">
-          <input id="fileInput" type="file" accept=".xlsx,.xls" multiple hidden>
-          <span class="upload-icon">＋</span><span><b>Cargar respaldo Excel</b><small>Libro completo o archivos separados</small></span>
-        </label>
-        <div class="privacy-note"><span>✓</span> Los archivos de respaldo se procesan únicamente en tu navegador.</div>
+      <div class="content-grid">
+        <article class="card ranking-card"><div class="card-title"><small>RANKING</small><h3>Posición por recaudación</h3></div><div id="ranking"></div></article>
+        <article class="card insight-card"><div class="card-title"><small>ANÁLISIS AUTOMÁTICO</small><h3>¿Qué pasó en el periodo?</h3></div><div id="insights"></div></article>
+      </div>
+      <article class="card table-card"><div class="card-title"><small>CONCENTRADO</small><h3>Desglose general</h3></div>
+        <div class="table-wrap"><table><thead><tr><th>Marca</th><th>Canje</th><th>Abordo</th><th>Prepago</th><th>Total</th><th>Registros</th><th>Participación</th></tr></thead><tbody id="summaryBody"></tbody><tfoot id="summaryFoot"></tfoot></table></div>
+      </article>
+    </section>
+
+    <section class="tab-panel" data-panel="historico">
+      <div class="chart-grid">
+        <article class="card chart-card wide"><div class="card-title"><small>TENDENCIA</small><h3>Histórico mensual guardado</h3></div><canvas id="historyChart"></canvas></article>
+        <article class="card history-list-card"><div class="card-title"><small>PERIODOS</small><h3>Meses disponibles</h3></div><div id="historyList"></div></article>
       </div>
     </section>
 
-    <section class="executive-strip">
-      <article><span class="strip-icon">01</span><div><small>FUENTE</small><b>Google Sheets conectado</b></div></article>
-      <article><span class="strip-icon">02</span><div><small>COBERTURA</small><b>Cuatro marcas operativas</b></div></article>
-      <article><span class="strip-icon">03</span><div><small>SALIDA</small><b>Excel y reporte imprimible</b></div></article>
-    </section>
+    <div id="brandPanels"></div>
+  </section>
+</main>
 
-    <section class="setup-card panel">
-      <div class="panel-head">
-        <div><p class="eyebrow blue">PREPARACIÓN DEL REPORTE</p><h3>Fuentes y periodo</h3></div>
-        <span id="fileStatus" class="status neutral">Sin archivos</span>
-      </div>
+<div id="historyModal" class="modal hidden"><div class="modal-card"><div class="section-head"><div><small class="kicker">HISTÓRICO LOCAL</small><h3>Administrar periodos</h3></div><button id="closeModalBtn" class="icon-btn dark">×</button></div><div id="historyAdmin"></div></div></div>
+<div id="toast" class="toast"></div>
 
-      <div class="setup-grid">
-        <label>Mes<select id="month"><option>ENERO</option><option>FEBRERO</option><option>MARZO</option><option>ABRIL</option><option>MAYO</option><option selected>JUNIO</option><option>JULIO</option><option>AGOSTO</option><option>SEPTIEMBRE</option><option>OCTUBRE</option><option>NOVIEMBRE</option><option>DICIEMBRE</option></select></label>
-        <label>Año<input id="year" type="number" min="2020" max="2100" value="2026"></label>
-      </div>
-
-      <div class="source-section">
-        <div class="source-heading"><div><h4>Marcas identificadas</h4><p>Cada tarjeta indica el archivo y la pestaña utilizada.</p></div><button id="clearBtn" class="text-btn" type="button">Limpiar archivos</button></div>
-        <div class="brand-checks" id="brandChecks">
-          <article class="brand-chip pending" data-brand="TRT"><span class="brand-dot"></span><div><b>TRT</b><small>Sin detectar</small></div><span class="check">—</span></article>
-          <article class="brand-chip pending" data-brand="TRTVB"><span class="brand-dot"></span><div><b>TRTVB</b><small>Sin detectar</small></div><span class="check">—</span></article>
-          <article class="brand-chip pending" data-brand="AAO"><span class="brand-dot"></span><div><b>AAO</b><small>Sin detectar</small></div><span class="check">—</span></article>
-          <article class="brand-chip pending" data-brand="AAOVB"><span class="brand-dot"></span><div><b>AAOVB</b><small>Sin detectar</small></div><span class="check">—</span></article>
-        </div>
-      </div>
-
-      <div id="validationMessage" class="validation-message">Selecciona los archivos para comenzar.</div>
-      <button id="processBtn" class="primary-btn" disabled><span>Generar reporte ejecutivo</span><small>General + 4 marcas + gráficas</small></button>
-
-      <details><summary>Configuración avanzada de columnas</summary><div class="form-grid advanced"><label>Canje<input id="canjeCol" value="Vta Man"></label><label>Abordo<input id="abordoCol" value="Vta Abor"></label><label>Prepago<input id="prepagoCol" value="Vta Prepago"></label></div></details>
-    </section>
-
-    <section id="dashboard" class="hidden">
-      <div class="section-title"><div><p class="eyebrow blue">PANORAMA GENERAL</p><h2 id="reportTitle"></h2><p class="muted">Consolidado de TRT, TRTVB, AAO y AAOVB</p></div><div class="action-row"><button id="exportExcelBtn" class="secondary-btn">↓ Exportar Excel</button><button id="printBtn" class="secondary-btn">▣ PDF / Imprimir</button></div></div>
-      <div class="kpi-grid"><article class="kpi"><div class="kpi-icon">C</div><span>Canje</span><strong id="kpiCanje"></strong><small id="pctCanje"></small></article><article class="kpi"><div class="kpi-icon">A</div><span>Abordo</span><strong id="kpiAbordo"></strong><small id="pctAbordo"></small></article><article class="kpi"><div class="kpi-icon">P</div><span>Prepago</span><strong id="kpiPrepago"></strong><small id="pctPrepago"></small></article><article class="kpi total"><span>Total general</span><strong id="kpiTotal"></strong><small id="rowCount"></small></article></div>
-      <div class="chart-grid general-charts"><article class="panel chart-card"><div class="chart-heading"><span class="chart-kicker">COMPARATIVO</span><h3>Composición por marca</h3><p>Canje, abordo y prepago</p></div><div class="canvas-wrap"><canvas id="brandCompareChart"></canvas></div></article><article class="panel chart-card"><div class="chart-heading"><span class="chart-kicker">PARTICIPACIÓN</span><h3>Aportación al total</h3><p>Distribución general por marca</p></div><div class="canvas-wrap"><canvas id="brandShareChart"></canvas></div></article></div>
-      <article class="panel summary-panel"><div class="panel-head"><div><p class="eyebrow blue">CONCENTRADO EJECUTIVO</p><h3>Desglose general por marca</h3></div><span id="processedAt" class="muted"></span></div><div class="table-wrap"><table><thead><tr><th>Marca</th><th>Canje</th><th>Abordo</th><th>Prepago</th><th>Total</th><th>Registros</th><th>Participación</th></tr></thead><tbody id="brandBody"></tbody><tfoot><tr><th>GENERAL</th><th id="footCanje"></th><th id="footAbordo"></th><th id="footPrepago"></th><th id="footTotal"></th><th id="footRows"></th><th>100%</th></tr></tfoot></table></div></article>
-      <div class="section-divider"><span>ANÁLISIS INDIVIDUAL POR MARCA</span></div><div id="individualReports" class="individual-list"></div>
-    </section>
-  </main>
-  <div id="toast" class="toast"></div>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="config.js"></script><script src="app.js"></script>
-</body></html>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

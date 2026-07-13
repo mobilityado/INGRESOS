@@ -1,14 +1,10 @@
 /**
- * Esta versión ya no necesita Google Apps Script para leer la información.
- * La aplicación consulta directamente las pestañas públicas del Google Sheets.
- *
- * Puedes conservar este archivo únicamente como referencia.
+ * La versión 9 consulta Google Sheets directamente.
+ * Este Apps Script no es necesario para la lectura.
  */
 function doGet() {
-  return ContentService
-    .createTextOutput(JSON.stringify({
-      error: false,
-      mensaje: "La versión 7 utiliza conexión directa con Google Sheets."
-    }))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify({
+    error: false,
+    mensaje: "Ingresos 360 v9 usa conexión directa con Google Sheets."
+  })).setMimeType(ContentService.MimeType.JSON);
 }

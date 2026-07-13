@@ -1,17 +1,14 @@
-VERSIÓN 7 — GOOGLE SHEETS DIRECTO
+PASOS RÁPIDOS
 
-1. Sube todos los archivos a GitHub y reemplaza los anteriores.
-2. No pegues la URL del Google Sheets en API_URL.
-3. Esta versión usa únicamente SHEET_ID dentro de config.js.
-4. Asegúrate de compartir la hoja como:
-   Cualquier persona que tenga el vínculo / Lector.
-5. Presiona Ctrl + F5.
-6. Pulsa "Actualizar desde Google Sheets".
+1. Sube todos los archivos a GitHub.
+2. Reemplaza las versiones anteriores.
+3. Presiona Ctrl + F5.
+4. Usa Actualizar Google Sheets.
+5. Selecciona mes y año.
+6. Guarda el periodo en Histórico cuando los datos estén validados.
 
-Pestañas esperadas:
+Pestañas requeridas:
 TRT
 TRTVB
 AAO
 AAOVB
-
-La carga manual de Excel sigue funcionando como alternativa.
