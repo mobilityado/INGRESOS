@@ -1,46 +1,52 @@
-# Recaudación 365 Enterprise v14
+# Recaudación 365 Enterprise v15 Estable
 
-Portal corporativo para concentrar las herramientas y la inteligencia operativa de Recaudación.
+Esta versión conserva el portal corporativo de la V14 y añade mejoras enfocadas en operación, presentación ejecutiva y uso móvil.
 
-## Novedades
+## Mejoras incluidas
 
-- Inicio personalizado con el nombre del usuario.
-- Panel ejecutivo de bienvenida.
-- Indicadores principales del periodo.
-- Lanzador de aplicaciones.
-- Recaudación Copilot local para preguntas sobre los datos.
-- Estado general de la plataforma.
-- Perfil del usuario.
-- Cambio de contraseña desde el perfil.
-- Centro de usuarios para administradores.
-- Ingresos 360, comparativos, históricos y reportes.
-- Diseño empresarial adaptable a celular.
-
-## Recaudación Copilot
-
-El asistente funciona localmente con reglas y cálculos. No utiliza una API externa ni envía información a servicios de inteligencia artificial.
-
-Puede responder preguntas como:
-
-- ¿Cuál es la marca líder?
-- ¿Qué concepto genera más ingreso?
-- ¿Cuánto ingresó TRT?
-- Dame un resumen ejecutivo.
-- ¿Cuál es el total general?
-
-## Configurar aplicaciones
-
-En `config.js`, pega las direcciones reales en cada propiedad `url`.
+- KPI con animación y variación frente al periodo anterior.
+- Indicadores positivos y negativos.
+- Centro de notificaciones.
+- Mensajes de progreso durante la carga.
+- Copilot local ampliado.
+- Comparación rápida de las cuatro marcas.
+- Consulta de participación de Prepago.
+- Portada ejecutiva para impresión/PDF.
+- Datos del usuario y periodo en el reporte.
+- Tablas y gráficas optimizadas para celular.
+- Histórico y avisos al guardar periodos.
+- Mejoras de rendimiento y retroalimentación visual.
+- Panel administrativo y cambio de contraseña conservados.
 
 ## Instalación
 
 1. Sustituye `Code.gs` en Google Apps Script.
-2. Actualiza la implementación creando una nueva versión.
-3. Copia la URL de aplicación web terminada en `/exec`.
-4. Pégala en `config.js`.
-5. Reemplaza todos los archivos en GitHub.
-6. Presiona `Ctrl + F5`.
+2. En **Implementar > Administrar implementaciones**, edita la implementación.
+3. Selecciona **Nueva versión**.
+4. Conserva:
+   - Ejecutar como: **Yo**
+   - Acceso: **Cualquier persona**
+5. Copia la URL terminada en `/exec`.
+6. Colócala en `config.js`.
+7. Reemplaza todos los archivos del repositorio.
+8. Presiona `Ctrl + F5`.
 
-## Perfil y seguridad
+## Copilot local
 
-Cada usuario puede cambiar su propia contraseña desde **Mi perfil**. Los administradores continúan pudiendo crear usuarios, cambiar roles, activar cuentas y restablecer contraseñas.
+No utiliza servicios externos. Responde con base en los datos cargados:
+
+- Marca líder.
+- Total general.
+- Composición por concepto.
+- Resumen ejecutivo.
+- Comparación entre marcas.
+- Participación de Prepago.
+- Desglose individual de TRT, TRTVB, AAO y AAOVB.
+
+## Notificaciones
+
+Las notificaciones se almacenan localmente en el navegador. Incluyen:
+
+- Inicio de sesión.
+- Actualización de información.
+- Periodos guardados.

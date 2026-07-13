@@ -36,6 +36,7 @@ function doPost(e) {
     if (!session) return respuesta({ error:true, authExpired:true, message:'Sesión inválida o expirada.' });
 
     if (action === 'getData') return obtenerDatos(session);
+    if (action === 'getStatus') return obtenerEstado(session);
     if (action === 'getUsers') return obtenerUsuariosAdmin(session);
     if (action === 'createUser') return crearUsuario(session, data);
     if (action === 'updateUser') return actualizarUsuario(session, data);
@@ -275,6 +276,15 @@ function crearHash(password, salt) {
     const v = b < 0 ? b + 256 : b;
     return ('0' + v.toString(16)).slice(-2);
   }).join('');
+}
+
+function obtenerEstado(session) {
+  return respuesta({
+    error:false,
+    serverTime:new Date().toISOString(),
+    user:{username:session.username,name:session.name,role:session.role},
+    sessionExpiresIn:DURACION_SESION_SEGUNDOS
+  });
 }
 
 function obtenerDatos(session) {

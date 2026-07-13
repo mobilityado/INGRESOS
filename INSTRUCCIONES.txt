@@ -1,0 +1,17 @@
+RECAUDACIÓN 365 ENTERPRISE v15 ESTABLE
+
+1. Copia Code.gs en Apps Script.
+2. Actualiza la implementación con una NUEVA VERSIÓN.
+3. Copia la URL /exec.
+4. Pégala en config.js.
+5. Reemplaza todos los archivos en GitHub.
+6. Presiona Ctrl + F5.
+
+NOVEDADES
+- KPIs con variación
+- Centro de notificaciones
+- Barra de progreso
+- Copilot ampliado
+- Portada ejecutiva para PDF
+- Mejoras móviles
+- Indicadores de tendencia

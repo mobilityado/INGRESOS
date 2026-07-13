@@ -85,6 +85,13 @@
       </div>
       <div class="header-tools">
         <span id="headerPeriod" class="period-badge">JUNIO 2026</span>
+        <div class="notification-menu">
+          <button id="notificationBtn" class="notification-btn" title="Notificaciones">🔔<span id="notificationCount">0</span></button>
+          <div id="notificationPanel" class="notification-panel hidden">
+            <div class="notification-head"><div><small>CENTRO DE AVISOS</small><h3>Notificaciones</h3></div><button id="clearNotificationsBtn">Limpiar</button></div>
+            <div id="notificationList" class="notification-list"></div>
+          </div>
+        </div>
         <div class="user-menu">
           <button id="userMenuBtn" class="user-chip"><span id="userInitial">U</span><div><b id="userName">Usuario</b><small id="userRole">Consulta</small></div><i>⌄</i></button>
           <div id="userDropdown" class="user-dropdown hidden">
@@ -157,6 +164,8 @@
               <button data-question="¿Cuál es la marca líder?">Marca líder</button>
               <button data-question="¿Qué concepto genera más ingreso?">Concepto principal</button>
               <button data-question="Dame un resumen ejecutivo">Resumen ejecutivo</button>
+              <button data-question="Compárame las cuatro marcas">Comparar marcas</button>
+              <button data-question="¿Qué porcentaje representa prepago?">Participación prepago</button>
             </div>
           </article>
         </section>
@@ -208,6 +217,10 @@
             <article data-brand="AAOVB"><i></i><div><b>AAOVB</b><small>Pendiente</small></div><span>—</span></article>
           </div>
           <div id="messageBox" class="message">Actualiza Google Sheets o carga el respaldo Excel.</div>
+          <div id="loadProgressWrap" class="load-progress-wrap hidden">
+            <div class="load-progress-meta"><span id="loadProgressText">Preparando...</span><b id="loadProgressPct">0%</b></div>
+            <div class="load-progress-track"><i id="loadProgressBar"></i></div>
+          </div>
           <details><summary>Configuración avanzada de columnas</summary>
             <div class="advanced-grid">
               <label>Canje<input id="canjeCol" value="Vta Man"></label>
@@ -223,10 +236,10 @@
             <div class="action-row"><button id="exportBtn" class="btn compact">↓ Excel</button><button id="printBtn" class="btn compact">▣ PDF / Imprimir</button></div>
           </div>
           <div class="executive-kpis">
-            <article><span>Total general</span><strong id="totalKpi">$0.00</strong><small id="totalRows">0 registros</small></article>
-            <article><span>Marca líder</span><strong id="leaderKpi">—</strong><small id="leaderShare">—</small></article>
-            <article><span>Concepto principal</span><strong id="conceptKpi">—</strong><small id="conceptShare">—</small></article>
-            <article><span>Variación mensual</span><strong id="variationKpi">Sin histórico</strong><small id="variationDetail">Guarda al menos dos meses</small></article>
+            <article><span>Total general</span><strong id="totalKpi">$0.00</strong><small id="totalRows">0 registros</small><em id="totalDelta" class="kpi-delta neutral-delta">Sin comparativo</em></article>
+            <article><span>Marca líder</span><strong id="leaderKpi">—</strong><small id="leaderShare">—</small><em id="leaderDelta" class="kpi-delta neutral-delta">Participación actual</em></article>
+            <article><span>Concepto principal</span><strong id="conceptKpi">—</strong><small id="conceptShare">—</small><em id="conceptDelta" class="kpi-delta neutral-delta">Distribución actual</em></article>
+            <article><span>Variación mensual</span><strong id="variationKpi">Sin histórico</strong><small id="variationDetail">Guarda al menos dos meses</small><em id="variationTrend" class="kpi-delta neutral-delta">Sin tendencia</em></article>
           </div>
           <div class="metric-grid">
             <article class="metric"><span>Canje</span><strong id="canjeKpi"></strong><small id="canjePct"></small></article>
@@ -279,6 +292,17 @@
           <article class="card report-option"><span>02</span><h3>Libro Excel consolidado</h3><p>Incluye resumen general, detalle por marca e histórico mensual disponible.</p><button id="reportExcelBtn" class="btn primary">Descargar Excel</button></article>
           <article class="card report-option"><span>03</span><h3>Resumen para correo</h3><p>Genera un texto ejecutivo para copiar en correo o Teams.</p><button id="copySummaryBtn" class="btn primary">Copiar resumen</button></article>
         </div>
+        <article class="card report-cover">
+          <div class="report-cover-brand">
+            <div class="report-cover-logo">R</div>
+            <div><small>RECAUDACIÓN · INFORME EJECUTIVO</small><h2 id="reportCoverTitle">Reporte de ingresos</h2></div>
+          </div>
+          <div class="report-cover-meta">
+            <div><small>PERIODO</small><b id="reportCoverPeriod">—</b></div>
+            <div><small>GENERADO POR</small><b id="reportCoverUser">—</b></div>
+            <div><small>FECHA</small><b id="reportCoverDate">—</b></div>
+          </div>
+        </article>
         <article class="card preview-report"><div class="card-title"><small>VISTA PREVIA</small><h3>Resumen para gerencia</h3></div><div id="managementPreview" class="empty-state">Carga la información para preparar el reporte.</div></article>
       </section>
 
