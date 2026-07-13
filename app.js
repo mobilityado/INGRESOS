@@ -192,6 +192,39 @@ function showLogin(){
   $("appLayout").classList.add("hidden");
   $("loginPassword").value="";
 }
+
+async function loadLoginUsers(){
+  const select=$("loginUser"),refresh=$("refreshUsersBtn");
+  try{
+    select.disabled=true;
+    refresh.disabled=true;
+    select.innerHTML='<option value="">Cargando usuarios...</option>';
+    const result=await apiRequest("listUsers");
+    const users=Array.isArray(result.users)?result.users:[];
+    if(!users.length){
+      select.innerHTML='<option value="">No hay usuarios disponibles</option>';
+      return;
+    }
+    select.innerHTML='<option value="">Selecciona tu usuario</option>'+
+      users.map(u=>`<option value="${escapeAttr(u.username)}">${escapeHtml(u.name||u.username)}</option>`).join("");
+  }catch(err){
+    select.innerHTML='<option value="">No se pudo cargar la lista</option>';
+    const error=$("loginError");
+    error.textContent=err.message;
+    error.classList.remove("hidden");
+  }finally{
+    select.disabled=false;
+    refresh.disabled=false;
+  }
+}
+function escapeHtml(value){
+  return String(value??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+function escapeAttr(value){
+  return escapeHtml(value).replace(/`/g,"&#096;");
+}
+$("refreshUsersBtn").onclick=()=>loadLoginUsers();
+
 async function restoreSession(){
   try{
     const saved=JSON.parse(sessionStorage.getItem(sessionKey)||"null");
@@ -232,7 +265,7 @@ $("userMenuBtn").onclick=()=>$("userDropdown").classList.toggle("hidden");
 document.addEventListener("click",e=>{if(!e.target.closest(".user-menu"))$("userDropdown").classList.add("hidden")});
 $("togglePassword").onclick=()=>{const p=$("loginPassword"),show=p.type==="password";p.type=show?"text":"password";$("togglePassword").textContent=show?"Ocultar":"Ver"};
 
-renderApps();renderSettings();populateCompareSelectors();restoreSession();
+renderApps();renderSettings();populateCompareSelectors();loadLoginUsers();restoreSession();
 
 updateSources();
 })();

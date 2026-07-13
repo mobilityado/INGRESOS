@@ -1,6 +1,6 @@
 # Recaudación 365 Enterprise v11
 
-Plataforma ejecutiva con autenticación basada en la pestaña `USUARIOS`.
+Plataforma ejecutiva con autenticación basada en la pestaña `USUARIOS` y selección de usuario mediante lista desplegable.
 
 ## Estructura detectada
 
@@ -61,3 +61,15 @@ Para que las pestañas se lean correctamente, sus nombres deben ser:
 - `TRT VB`
 - `AAO`
 - `AAO VB`
+
+
+## Lista desplegable de usuarios
+
+La pantalla de acceso consulta únicamente:
+
+- `USUARIO`
+- `NOMBRE`
+
+La contraseña nunca se envía en esa lista. Después de elegir el usuario, la contraseña se valida en Apps Script.
+
+Solo aparecen usuarios activos.

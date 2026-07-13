@@ -34,10 +34,15 @@
       <div class="mobile-login-brand"><div class="brand-mark">R</div><b>Recaudación 365</b></div>
       <span class="login-kicker">BIENVENIDO</span>
       <h2>Iniciar sesión</h2>
-      <p>Ingresa las credenciales registradas en la pestaña USUARIOS.</p>
+      <p>Selecciona tu usuario y después escribe tu contraseña.</p>
+      <button id="refreshUsersBtn" class="refresh-users-btn" type="button">↻ Actualizar lista de usuarios</button>
       <form id="loginForm">
         <label>Usuario
-          <div class="input-icon"><span>◉</span><input id="loginUser" autocomplete="username" required placeholder="Escribe tu usuario"></div>
+          <div class="input-icon select-icon"><span>◉</span>
+            <select id="loginUser" autocomplete="username" required>
+              <option value="">Cargando usuarios...</option>
+            </select>
+          </div>
         </label>
         <label>Contraseña
           <div class="input-icon"><span>◆</span><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Escribe tu contraseña"><button id="togglePassword" type="button">Ver</button></div>

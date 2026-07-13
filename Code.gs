@@ -36,6 +36,7 @@ function doPost(e) {
     const data = JSON.parse(e.postData.contents);
     const action = String(data.action || '').trim();
 
+    if (action === 'listUsers') return listarUsuariosPublicos();
     if (action === 'login') return login(data);
     if (action === 'validate') return validarSesion(data.token);
     if (action === 'logout') return cerrarSesion(data.token);
@@ -52,6 +53,21 @@ function doPost(e) {
   } catch (error) {
     return respuesta({ error: true, message: error.message });
   }
+}
+
+function listarUsuariosPublicos() {
+  const usuarios = leerUsuarios()
+    .filter(u => u.active)
+    .map(u => ({
+      username: u.username,
+      name: u.name
+    }))
+    .sort((a, b) => String(a.name).localeCompare(String(b.name), 'es'));
+
+  return respuesta({
+    error: false,
+    users: usuarios
+  });
 }
 
 function login(data) {
