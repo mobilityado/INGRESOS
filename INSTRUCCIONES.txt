@@ -1,10 +1,1 @@
-RECAUDACIÓN 360 v10
 
-1. Sube todos los archivos a GitHub.
-2. Reemplaza los archivos anteriores.
-3. Presiona Ctrl + F5.
-4. Actualiza Google Sheets.
-5. Guarda cada mes validado en el histórico.
-6. Edita config.js para agregar las URL de tus demás aplicaciones.
-
-La plataforma no necesita Apps Script para leer Google Sheets.
