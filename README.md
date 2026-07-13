@@ -1,52 +1,63 @@
-# Recaudación 360 — Plataforma Ejecutiva v10
+# Recaudación 365 Enterprise v11
 
-Esta versión integra Ingresos 360 dentro de una plataforma de navegación ejecutiva.
+Plataforma ejecutiva con autenticación basada en la pestaña `USUARIOS`.
 
-## Incluye
+## Estructura detectada
 
-- Inicio ejecutivo con indicadores y accesos rápidos.
-- Ingresos 360 general e individual por TRT, TRTVB, AAO y AAOVB.
-- Animación de indicadores.
-- Ticket promedio.
-- Ranking y análisis automático basado en reglas.
-- Histórico mensual local.
-- Comparativo entre dos meses guardados.
-- Gráficas comparativas por marca y concepto.
-- Reporte para gerencia en PDF mediante impresión.
-- Libro Excel con general, marcas e histórico.
-- Resumen ejecutivo para copiar en correo o Teams.
-- Centro de aplicaciones para AVA, Semáforo, Happy Moments, Factor, Adeudos y Chatbot.
-- Configuración y respaldo del histórico.
-- Diseño adaptable y modo oscuro.
+La pestaña actual contiene:
 
-## Importante sobre el “asistente”
+- `CONTRASEÑA`
+- `USUARIO`
+- `NOMBRE`
 
-El análisis es automático y funciona localmente mediante reglas matemáticas; no envía información a una IA externa y no necesita claves de API.
+También se admiten opcionalmente:
 
-## Configurar accesos a otras aplicaciones
+- `ROL`: `ADMIN`, `GERENCIA`, `SUPERVISOR` o `CONSULTA`
+- `ACTIVO`: `SI`/`NO`, `TRUE`/`FALSE`, `1`/`0`
 
-Edita `config.js` y agrega la dirección de cada aplicación en la propiedad `url`.
+Cuando `ROL` no existe, el sistema asigna `CONSULTA`.
+Cuando `ACTIVO` no existe, el usuario se considera activo.
 
-Ejemplo:
+## Seguridad
+
+La pestaña `USUARIOS` no se descarga al navegador ni se publica en GitHub.
+
+La validación ocurre en Google Apps Script y genera una sesión temporal de seis horas. La hoja de Google Sheets puede mantenerse privada.
+
+> Recomendación: en una siguiente etapa conviene sustituir las contraseñas visibles por hashes. Esta versión mantiene compatibilidad con la estructura actual.
+
+## Configuración
+
+1. Abre el Google Sheets.
+2. Ve a **Extensiones > Apps Script**.
+3. Sustituye el código por `Code.gs`.
+4. Implementa como **Aplicación web**:
+   - Ejecutar como: **Yo**
+   - Acceso: **Cualquier persona con el enlace**
+5. Copia la URL que termina en `/exec`.
+6. Abre `config.js`.
+7. Sustituye:
 
 ```javascript
-{
-  name: "AVA Dashboard",
-  icon: "📊",
-  description: "Análisis de ventas.",
-  url: "https://tuusuario.github.io/ava/",
-  status: "ready"
-}
+API_URL: "PEGA_AQUI_LA_URL_DE_APPS_SCRIPT_EXEC"
 ```
 
-## Instalación
+8. Sube todos los archivos a GitHub.
+9. Presiona `Ctrl + F5`.
 
-1. Reemplaza todos los archivos del repositorio de GitHub.
-2. Espera a que GitHub Pages termine de publicar.
-3. Presiona `Ctrl + F5`.
-4. Pulsa **Actualizar información**.
-5. Guarda los meses validados para activar los comparativos.
+## Registro de accesos
 
-## Histórico
+El script crea automáticamente una pestaña `ACCESOS` con:
 
-Se guarda en el navegador con `localStorage`. El botón **Exportar histórico** permite respaldarlo en JSON.
+- Fecha y hora
+- Usuario
+- Nombre
+
+## Importante
+
+Para que las pestañas se lean correctamente, sus nombres deben ser:
+
+- `TRT`
+- `TRT VB`
+- `AAO`
+- `AAO VB`

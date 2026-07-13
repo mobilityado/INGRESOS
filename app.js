@@ -6,8 +6,18 @@ const normalize=v=>String(v??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"")
 const num=v=>{if(typeof v==="number")return Number.isFinite(v)?v:0;let s=String(v??"").trim().replace(/\$/g,"").replace(/\s/g,"").replace(/[^0-9,.-]/g,"");if(!s||s==="-")return 0;const c=s.lastIndexOf(","),d=s.lastIndexOf(".");if(c>=0&&d>=0){s=c>d?s.replace(/\./g,"").replace(",","."):s.replace(/,/g,"")}else if(c>=0){const dec=s.length-c-1;s=(dec===1||dec===2)?s.replace(/\./g,"").replace(",","."):s.replace(/,/g,"")}else if((s.match(/\./g)||[]).length>1){const p=s.split("."),last=p.pop();s=(last.length<=2?p.join("")+"."+last:p.join("")+last)}const n=Number(s);return Number.isFinite(n)?n:0};
 const pct=(v,t)=>`${(v/(t||1)*100).toFixed(2)}%`;
 const toast=m=>{$("toast").textContent=m;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),3000)};
-const sheetId=()=>String(window.APP_CONFIG?.SHEET_ID||"").trim();
-const csvUrl=n=>`https://docs.google.com/spreadsheets/d/${encodeURIComponent(sheetId())}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(n)}&cache=${Date.now()}`;
+const apiUrl=()=>String(window.APP_CONFIG?.API_URL||"").trim();
+const sessionKey="recaudacion365-session";
+let authSession=null;
+async function apiRequest(action,payload={}){
+  if(!apiUrl()||apiUrl().includes("PEGA_AQUI"))throw new Error("Configura la URL /exec de Google Apps Script en config.js.");
+  const response=await fetch(apiUrl(),{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action,token:authSession?.token||"",...payload})});
+  if(!response.ok)throw new Error(`Error de conexión HTTP ${response.status}`);
+  const json=await response.json();
+  if(json.authExpired){logout(false);throw new Error("La sesión expiró. Inicia sesión nuevamente.");}
+  if(json.error)throw new Error(json.message||"Ocurrió un error.");
+  return json;
+}
 const historyKey="ingresos360-history-v9";
 const getHistory=()=>{try{return JSON.parse(localStorage.getItem(historyKey)||"[]")}catch{return[]}};
 const setHistory=v=>localStorage.setItem(historyKey,JSON.stringify(v));
@@ -47,10 +57,20 @@ function processAll(){
   }catch(e){setError(e.message)}
 }
 $("loadSheetsBtn").onclick=async()=>{
-  const btn=$("loadSheetsBtn"),old=btn.innerHTML;try{btn.disabled=true;btn.innerHTML="<span>⏳</span><div><b>Leyendo información...</b><small>TRT, TRTVB, AAO y AAOVB</small></div>";const loaded={},errors=[];
-    for(const b of BRANDS){try{const sn=window.APP_CONFIG.SHEETS[b],r=await fetch(csvUrl(sn),{cache:"no-store"});if(!r.ok)throw new Error(`HTTP ${r.status}`);const csv=await r.text();if(/<html/i.test(csv))throw new Error("La hoja requiere acceso");const p=Papa.parse(csv,{header:false,skipEmptyLines:false});loaded[b]={brand:b,fileName:"Google Sheets",sheetName:sn,rows:matrixToRows(p.data)}}catch(e){errors.push(`${b}: ${e.message}`)}}
-    if(errors.length)throw new Error(errors.join(" | "));state.sources=loaded;updateSources();processAll();
-  }catch(e){setError(e.message)}finally{btn.disabled=false;btn.innerHTML=old}
+  const btn=$("loadSheetsBtn"),old=btn.innerHTML;
+  try{
+    btn.disabled=true;
+    btn.innerHTML="<span>⏳</span><div><b>Leyendo información...</b><small>Sesión segura activa</small></div>";
+    const result=await apiRequest("getData");
+    const loaded={};
+    BRANDS.forEach(b=>{
+      const rows=result.data?.[b];
+      if(!Array.isArray(rows)||!rows.length)throw new Error(`${b}: no contiene registros.`);
+      loaded[b]={brand:b,fileName:"Google Sheets",sheetName:b,rows};
+    });
+    state.sources=loaded;updateSources();processAll();
+  }catch(e){setError(e.message)}
+  finally{btn.disabled=false;btn.innerHTML=old}
 };
 $("fileInput").onchange=async e=>{try{state.sources={};for(const f of [...e.target.files]){const wb=XLSX.read(await f.arrayBuffer(),{type:"array",cellDates:true});wb.SheetNames.forEach(sn=>{const b=identifyBrand(sn)||identifyBrand(f.name);if(b){const m=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:"",raw:true});try{state.sources[b]={brand:b,fileName:f.name,sheetName:sn,rows:matrixToRows(m)}}catch{}}})}updateSources();processAll()}catch(err){setError(err.message)}finally{e.target.value=""}};
 
@@ -148,12 +168,71 @@ $("runCompareBtn").onclick=()=>{
 function renderApps(){
   const apps=window.APP_CONFIG?.APPS||[];$("appsGrid").innerHTML=apps.map(a=>`<article class="card app-card"><span class="app-status ${a.url?"ready":"pending"}">${a.url?"Disponible":"Configurar URL"}</span><div class="app-icon">${a.icon}</div><h3>${a.name}</h3><p>${a.description}</p>${a.url?`<a class="btn primary" href="${a.url}" target="_blank" rel="noopener">Abrir aplicación</a>`:`<button class="btn" disabled>Dirección pendiente</button>`}</article>`).join("")
 }
-function renderSettings(){$("sheetIdPreview").textContent=sheetId();$("historyCount").textContent=`${getHistory().length} periodos almacenados`}
+function renderSettings(){$("sheetIdPreview").textContent=apiUrl()&&!apiUrl().includes("PEGA_AQUI")?"API segura configurada":"API pendiente de configurar";$("historyCount").textContent=`${getHistory().length} periodos almacenados`}
 $("reportPrintBtn").onclick=()=>{if(!state.summary){toast("Primero carga la información");return}openView("ingresos");setTimeout(()=>window.print(),250)};
 $("reportExcelBtn").onclick=()=>{if(!state.summary){toast("Primero carga la información");return}$("exportBtn").click()};
 $("copySummaryBtn").onclick=async()=>{if(!state.summary){toast("Primero carga la información");return}const text=$("managementPreview").innerText;try{await navigator.clipboard.writeText(text);toast("Resumen copiado")}catch{toast("No fue posible copiar automáticamente")}};
 $("exportHistoryBtn").onclick=()=>{const blob=new Blob([JSON.stringify(getHistory(),null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="Ingresos360_Historico.json";a.click();URL.revokeObjectURL(url)};
-renderApps();renderSettings();populateCompareSelectors();
+
+function setUserInterface(user){
+  $("userName").textContent=user.name||user.username;
+  $("userRole").textContent=user.role||"CONSULTA";
+  $("userInitial").textContent=String(user.name||user.username||"U").trim().charAt(0).toUpperCase();
+  $("dropUserName").textContent=user.name||user.username;
+  $("dropUserId").textContent=`Usuario: ${user.username}`;
+  document.querySelectorAll(".admin-only").forEach(el=>el.classList.toggle("hidden-role",String(user.role||"").toUpperCase()!=="ADMIN"));
+}
+function showApp(){
+  $("loginScreen").classList.add("hidden");
+  $("appLayout").classList.remove("hidden");
+  setUserInterface(authSession.user);
+}
+function showLogin(){
+  $("loginScreen").classList.remove("hidden");
+  $("appLayout").classList.add("hidden");
+  $("loginPassword").value="";
+}
+async function restoreSession(){
+  try{
+    const saved=JSON.parse(sessionStorage.getItem(sessionKey)||"null");
+    if(!saved?.token){showLogin();return}
+    authSession=saved;
+    const check=await apiRequest("validate");
+    authSession.user=check.user;
+    sessionStorage.setItem(sessionKey,JSON.stringify(authSession));
+    showApp();
+  }catch(e){
+    sessionStorage.removeItem(sessionKey);authSession=null;showLogin();
+  }
+}
+$("loginForm").onsubmit=async e=>{
+  e.preventDefault();
+  const btn=$("loginBtn"),error=$("loginError");
+  error.classList.add("hidden");
+  try{
+    btn.disabled=true;btn.querySelector("span").textContent="Validando credenciales...";
+    const result=await apiRequest("login",{username:$("loginUser").value.trim(),password:$("loginPassword").value});
+    authSession={token:result.token,user:result.user};
+    sessionStorage.setItem(sessionKey,JSON.stringify(authSession));
+    showApp();toast(`Bienvenido, ${result.user.name}`);
+  }catch(err){
+    error.textContent=err.message;error.classList.remove("hidden");
+  }finally{
+    btn.disabled=false;btn.querySelector("span").textContent="Ingresar a la plataforma";
+  }
+};
+function logout(notify=true){
+  const token=authSession?.token||"";
+  authSession=null;sessionStorage.removeItem(sessionKey);
+  if(token&&apiUrl()&&!apiUrl().includes("PEGA_AQUI"))fetch(apiUrl(),{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"logout",token})}).catch(()=>{});
+  showLogin();if(notify)toast("Sesión cerrada");
+}
+$("logoutBtn").onclick=()=>logout();
+$("userMenuBtn").onclick=()=>$("userDropdown").classList.toggle("hidden");
+document.addEventListener("click",e=>{if(!e.target.closest(".user-menu"))$("userDropdown").classList.add("hidden")});
+$("togglePassword").onclick=()=>{const p=$("loginPassword"),show=p.type==="password";p.type=show?"text":"password";$("togglePassword").textContent=show?"Ocultar":"Ver"};
+
+renderApps();renderSettings();populateCompareSelectors();restoreSession();
 
 updateSources();
 })();

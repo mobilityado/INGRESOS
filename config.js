@@ -1,6 +1,7 @@
 window.APP_CONFIG = {
-  SHEET_ID: "1t7_19QrIufcoX-osGVlm4sZ4fpGt4ljP26wwg8nh-Tc",
-  SHEETS: { TRT:"TRT", TRTVB:"TRTVB", AAO:"AAO", AAOVB:"AAOVB" },
+  // Pega aquí la URL /exec de la implementación de Google Apps Script.
+  API_URL: "PEGA_AQUI_LA_URL_DE_APPS_SCRIPT_EXEC",
+
   APPS: [
     { name:"AVA Dashboard", icon:"📊", description:"Análisis de ventas, recuperación y desempeño.", url:"", status:"pending" },
     { name:"Semáforo de Hallazgos", icon:"🚦", description:"Seguimiento de hallazgos y estatus por región.", url:"", status:"pending" },

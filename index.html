@@ -11,7 +11,46 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="app-layout">
+
+<section id="loginScreen" class="login-screen">
+  <div class="login-shell">
+    <aside class="login-visual">
+      <div class="login-brand">
+        <div class="brand-mark large">R</div>
+        <div><small>PLATAFORMA EMPRESARIAL</small><h1>Recaudación <em>365</em></h1></div>
+      </div>
+      <div class="login-message">
+        <span class="pill dark-pill">ACCESO SEGURO</span>
+        <h2>Información ejecutiva, disponible para las personas autorizadas.</h2>
+        <p>Consulta ingresos, históricos, comparativos y aplicaciones desde una sola plataforma.</p>
+      </div>
+      <div class="login-features">
+        <div><span>✓</span><p><b>Sesión protegida</b><small>Validación mediante Google Apps Script</small></p></div>
+        <div><span>✓</span><p><b>Datos centralizados</b><small>TRT, TRTVB, AAO y AAOVB</small></p></div>
+        <div><span>✓</span><p><b>Acceso por usuario</b><small>Nombre y rol dentro de la plataforma</small></p></div>
+      </div>
+    </aside>
+    <main class="login-form-card">
+      <div class="mobile-login-brand"><div class="brand-mark">R</div><b>Recaudación 365</b></div>
+      <span class="login-kicker">BIENVENIDO</span>
+      <h2>Iniciar sesión</h2>
+      <p>Ingresa las credenciales registradas en la pestaña USUARIOS.</p>
+      <form id="loginForm">
+        <label>Usuario
+          <div class="input-icon"><span>◉</span><input id="loginUser" autocomplete="username" required placeholder="Escribe tu usuario"></div>
+        </label>
+        <label>Contraseña
+          <div class="input-icon"><span>◆</span><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Escribe tu contraseña"><button id="togglePassword" type="button">Ver</button></div>
+        </label>
+        <div id="loginError" class="login-error hidden"></div>
+        <button id="loginBtn" class="login-submit" type="submit"><span>Ingresar a la plataforma</span><b>→</b></button>
+      </form>
+      <div class="login-security"><span>🔒</span> Las contraseñas no se almacenan en GitHub ni en el navegador.</div>
+    </main>
+  </div>
+</section>
+
+<div class="app-layout" id="appLayout">
   <aside class="sidebar" id="sidebar">
     <div class="side-brand">
       <div class="brand-mark">R</div>
@@ -40,6 +79,13 @@
       </div>
       <div class="header-tools">
         <span id="headerPeriod" class="period-badge">JUNIO 2026</span>
+        <div class="user-menu">
+          <button id="userMenuBtn" class="user-chip"><span id="userInitial">U</span><div><b id="userName">Usuario</b><small id="userRole">Consulta</small></div><i>⌄</i></button>
+          <div id="userDropdown" class="user-dropdown hidden">
+            <div><b id="dropUserName">Usuario</b><small id="dropUserId">—</small></div>
+            <button id="logoutBtn">Cerrar sesión</button>
+          </div>
+        </div>
         <button id="themeBtn" class="icon-btn" title="Cambiar tema">◐</button>
       </div>
     </header>
@@ -196,6 +242,7 @@
       <section class="view" data-view-panel="configuracion">
         <div class="page-intro"><span class="pill">CONFIGURACIÓN</span><h2>Estado de la plataforma</h2><p>Información técnica y preferencias locales.</p></div>
         <div class="settings-grid">
+          <article class="card setting-card admin-only"><h3>Control de acceso</h3><p>Los usuarios se administran desde la pestaña USUARIOS de Google Sheets.</p><div class="access-note"><b>Columnas admitidas</b><code>CONTRASEÑA · USUARIO · NOMBRE · ROL · ACTIVO</code></div></article>
           <article class="card setting-card"><h3>Google Sheets</h3><p>ID configurado</p><code id="sheetIdPreview"></code></article>
           <article class="card setting-card"><h3>Histórico local</h3><p id="historyCount">0 periodos almacenados</p><button id="openHistoryAdminBtn" class="btn compact">Administrar</button></article>
           <article class="card setting-card"><h3>Apariencia</h3><p>Alterna entre tema claro y oscuro.</p><button id="settingsThemeBtn" class="btn compact">Cambiar apariencia</button></article>
