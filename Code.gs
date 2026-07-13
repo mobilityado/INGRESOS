@@ -40,6 +40,7 @@ function doPost(e) {
     if (action === 'createUser') return crearUsuario(session, data);
     if (action === 'updateUser') return actualizarUsuario(session, data);
     if (action === 'resetPassword') return restablecerPassword(session, data);
+    if (action === 'changeOwnPassword') return cambiarPasswordPropio(session, data);
 
     return respuesta({ error:true, message:'Acción no reconocida.' });
   } catch (error) {
@@ -159,6 +160,28 @@ function actualizarUsuario(session, data) {
     hoja.getRange(row, headers.ACTIVO + 1).setValue(data.active ? 'SI' : 'NO');
   }
   return respuesta({ error:false, message:'Usuario actualizado.' });
+}
+
+function cambiarPasswordPropio(session, data) {
+  const currentPassword = normalizarCredencial(data.currentPassword);
+  const newPassword = normalizarCredencial(data.newPassword);
+  if (newPassword.length < 4) throw new Error('La nueva contraseña debe tener al menos 4 caracteres.');
+
+  const usuarios = leerUsuarios();
+  const usuario = usuarios.find(u => normalizarCredencial(u.username) === normalizarCredencial(session.username));
+  if (!usuario || !verificarPassword(currentPassword, usuario.password, usuario.salt)) {
+    throw new Error('La contraseña actual no es correcta.');
+  }
+
+  const hoja = obtenerHojaUsuariosPreparada();
+  const headers = obtenerMapaEncabezados(hoja);
+  const row = buscarFilaUsuario(hoja, headers, session.username);
+  if (row < 2) throw new Error('Usuario no encontrado.');
+
+  const salt = Utilities.getUuid();
+  hoja.getRange(row, headers.CONTRASENA + 1).setValue(crearHash(newPassword, salt));
+  hoja.getRange(row, headers.SALT + 1).setValue(salt);
+  return respuesta({ error:false, message:'Contraseña actualizada.' });
 }
 
 function restablecerPassword(session, data) {

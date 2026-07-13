@@ -89,6 +89,7 @@
           <button id="userMenuBtn" class="user-chip"><span id="userInitial">U</span><div><b id="userName">Usuario</b><small id="userRole">Consulta</small></div><i>⌄</i></button>
           <div id="userDropdown" class="user-dropdown hidden">
             <div><b id="dropUserName">Usuario</b><small id="dropUserId">—</small></div>
+            <button id="profileBtn" class="profile-option">Mi perfil</button>
             <button id="logoutBtn">Cerrar sesión</button>
           </div>
         </div>
@@ -98,42 +99,83 @@
 
     <main class="content-shell">
       <section class="view active" data-view-panel="inicio">
-        <section class="welcome-panel">
-          <div>
-            <span class="pill">PLATAFORMA EJECUTIVA</span>
-            <h2>Información clave para decisiones más rápidas</h2>
-            <p>Consulta ingresos, comparativos, históricos y herramientas de recaudación desde un solo espacio.</p>
+        <section class="enterprise-welcome">
+          <div class="welcome-copy">
+            <span class="pill">BUSINESS INTELLIGENCE PLATFORM</span>
+            <p class="welcome-overline">Buenos días,</p>
+            <h2 id="welcomeUserName">Usuario</h2>
+            <p class="welcome-text">Aquí tienes un resumen de la operación y acceso inmediato a las herramientas de Recaudación.</p>
+            <div class="welcome-actions">
+              <button id="homeLoadBtn" class="btn primary large"><span>↻</span><div><b>Actualizar indicadores</b><small>Leer las cuatro marcas</small></div></button>
+              <button class="btn outline large" data-go="aplicaciones"><span>◫</span><div><b>Abrir aplicaciones</b><small>Accesos centralizados</small></div></button>
+            </div>
           </div>
-          <button id="homeLoadBtn" class="btn primary large"><span>↻</span><div><b>Actualizar información</b><small>Leer TRT, TRTVB, AAO y AAOVB</small></div></button>
+          <div class="welcome-visual">
+            <div class="orb orb-a"></div><div class="orb orb-b"></div>
+            <div class="hero-stat-card">
+              <small>INGRESO GENERAL</small>
+              <strong id="heroTotal">$0.00</strong>
+              <span id="heroVariation">Sin comparativo disponible</span>
+            </div>
+            <div class="hero-mini-grid">
+              <div><small>MARCA LÍDER</small><b id="heroLeader">—</b></div>
+              <div><small>REGISTROS</small><b id="heroRows">0</b></div>
+              <div><small>ACTUALIZACIÓN</small><b id="heroUpdated">Pendiente</b></div>
+            </div>
+          </div>
         </section>
 
-        <div class="home-kpis">
-          <article><span>Ingreso general</span><strong id="homeTotal">$0.00</strong><small id="homeTotalDetail">Sin información cargada</small></article>
-          <article><span>Marca líder</span><strong id="homeLeader">—</strong><small id="homeLeaderDetail">Pendiente</small></article>
-          <article><span>Variación mensual</span><strong id="homeVariation">—</strong><small id="homeVariationDetail">Sin histórico</small></article>
-          <article><span>Registros</span><strong id="homeRows">0</strong><small>Operaciones procesadas</small></article>
-        </div>
+        <section class="today-grid">
+          <article class="today-card"><div class="today-icon">💰</div><div><span>Ingreso del periodo</span><strong id="homeTotal">$0.00</strong><small id="homeTotalDetail">Sin información cargada</small></div></article>
+          <article class="today-card"><div class="today-icon">🏆</div><div><span>Marca líder</span><strong id="homeLeader">—</strong><small id="homeLeaderDetail">Pendiente</small></div></article>
+          <article class="today-card"><div class="today-icon">📈</div><div><span>Variación mensual</span><strong id="homeVariation">—</strong><small id="homeVariationDetail">Sin histórico</small></div></article>
+          <article class="today-card"><div class="today-icon">🧾</div><div><span>Registros procesados</span><strong id="homeRows">0</strong><small>Operaciones consolidadas</small></div></article>
+        </section>
 
-        <div class="home-grid">
-          <article class="card quick-card">
-            <div class="card-title"><small>ACCESOS RÁPIDOS</small><h3>Herramientas principales</h3></div>
-            <div class="quick-actions">
-              <button data-go="ingresos"><span>▥</span><div><b>Ingresos 360</b><small>Concentrado y marcas</small></div></button>
-              <button data-go="comparativos"><span>↗</span><div><b>Comparativos</b><small>Mes contra mes</small></div></button>
-              <button data-go="reportes"><span>▤</span><div><b>Reporte ejecutivo</b><small>PDF y Excel</small></div></button>
-              <button data-go="aplicaciones"><span>◫</span><div><b>Mis aplicaciones</b><small>AVA, Semáforo y más</small></div></button>
+        <section class="portal-grid">
+          <article class="card portal-apps">
+            <div class="section-head">
+              <div class="card-title"><small>LANZADOR</small><h3>Aplicaciones de Recaudación</h3></div>
+              <button class="text-link" data-go="aplicaciones">Ver todas →</button>
+            </div>
+            <div class="portal-app-grid" id="homeAppsGrid"></div>
+          </article>
+
+          <article class="card copilot-card">
+            <div class="copilot-head">
+              <div class="copilot-icon">✦</div>
+              <div><small>ASISTENTE EJECUTIVO</small><h3>Recaudación Copilot</h3></div>
+            </div>
+            <div id="copilotMessages" class="copilot-messages">
+              <div class="copilot-message system">Actualiza los indicadores y pregúntame sobre ingresos, marcas o comparativos.</div>
+            </div>
+            <form id="copilotForm" class="copilot-form">
+              <input id="copilotInput" placeholder="Ejemplo: ¿Cuál es la marca líder?" autocomplete="off">
+              <button type="submit">Enviar</button>
+            </form>
+            <div class="copilot-suggestions">
+              <button data-question="¿Cuál es la marca líder?">Marca líder</button>
+              <button data-question="¿Qué concepto genera más ingreso?">Concepto principal</button>
+              <button data-question="Dame un resumen ejecutivo">Resumen ejecutivo</button>
             </div>
           </article>
-          <article class="card executive-summary">
-            <div class="card-title"><small>RESUMEN AUTOMÁTICO</small><h3>Lectura ejecutiva</h3></div>
-            <div id="homeInsights" class="empty-state">Actualiza la información para generar conclusiones.</div>
-          </article>
-        </div>
+        </section>
 
-        <article class="card home-chart-card">
-          <div class="card-title"><small>PANORAMA</small><h3>Participación por marca</h3></div>
-          <canvas id="homeChart"></canvas>
-        </article>
+        <section class="home-analytics-grid">
+          <article class="card home-chart-card">
+            <div class="card-title"><small>PANORAMA</small><h3>Participación por marca</h3></div>
+            <canvas id="homeChart"></canvas>
+          </article>
+          <article class="card activity-card">
+            <div class="card-title"><small>ACTIVIDAD</small><h3>Estado de la plataforma</h3></div>
+            <div class="activity-list">
+              <div><i class="active"></i><p><b>Google Sheets</b><small>Fuente de ingresos conectada</small></p><span>Activo</span></div>
+              <div><i class="active"></i><p><b>Control de acceso</b><small>Sesiones seguras habilitadas</small></p><span>Activo</span></div>
+              <div><i></i><p><b>Histórico mensual</b><small id="activityHistory">0 periodos guardados</small></p><span>Local</span></div>
+              <div><i></i><p><b>Aplicaciones vinculadas</b><small id="activityApps">0 accesos configurados</small></p><span>Portal</span></div>
+            </div>
+          </article>
+        </section>
       </section>
 
       <section class="view" data-view-panel="ingresos">
@@ -303,6 +345,30 @@
 </div>
 
 <div id="historyModal" class="modal hidden"><div class="modal-card"><div class="section-head"><div><small class="kicker">HISTÓRICO LOCAL</small><h3>Administrar periodos</h3></div><button id="closeModalBtn" class="icon-btn dark">×</button></div><div id="historyAdmin"></div></div></div>
+
+
+<div id="profileModal" class="modal hidden">
+  <div class="modal-card profile-modal-card">
+    <div class="section-head">
+      <div><small class="kicker">MI CUENTA</small><h3>Perfil del usuario</h3></div>
+      <button id="closeProfileModalBtn" class="icon-btn dark">×</button>
+    </div>
+    <div class="profile-summary">
+      <div id="profileInitial" class="profile-avatar">U</div>
+      <div><h3 id="profileName">Usuario</h3><p id="profileUsername">—</p><span id="profileRole" class="state-pill active">CONSULTA</span></div>
+    </div>
+    <div class="profile-details">
+      <div><small>ÚLTIMO ACCESO</small><b id="profileLastAccess">Sesión actual</b></div>
+      <div><small>ESTADO DE SESIÓN</small><b>Activa</b></div>
+    </div>
+    <form id="selfPasswordForm" class="admin-form">
+      <div class="card-title"><small>SEGURIDAD</small><h3>Cambiar mi contraseña</h3></div>
+      <label>Contraseña actual<input id="selfCurrentPassword" type="password" required></label>
+      <label>Nueva contraseña<input id="selfNewPassword" type="password" minlength="4" required></label>
+      <button type="submit" class="btn primary">Actualizar contraseña</button>
+    </form>
+  </div>
+</div>
 
 <div id="resetPasswordModal" class="modal hidden">
   <div class="modal-card small-modal">

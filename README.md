@@ -1,51 +1,46 @@
-# Recaudación 365 Enterprise v13
+# Recaudación 365 Enterprise v14
+
+Portal corporativo para concentrar las herramientas y la inteligencia operativa de Recaudación.
 
 ## Novedades
 
-- Inicio de sesión con lista desplegable.
-- Panel exclusivo para administradores.
-- Crear usuarios desde la plataforma.
-- Cambiar roles.
-- Activar y desactivar cuentas.
-- Restablecer contraseñas.
-- Consultar el último acceso.
-- Registro automático en la pestaña `ACCESOS`.
-- Contraseñas nuevas almacenadas con SHA-256 y SALT.
-- Compatibilidad con las contraseñas actuales en texto.
+- Inicio personalizado con el nombre del usuario.
+- Panel ejecutivo de bienvenida.
+- Indicadores principales del periodo.
+- Lanzador de aplicaciones.
+- Recaudación Copilot local para preguntas sobre los datos.
+- Estado general de la plataforma.
+- Perfil del usuario.
+- Cambio de contraseña desde el perfil.
+- Centro de usuarios para administradores.
+- Ingresos 360, comparativos, históricos y reportes.
+- Diseño empresarial adaptable a celular.
 
-## Primera configuración
+## Recaudación Copilot
 
-La pestaña `USUARIOS` puede comenzar así:
+El asistente funciona localmente con reglas y cálculos. No utiliza una API externa ni envía información a servicios de inteligencia artificial.
 
-```text
-CONTRASEÑA | USUARIO | NOMBRE
-```
+Puede responder preguntas como:
 
-El script agregará automáticamente:
+- ¿Cuál es la marca líder?
+- ¿Qué concepto genera más ingreso?
+- ¿Cuánto ingresó TRT?
+- Dame un resumen ejecutivo.
+- ¿Cuál es el total general?
 
-```text
-ROL | ACTIVO | SALT
-```
+## Configurar aplicaciones
 
-Para ver el panel de usuarios, asigna `ADMIN` en la columna `ROL` a tu cuenta.
+En `config.js`, pega las direcciones reales en cada propiedad `url`.
 
 ## Instalación
 
-1. Copia `Code.gs` en Apps Script.
-2. Pulsa **Implementar > Administrar implementaciones**.
-3. Edita la implementación.
-4. Selecciona **Nueva versión**.
-5. Ejecutar como: **Yo**.
-6. Acceso: **Cualquier persona**.
-7. Copia la URL de App web terminada en `/exec`.
-8. Pégala en `config.js`.
-9. Reemplaza los archivos del repositorio.
-10. Presiona `Ctrl + F5`.
+1. Sustituye `Code.gs` en Google Apps Script.
+2. Actualiza la implementación creando una nueva versión.
+3. Copia la URL de aplicación web terminada en `/exec`.
+4. Pégala en `config.js`.
+5. Reemplaza todos los archivos en GitHub.
+6. Presiona `Ctrl + F5`.
 
-## URL correcta
+## Perfil y seguridad
 
-```javascript
-API_URL: "https://script.google.com/macros/s/AKfycb.../exec"
-```
-
-No utilices la dirección `docs.google.com/spreadsheets`.
+Cada usuario puede cambiar su propia contraseña desde **Mi perfil**. Los administradores continúan pudiendo crear usuarios, cambiar roles, activar cuentas y restablecer contraseñas.

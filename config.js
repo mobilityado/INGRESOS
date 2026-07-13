@@ -1,6 +1,6 @@
 window.APP_CONFIG = {
   // Pega aquí la URL /exec de la implementación de Google Apps Script.
-  API_URL: "https://script.google.com/macros/s/AKfycbxC2mKnafSrn3ngqrzjOqxWcH2Ueh7DEIge0cweju3PHTrRJ7CS5iqQczMpAiWcjLaZIA/exec",
+  API_URL: "PEGA_AQUI_LA_URL_DE_APPS_SCRIPT_EXEC",
 
   APPS: [
     { name:"AVA Dashboard", icon:"📊", description:"Análisis de ventas, recuperación y desempeño.", url:"", status:"pending" },
