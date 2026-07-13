@@ -3,17 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#172554">
-  <title>Sistema de Ingresos | TRT VB</title>
+  <meta name="theme-color" content="#0b1f3a">
+  <title>Concentrado de Ingresos | Recaudación</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="topbar">
-    <div>
-      <p class="eyebrow">RECAUDACIÓN · MOBILITY ADO</p>
-      <h1>Sistema de Ingresos</h1>
-      <p class="subtitle">Procesamiento profesional de tarjetas capturadas</p>
+    <div class="brand-lockup">
+      <div class="logo-mark">R</div>
+      <div>
+        <p class="eyebrow">RECAUDACIÓN · CONTROL DE INGRESOS</p>
+        <h1>Concentrado ejecutivo</h1>
+        <p class="subtitle">TRT · TRTVB · AAO · AAOVB</p>
+      </div>
     </div>
     <button id="themeBtn" class="icon-btn" title="Cambiar tema">◐</button>
   </header>
@@ -21,75 +24,54 @@
   <main class="container">
     <section class="hero-card">
       <div>
-        <span class="badge">TRT Villahermosa</span>
-        <h2>Convierte el reporte de tarjetas en un concentrado listo para entregar</h2>
-        <p>La información se procesa localmente en tu navegador. El archivo no se envía a servidores externos.</p>
+        <span class="badge">Procesamiento automático de 4 marcas</span>
+        <h2>Un reporte general y cuatro análisis individuales, con sus propias gráficas</h2>
+        <p>Selecciona el libro que contiene las pestañas <strong>TRT, TRTVB, AAO y AAOVB</strong>. La aplicación identifica cada hoja, calcula sus ingresos y genera el concentrado completo.</p>
       </div>
       <div class="hero-actions">
         <label class="upload-btn">
-          <input id="fileInput" type="file" accept=".xlsx,.xls" multiple hidden>
-          <span>📂 Seleccionar Excel</span>
+          <input id="fileInput" type="file" accept=".xlsx,.xls" hidden>
+          <span>📂 Seleccionar libro Excel</span>
         </label>
         <button id="loadApiBtn" class="secondary-btn">☁️ Cargar desde Google Sheets</button>
       </div>
     </section>
 
-    <section class="config-grid">
-      <article class="panel">
-        <div class="panel-head">
-          <h3>Configuración del reporte</h3>
-          <span id="fileStatus" class="status neutral">Sin archivo</span>
+    <section class="setup-card panel">
+      <div class="panel-head">
+        <div><p class="eyebrow blue">CONFIGURACIÓN</p><h3>Periodo del reporte</h3></div>
+        <span id="fileStatus" class="status neutral">Esperando archivo</span>
+      </div>
+      <div class="setup-grid">
+        <label>Mes
+          <select id="month">
+            <option>ENERO</option><option>FEBRERO</option><option>MARZO</option><option>ABRIL</option><option>MAYO</option><option selected>JUNIO</option><option>JULIO</option><option>AGOSTO</option><option>SEPTIEMBRE</option><option>OCTUBRE</option><option>NOVIEMBRE</option><option>DICIEMBRE</option>
+          </select>
+        </label>
+        <label>Año<input id="year" type="number" min="2020" max="2100" value="2026"></label>
+        <div class="brand-checks" id="brandChecks">
+          <span class="brand-chip pending" data-brand="TRT">TRT</span>
+          <span class="brand-chip pending" data-brand="TRTVB">TRTVB</span>
+          <span class="brand-chip pending" data-brand="AAO">AAO</span>
+          <span class="brand-chip pending" data-brand="AAOVB">AAOVB</span>
         </div>
-        <div class="form-grid">
-          <label>Mes
-            <select id="month">
-              <option>ENERO</option><option>FEBRERO</option><option>MARZO</option>
-              <option>ABRIL</option><option>MAYO</option><option selected>JUNIO</option>
-              <option>JULIO</option><option>AGOSTO</option><option>SEPTIEMBRE</option>
-              <option>OCTUBRE</option><option>NOVIEMBRE</option><option>DICIEMBRE</option>
-            </select>
-          </label>
-          <label>Año
-            <input id="year" type="number" min="2020" max="2100" value="2026">
-          </label>
+        <button id="processBtn" class="primary-btn" disabled>Generar reporte completo</button>
+      </div>
+      <details>
+        <summary>Opciones avanzadas de columnas</summary>
+        <div class="form-grid advanced">
+          <label>Canje<input id="canjeCol" value="Vta Man"></label>
+          <label>Abordo<input id="abordoCol" value="Vta Abor"></label>
+          <label>Prepago<input id="prepagoCol" value="Vta Prepago"></label>
         </div>
-        <div class="auto-note"><strong>⚡ Proceso automático:</strong> se tomarán todas las hojas o marcas del archivo, primero se generará el reporte general y después cada reporte individual.</div>
-        <details>
-          <summary>Opciones avanzadas</summary>
-          <div class="form-grid advanced">
-            <label>Columna Canje
-              <input id="canjeCol" value="Vta Man">
-            </label>
-            <label>Columna Abordo
-              <input id="abordoCol" value="Vta Abor">
-            </label>
-            <label>Columna Prepago
-              <input id="prepagoCol" value="Vta Prepago">
-            </label>
-          </div>
-        </details>
-        <button id="processBtn" class="primary-btn" disabled>Volver a generar todos los reportes</button>
-      </article>
-
-      <article class="panel help-panel">
-        <h3>Reglas detectadas</h3>
-        <div class="rule"><span>Canje</span><strong>Vta Man</strong></div>
-        <div class="rule"><span>Abordo</span><strong>Vta Abor</strong></div>
-        <div class="rule"><span>Prepago</span><strong>Vta Prepago</strong></div>
-        <div class="rule"><span>Reporte general</span><strong>Todas las marcas</strong></div>
-        <p class="hint">Estas reglas reproducen los importes de tu formato actual. Puedes modificarlas en “Opciones avanzadas”.</p>
-      </article>
+      </details>
     </section>
 
     <section id="dashboard" class="hidden">
       <div class="section-title">
-        <div>
-          <p class="eyebrow">RESUMEN EJECUTIVO</p>
-          <h2 id="reportTitle">INGRESOS GENERALES JUNIO 2026</h2>
-        </div>
+        <div><p class="eyebrow blue">PANORAMA GENERAL</p><h2 id="reportTitle">INGRESOS GENERALES JUNIO 2026</h2></div>
         <div class="action-row">
-          <button id="exportExcelBtn" class="secondary-btn">⬇ Excel</button>
-          <button id="saveApiBtn" class="secondary-btn">☁ Guardar concentrado</button>
+          <button id="exportExcelBtn" class="secondary-btn">⬇ Exportar Excel</button>
           <button id="printBtn" class="secondary-btn">🖨 PDF / Imprimir</button>
         </div>
       </div>
@@ -101,58 +83,22 @@
         <article class="kpi total"><span>Total general</span><strong id="kpiTotal">$0.00</strong><small id="rowCount">0 registros</small></article>
       </div>
 
-      <div class="chart-grid">
-        <article class="panel chart-card"><canvas id="barChart"></canvas></article>
-        <article class="panel chart-card"><canvas id="pieChart"></canvas></article>
+      <div class="chart-grid general-charts">
+        <article class="panel chart-card"><div class="chart-heading"><h3>Comparativo por marca</h3><p>Canje, abordo y prepago</p></div><canvas id="brandCompareChart"></canvas></article>
+        <article class="panel chart-card"><div class="chart-heading"><h3>Participación general</h3><p>Aportación de cada marca al total</p></div><canvas id="brandShareChart"></canvas></article>
       </div>
 
-      <article class="panel">
-        <div class="panel-head">
-          <h3>Concentrado</h3>
-          <span id="processedAt" class="muted"></span>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Concepto</th><th>Importe</th><th>Participación</th></tr></thead>
-            <tbody id="summaryBody"></tbody>
-            <tfoot><tr><th>Total</th><th id="tableTotal">$0.00</th><th>100%</th></tr></tfoot>
-          </table>
-        </div>
+      <article class="panel summary-panel">
+        <div class="panel-head"><div><p class="eyebrow blue">CONCENTRADO</p><h3>Desglose general por marca</h3></div><span id="processedAt" class="muted"></span></div>
+        <div class="table-wrap"><table><thead><tr><th>Marca</th><th>Canje</th><th>Abordo</th><th>Prepago</th><th>Total</th><th>Registros</th><th>Participación</th></tr></thead><tbody id="brandBody"></tbody><tfoot><tr><th>GENERAL</th><th id="footCanje"></th><th id="footAbordo"></th><th id="footPrepago"></th><th id="footTotal"></th><th id="footRows"></th><th>100%</th></tr></tfoot></table></div>
       </article>
 
-
-      <article class="panel">
-        <div class="panel-head">
-          <h3>Resumen individual por marca</h3>
-          <span id="brandCount" class="muted"></span>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Marca</th><th>Canje</th><th>Abordo</th><th>Prepago</th><th>Total</th><th>Registros</th><th>Participación</th></tr></thead>
-            <tbody id="brandBody"></tbody>
-          </table>
-        </div>
-      </article>
-
+      <div class="section-divider"><span>REPORTES INDIVIDUALES</span></div>
       <div id="individualReports" class="individual-list"></div>
-
-      <article class="panel">
-        <div class="panel-head">
-          <h3>Vista previa de todos los registros procesados</h3>
-          <span id="previewCount" class="muted"></span>
-        </div>
-        <div class="table-wrap preview">
-          <table>
-            <thead id="previewHead"></thead>
-            <tbody id="previewBody"></tbody>
-          </table>
-        </div>
-      </article>
     </section>
   </main>
 
   <div id="toast" class="toast"></div>
-
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <script src="config.js"></script>

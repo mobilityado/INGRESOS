@@ -1,17 +1,17 @@
-# Sistema de Ingresos — versión automática
+# Concentrado de Ingresos — 4 marcas
 
-La aplicación procesa automáticamente todas las marcas del archivo:
+Esta versión procesa exclusivamente las pestañas **TRT, TRTVB, AAO y AAOVB** del mismo libro Excel.
 
-1. Lee todas las hojas que contienen `Vta Man`, `Vta Abor` y `Vta Prepago`.
-2. Genera primero un reporte GENERAL con la suma de todas las marcas.
-3. Genera después un reporte individual por cada hoja/marca.
-4. Si el archivo tiene una sola hoja, intenta separar automáticamente los registros por la columna `Marca`.
-5. Exporta un Excel con hoja `GENERAL` y una hoja por cada marca.
+## Resultado
+- Concentrado general de las cuatro marcas.
+- Gráfica comparativa general por concepto.
+- Gráfica de participación general por marca.
+- Reporte individual de TRT, TRTVB, AAO y AAOVB.
+- Dos gráficas independientes para cada marca.
+- Exportación a Excel con una hoja GENERAL y una hoja por marca.
 
-Ya no es necesario seleccionar Unidad/Marca ni Hoja del archivo.
+## Publicación en GitHub Pages
+Sube `index.html`, `styles.css`, `app.js` y `config.js`. En GitHub entra a **Settings > Pages**, selecciona la rama `main` y la carpeta raíz.
 
-## GitHub Pages
-Sube `index.html`, `styles.css`, `app.js` y `config.js` al repositorio y activa Pages desde la rama main.
-
-## Apps Script
-Copia `Code.gs` en Extensiones > Apps Script, crea una implementación de Aplicación web y pega la URL `/exec` dentro de `config.js`.
+## Google Apps Script
+Pega `Code.gs` en Apps Script y coloca la URL `/exec` en `config.js`. Para cargar un Excel directamente no es necesaria la conexión con Apps Script.
