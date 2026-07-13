@@ -1,17 +1,23 @@
-# Concentrado de Ingresos — 4 marcas
+# Ingresos 360 — TRT, TRTVB, AAO y AAOVB
 
-Esta versión procesa exclusivamente las pestañas **TRT, TRTVB, AAO y AAOVB** del mismo libro Excel.
+## Corrección principal de la versión 5
+La aplicación ya no exige que las cuatro marcas estén dentro de un solo libro. Admite:
+
+- Un Excel que contenga las pestañas `TRT`, `TRTVB`, `AAO` y `AAOVB`.
+- Hasta cuatro archivos separados, identificados por el nombre del archivo o de la pestaña.
+- Selecciones sucesivas: puedes cargar primero una marca y después las restantes.
+
+El botón **Generar reporte ejecutivo** se habilita únicamente cuando se detectan las cuatro marcas.
 
 ## Resultado
-- Concentrado general de las cuatro marcas.
-- Gráfica comparativa general por concepto.
-- Gráfica de participación general por marca.
-- Reporte individual de TRT, TRTVB, AAO y AAOVB.
-- Dos gráficas independientes para cada marca.
-- Exportación a Excel con una hoja GENERAL y una hoja por marca.
+- Concentrado general.
+- Comparativo gráfico de las cuatro marcas.
+- Participación porcentual por marca.
+- Reporte TRT con dos gráficas.
+- Reporte TRTVB con dos gráficas.
+- Reporte AAO con dos gráficas.
+- Reporte AAOVB con dos gráficas.
+- Exportación a Excel con pestaña GENERAL y cuatro pestañas individuales.
 
 ## Publicación en GitHub Pages
-Sube `index.html`, `styles.css`, `app.js` y `config.js`. En GitHub entra a **Settings > Pages**, selecciona la rama `main` y la carpeta raíz.
-
-## Google Apps Script
-Pega `Code.gs` en Apps Script y coloca la URL `/exec` en `config.js`. Para cargar un Excel directamente no es necesaria la conexión con Apps Script.
+Sube todos los archivos de esta carpeta al repositorio, reemplazando los anteriores. Luego presiona Ctrl+F5 en el navegador para evitar que se conserve la versión anterior en caché.
