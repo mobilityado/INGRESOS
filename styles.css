@@ -240,3 +240,19 @@ a{color:#3676ec}
 @media(prefers-reduced-motion:reduce){
   .enterprise-welcome:before,.hero:after{animation:none}
 }
+
+/* V16.1 correction and contrast */
+.compact-hero,
+.compact-hero h2,
+.compact-hero p,
+.compact-hero .pill{
+  color:#fff!important;
+}
+.compact-hero p{color:rgba(255,255,255,.82)!important}
+.compact-hero .pill{background:rgba(255,255,255,.14)!important}
+.control-panel{position:relative;z-index:2}
+.brand-source-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.brand-source-grid article{min-width:0}
+.brand-source-grid small{max-width:100%}
+@media(max-width:900px){.brand-source-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.brand-source-grid{grid-template-columns:1fr}}
