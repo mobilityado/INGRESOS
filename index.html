@@ -4,122 +4,207 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#071a31">
-  <title>Ingresos 360 Executive</title>
+  <title>Recaudación 360 | Plataforma Ejecutiva</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<header class="app-header">
-  <div class="header-inner">
-    <div class="brand">
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand">
       <div class="brand-mark">R</div>
-      <div><small>RECAUDACIÓN · INTELIGENCIA OPERATIVA</small><h1>Ingresos <em>360</em></h1></div>
+      <div><small>PLATAFORMA</small><b>Recaudación 360</b></div>
     </div>
-    <div class="header-tools">
-      <span class="connection"><i></i> Google Sheets</span>
-      <button id="themeBtn" class="icon-btn" title="Cambiar tema">◐</button>
-    </div>
-  </div>
-</header>
-
-<main class="shell">
-  <section class="hero">
-    <div>
-      <span class="pill">PANEL EJECUTIVO MULTIMARCA</span>
-      <h2>Control, comparación y análisis de ingresos</h2>
-      <p>Concentrado general y análisis individual de TRT, TRTVB, AAO y AAOVB, con histórico mensual, conclusiones automáticas y exportación ejecutiva.</p>
-    </div>
-    <div class="hero-actions">
-      <button id="loadSheetsBtn" class="btn primary"><span>↻</span><div><b>Actualizar Google Sheets</b><small>Leer las cuatro pestañas</small></div></button>
-      <label class="btn outline"><input id="fileInput" type="file" accept=".xlsx,.xls" multiple hidden><span>＋</span><div><b>Cargar respaldo Excel</b><small>Uno o varios archivos</small></div></label>
-    </div>
-  </section>
-
-  <section class="control-panel card">
-    <div class="section-head">
-      <div><small class="kicker">PREPARACIÓN</small><h3>Periodo y fuentes</h3></div>
-      <span id="statusBadge" class="status neutral">Sin información</span>
-    </div>
-    <div class="period-grid">
-      <label>Mes<select id="month">
-        <option>ENERO</option><option>FEBRERO</option><option>MARZO</option><option>ABRIL</option><option>MAYO</option><option selected>JUNIO</option>
-        <option>JULIO</option><option>AGOSTO</option><option>SEPTIEMBRE</option><option>OCTUBRE</option><option>NOVIEMBRE</option><option>DICIEMBRE</option>
-      </select></label>
-      <label>Año<input id="year" type="number" value="2026" min="2020" max="2100"></label>
-      <button id="saveSnapshotBtn" class="btn compact" disabled>Guardar mes en histórico</button>
-      <button id="clearHistoryBtn" class="btn compact ghost">Administrar histórico</button>
-    </div>
-    <div class="brand-source-grid" id="brandSources">
-      <article data-brand="TRT"><i></i><div><b>TRT</b><small>Pendiente</small></div><span>—</span></article>
-      <article data-brand="TRTVB"><i></i><div><b>TRTVB</b><small>Pendiente</small></div><span>—</span></article>
-      <article data-brand="AAO"><i></i><div><b>AAO</b><small>Pendiente</small></div><span>—</span></article>
-      <article data-brand="AAOVB"><i></i><div><b>AAOVB</b><small>Pendiente</small></div><span>—</span></article>
-    </div>
-    <div id="messageBox" class="message">Actualiza Google Sheets o carga el respaldo Excel.</div>
-    <details><summary>Configuración avanzada de columnas</summary>
-      <div class="advanced-grid">
-        <label>Canje<input id="canjeCol" value="Vta Man"></label>
-        <label>Abordo<input id="abordoCol" value="Vta Abor"></label>
-        <label>Prepago<input id="prepagoCol" value="Vta Prepago"></label>
-      </div>
-    </details>
-  </section>
-
-  <section id="dashboard" class="hidden">
-    <div class="dashboard-head">
-      <div><small class="kicker">PANORAMA GENERAL</small><h2 id="reportTitle">INGRESOS GENERALES</h2><p id="generatedAt"></p></div>
-      <div class="action-row">
-        <button id="exportBtn" class="btn compact">↓ Excel</button>
-        <button id="printBtn" class="btn compact">▣ PDF / Imprimir</button>
-      </div>
-    </div>
-
-    <div class="executive-kpis">
-      <article><span>Total general</span><strong id="totalKpi">$0.00</strong><small id="totalRows">0 registros</small></article>
-      <article><span>Marca líder</span><strong id="leaderKpi">—</strong><small id="leaderShare">—</small></article>
-      <article><span>Concepto principal</span><strong id="conceptKpi">—</strong><small id="conceptShare">—</small></article>
-      <article><span>Variación mensual</span><strong id="variationKpi">Sin histórico</strong><small id="variationDetail">Guarda al menos dos meses</small></article>
-    </div>
-
-    <div class="metric-grid">
-      <article class="metric"><span>Canje</span><strong id="canjeKpi"></strong><small id="canjePct"></small></article>
-      <article class="metric"><span>Abordo</span><strong id="abordoKpi"></strong><small id="abordoPct"></small></article>
-      <article class="metric"><span>Prepago</span><strong id="prepagoKpi"></strong><small id="prepagoPct"></small></article>
-    </div>
-
-    <nav class="tabs" id="tabs">
-      <button class="active" data-tab="general">General</button>
-      <button data-tab="historico">Histórico</button>
-      <button data-tab="TRT">TRT</button><button data-tab="TRTVB">TRTVB</button>
-      <button data-tab="AAO">AAO</button><button data-tab="AAOVB">AAOVB</button>
+    <nav class="side-nav">
+      <button class="active" data-view="inicio"><span>⌂</span>Inicio</button>
+      <button data-view="ingresos"><span>▥</span>Ingresos 360</button>
+      <button data-view="comparativos"><span>↗</span>Comparativos</button>
+      <button data-view="reportes"><span>▤</span>Reportes</button>
+      <button data-view="aplicaciones"><span>◫</span>Aplicaciones</button>
+      <button data-view="configuracion"><span>⚙</span>Configuración</button>
     </nav>
+    <div class="side-footer">
+      <span class="online-dot"></span>
+      <div><small>FUENTE ACTIVA</small><b>Google Sheets</b></div>
+    </div>
+  </aside>
 
-    <section class="tab-panel active" data-panel="general">
-      <div class="chart-grid">
-        <article class="card chart-card"><div class="card-title"><small>COMPARATIVO</small><h3>Ingresos por marca y concepto</h3></div><canvas id="brandChart"></canvas></article>
-        <article class="card chart-card"><div class="card-title"><small>PARTICIPACIÓN</small><h3>Aportación al total</h3></div><canvas id="shareChart"></canvas></article>
+  <div class="main-area">
+    <header class="app-header">
+      <button id="menuBtn" class="menu-btn">☰</button>
+      <div>
+        <small>RECAUDACIÓN · INTELIGENCIA OPERATIVA</small>
+        <h1 id="pageTitle">Centro ejecutivo</h1>
       </div>
-      <div class="content-grid">
-        <article class="card ranking-card"><div class="card-title"><small>RANKING</small><h3>Posición por recaudación</h3></div><div id="ranking"></div></article>
-        <article class="card insight-card"><div class="card-title"><small>ANÁLISIS AUTOMÁTICO</small><h3>¿Qué pasó en el periodo?</h3></div><div id="insights"></div></article>
+      <div class="header-tools">
+        <span id="headerPeriod" class="period-badge">JUNIO 2026</span>
+        <button id="themeBtn" class="icon-btn" title="Cambiar tema">◐</button>
       </div>
-      <article class="card table-card"><div class="card-title"><small>CONCENTRADO</small><h3>Desglose general</h3></div>
-        <div class="table-wrap"><table><thead><tr><th>Marca</th><th>Canje</th><th>Abordo</th><th>Prepago</th><th>Total</th><th>Registros</th><th>Participación</th></tr></thead><tbody id="summaryBody"></tbody><tfoot id="summaryFoot"></tfoot></table></div>
-      </article>
-    </section>
+    </header>
 
-    <section class="tab-panel" data-panel="historico">
-      <div class="chart-grid">
-        <article class="card chart-card wide"><div class="card-title"><small>TENDENCIA</small><h3>Histórico mensual guardado</h3></div><canvas id="historyChart"></canvas></article>
-        <article class="card history-list-card"><div class="card-title"><small>PERIODOS</small><h3>Meses disponibles</h3></div><div id="historyList"></div></article>
-      </div>
-    </section>
+    <main class="content-shell">
+      <section class="view active" data-view-panel="inicio">
+        <section class="welcome-panel">
+          <div>
+            <span class="pill">PLATAFORMA EJECUTIVA</span>
+            <h2>Información clave para decisiones más rápidas</h2>
+            <p>Consulta ingresos, comparativos, históricos y herramientas de recaudación desde un solo espacio.</p>
+          </div>
+          <button id="homeLoadBtn" class="btn primary large"><span>↻</span><div><b>Actualizar información</b><small>Leer TRT, TRTVB, AAO y AAOVB</small></div></button>
+        </section>
 
-    <div id="brandPanels"></div>
-  </section>
-</main>
+        <div class="home-kpis">
+          <article><span>Ingreso general</span><strong id="homeTotal">$0.00</strong><small id="homeTotalDetail">Sin información cargada</small></article>
+          <article><span>Marca líder</span><strong id="homeLeader">—</strong><small id="homeLeaderDetail">Pendiente</small></article>
+          <article><span>Variación mensual</span><strong id="homeVariation">—</strong><small id="homeVariationDetail">Sin histórico</small></article>
+          <article><span>Registros</span><strong id="homeRows">0</strong><small>Operaciones procesadas</small></article>
+        </div>
+
+        <div class="home-grid">
+          <article class="card quick-card">
+            <div class="card-title"><small>ACCESOS RÁPIDOS</small><h3>Herramientas principales</h3></div>
+            <div class="quick-actions">
+              <button data-go="ingresos"><span>▥</span><div><b>Ingresos 360</b><small>Concentrado y marcas</small></div></button>
+              <button data-go="comparativos"><span>↗</span><div><b>Comparativos</b><small>Mes contra mes</small></div></button>
+              <button data-go="reportes"><span>▤</span><div><b>Reporte ejecutivo</b><small>PDF y Excel</small></div></button>
+              <button data-go="aplicaciones"><span>◫</span><div><b>Mis aplicaciones</b><small>AVA, Semáforo y más</small></div></button>
+            </div>
+          </article>
+          <article class="card executive-summary">
+            <div class="card-title"><small>RESUMEN AUTOMÁTICO</small><h3>Lectura ejecutiva</h3></div>
+            <div id="homeInsights" class="empty-state">Actualiza la información para generar conclusiones.</div>
+          </article>
+        </div>
+
+        <article class="card home-chart-card">
+          <div class="card-title"><small>PANORAMA</small><h3>Participación por marca</h3></div>
+          <canvas id="homeChart"></canvas>
+        </article>
+      </section>
+
+      <section class="view" data-view-panel="ingresos">
+        <section class="hero compact-hero">
+          <div><span class="pill">INGRESOS 360</span><h2>Concentrado general y análisis por marca</h2><p>Procesa las cuatro fuentes y genera una lectura ejecutiva lista para presentar.</p></div>
+          <div class="hero-actions">
+            <button id="loadSheetsBtn" class="btn primary"><span>↻</span><div><b>Actualizar Google Sheets</b><small>Leer las cuatro pestañas</small></div></button>
+            <label class="btn outline"><input id="fileInput" type="file" accept=".xlsx,.xls" multiple hidden><span>＋</span><div><b>Cargar respaldo Excel</b><small>Uno o varios archivos</small></div></label>
+          </div>
+        </section>
+
+        <section class="control-panel card">
+          <div class="section-head">
+            <div><small class="kicker">PREPARACIÓN</small><h3>Periodo y fuentes</h3></div>
+            <span id="statusBadge" class="status neutral">Sin información</span>
+          </div>
+          <div class="period-grid">
+            <label>Mes<select id="month">
+              <option>ENERO</option><option>FEBRERO</option><option>MARZO</option><option>ABRIL</option><option>MAYO</option><option selected>JUNIO</option>
+              <option>JULIO</option><option>AGOSTO</option><option>SEPTIEMBRE</option><option>OCTUBRE</option><option>NOVIEMBRE</option><option>DICIEMBRE</option>
+            </select></label>
+            <label>Año<input id="year" type="number" value="2026" min="2020" max="2100"></label>
+            <button id="saveSnapshotBtn" class="btn compact" disabled>Guardar en histórico</button>
+            <button id="clearHistoryBtn" class="btn compact ghost">Administrar histórico</button>
+          </div>
+          <div class="brand-source-grid" id="brandSources">
+            <article data-brand="TRT"><i></i><div><b>TRT</b><small>Pendiente</small></div><span>—</span></article>
+            <article data-brand="TRTVB"><i></i><div><b>TRTVB</b><small>Pendiente</small></div><span>—</span></article>
+            <article data-brand="AAO"><i></i><div><b>AAO</b><small>Pendiente</small></div><span>—</span></article>
+            <article data-brand="AAOVB"><i></i><div><b>AAOVB</b><small>Pendiente</small></div><span>—</span></article>
+          </div>
+          <div id="messageBox" class="message">Actualiza Google Sheets o carga el respaldo Excel.</div>
+          <details><summary>Configuración avanzada de columnas</summary>
+            <div class="advanced-grid">
+              <label>Canje<input id="canjeCol" value="Vta Man"></label>
+              <label>Abordo<input id="abordoCol" value="Vta Abor"></label>
+              <label>Prepago<input id="prepagoCol" value="Vta Prepago"></label>
+            </div>
+          </details>
+        </section>
+
+        <section id="dashboard" class="hidden">
+          <div class="dashboard-head">
+            <div><small class="kicker">PANORAMA GENERAL</small><h2 id="reportTitle">INGRESOS GENERALES</h2><p id="generatedAt"></p></div>
+            <div class="action-row"><button id="exportBtn" class="btn compact">↓ Excel</button><button id="printBtn" class="btn compact">▣ PDF / Imprimir</button></div>
+          </div>
+          <div class="executive-kpis">
+            <article><span>Total general</span><strong id="totalKpi">$0.00</strong><small id="totalRows">0 registros</small></article>
+            <article><span>Marca líder</span><strong id="leaderKpi">—</strong><small id="leaderShare">—</small></article>
+            <article><span>Concepto principal</span><strong id="conceptKpi">—</strong><small id="conceptShare">—</small></article>
+            <article><span>Variación mensual</span><strong id="variationKpi">Sin histórico</strong><small id="variationDetail">Guarda al menos dos meses</small></article>
+          </div>
+          <div class="metric-grid">
+            <article class="metric"><span>Canje</span><strong id="canjeKpi"></strong><small id="canjePct"></small></article>
+            <article class="metric"><span>Abordo</span><strong id="abordoKpi"></strong><small id="abordoPct"></small></article>
+            <article class="metric"><span>Prepago</span><strong id="prepagoKpi"></strong><small id="prepagoPct"></small></article>
+            <article class="metric"><span>Ticket promedio</span><strong id="avgTicketKpi"></strong><small>Ingreso por registro</small></article>
+          </div>
+          <nav class="tabs" id="tabs"><button class="active" data-tab="general">General</button><button data-tab="historico">Histórico</button><button data-tab="TRT">TRT</button><button data-tab="TRTVB">TRTVB</button><button data-tab="AAO">AAO</button><button data-tab="AAOVB">AAOVB</button></nav>
+          <section class="tab-panel active" data-panel="general">
+            <div class="chart-grid">
+              <article class="card chart-card"><div class="card-title"><small>COMPARATIVO</small><h3>Ingresos por marca y concepto</h3></div><canvas id="brandChart"></canvas></article>
+              <article class="card chart-card"><div class="card-title"><small>PARTICIPACIÓN</small><h3>Aportación al total</h3></div><canvas id="shareChart"></canvas></article>
+            </div>
+            <div class="content-grid">
+              <article class="card ranking-card"><div class="card-title"><small>RANKING</small><h3>Posición por recaudación</h3></div><div id="ranking"></div></article>
+              <article class="card insight-card"><div class="card-title"><small>ASISTENTE EJECUTIVO</small><h3>¿Qué pasó en el periodo?</h3></div><div id="insights"></div></article>
+            </div>
+            <article class="card table-card"><div class="card-title"><small>CONCENTRADO</small><h3>Desglose general</h3></div><div class="table-wrap"><table><thead><tr><th>Marca</th><th>Canje</th><th>Abordo</th><th>Prepago</th><th>Total</th><th>Registros</th><th>Participación</th></tr></thead><tbody id="summaryBody"></tbody><tfoot id="summaryFoot"></tfoot></table></div></article>
+          </section>
+          <section class="tab-panel" data-panel="historico">
+            <div class="chart-grid"><article class="card chart-card wide"><div class="card-title"><small>TENDENCIA</small><h3>Histórico mensual guardado</h3></div><canvas id="historyChart"></canvas></article><article class="card history-list-card"><div class="card-title"><small>PERIODOS</small><h3>Meses disponibles</h3></div><div id="historyList"></div></article></div>
+          </section>
+          <div id="brandPanels"></div>
+        </section>
+      </section>
+
+      <section class="view" data-view-panel="comparativos">
+        <div class="page-intro"><span class="pill">COMPARATIVOS</span><h2>Mes contra mes</h2><p>Selecciona dos periodos guardados para identificar crecimiento, caída y cambios por marca.</p></div>
+        <section class="card compare-controls">
+          <label>Periodo base<select id="compareA"></select></label>
+          <div class="versus">VS</div>
+          <label>Periodo comparado<select id="compareB"></select></label>
+          <button id="runCompareBtn" class="btn primary compact">Comparar periodos</button>
+        </section>
+        <section id="compareResults" class="hidden">
+          <div class="compare-kpis" id="compareKpis"></div>
+          <div class="chart-grid">
+            <article class="card chart-card"><div class="card-title"><small>MARCA</small><h3>Diferencia por marca</h3></div><canvas id="compareBrandChart"></canvas></article>
+            <article class="card chart-card"><div class="card-title"><small>CONCEPTO</small><h3>Diferencia por concepto</h3></div><canvas id="compareConceptChart"></canvas></article>
+          </div>
+          <article class="card insight-card"><div class="card-title"><small>CONCLUSIÓN</small><h3>Lectura comparativa</h3></div><div id="compareInsights"></div></article>
+        </section>
+        <div id="compareEmpty" class="card empty-block">Guarda por lo menos dos meses en el histórico para utilizar esta sección.</div>
+      </section>
+
+      <section class="view" data-view-panel="reportes">
+        <div class="page-intro"><span class="pill">REPORTES</span><h2>Salida para gerencia</h2><p>Prepara la información en formatos listos para compartir.</p></div>
+        <div class="report-grid">
+          <article class="card report-option"><span>01</span><h3>Reporte ejecutivo PDF</h3><p>Portada visual, indicadores, gráficas y análisis automático mediante la vista de impresión.</p><button id="reportPrintBtn" class="btn primary">Generar PDF / Imprimir</button></article>
+          <article class="card report-option"><span>02</span><h3>Libro Excel consolidado</h3><p>Incluye resumen general, detalle por marca e histórico mensual disponible.</p><button id="reportExcelBtn" class="btn primary">Descargar Excel</button></article>
+          <article class="card report-option"><span>03</span><h3>Resumen para correo</h3><p>Genera un texto ejecutivo para copiar en correo o Teams.</p><button id="copySummaryBtn" class="btn primary">Copiar resumen</button></article>
+        </div>
+        <article class="card preview-report"><div class="card-title"><small>VISTA PREVIA</small><h3>Resumen para gerencia</h3></div><div id="managementPreview" class="empty-state">Carga la información para preparar el reporte.</div></article>
+      </section>
+
+      <section class="view" data-view-panel="aplicaciones">
+        <div class="page-intro"><span class="pill">CENTRO DE APLICACIONES</span><h2>Herramientas de recaudación</h2><p>Accesos centralizados. Configura las direcciones reales en <code>config.js</code>.</p></div>
+        <div class="apps-grid" id="appsGrid"></div>
+      </section>
+
+      <section class="view" data-view-panel="configuracion">
+        <div class="page-intro"><span class="pill">CONFIGURACIÓN</span><h2>Estado de la plataforma</h2><p>Información técnica y preferencias locales.</p></div>
+        <div class="settings-grid">
+          <article class="card setting-card"><h3>Google Sheets</h3><p>ID configurado</p><code id="sheetIdPreview"></code></article>
+          <article class="card setting-card"><h3>Histórico local</h3><p id="historyCount">0 periodos almacenados</p><button id="openHistoryAdminBtn" class="btn compact">Administrar</button></article>
+          <article class="card setting-card"><h3>Apariencia</h3><p>Alterna entre tema claro y oscuro.</p><button id="settingsThemeBtn" class="btn compact">Cambiar apariencia</button></article>
+          <article class="card setting-card"><h3>Respaldo</h3><p>Exporta el histórico local a un archivo JSON.</p><button id="exportHistoryBtn" class="btn compact">Exportar histórico</button></article>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
 
 <div id="historyModal" class="modal hidden"><div class="modal-card"><div class="section-head"><div><small class="kicker">HISTÓRICO LOCAL</small><h3>Administrar periodos</h3></div><button id="closeModalBtn" class="icon-btn dark">×</button></div><div id="historyAdmin"></div></div></div>
 <div id="toast" class="toast"></div>

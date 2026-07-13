@@ -1,31 +1,52 @@
-# Ingresos 360 Executive Plus — Versión 9
+# Recaudación 360 — Plataforma Ejecutiva v10
 
-## Funciones incluidas
+Esta versión integra Ingresos 360 dentro de una plataforma de navegación ejecutiva.
 
-- Conexión directa con Google Sheets.
-- Lectura automática de TRT, TRTVB, AAO y AAOVB.
-- Concentrado general.
-- Panel individual por marca.
-- Ranking de marcas.
-- Gráficas generales e individuales.
-- Análisis automático del periodo.
-- Histórico mensual guardado en el navegador.
-- Comparativo contra el periodo anterior.
-- Exportación a Excel.
-- PDF mediante impresión.
-- Diseño móvil y modo oscuro.
+## Incluye
+
+- Inicio ejecutivo con indicadores y accesos rápidos.
+- Ingresos 360 general e individual por TRT, TRTVB, AAO y AAOVB.
+- Animación de indicadores.
+- Ticket promedio.
+- Ranking y análisis automático basado en reglas.
+- Histórico mensual local.
+- Comparativo entre dos meses guardados.
+- Gráficas comparativas por marca y concepto.
+- Reporte para gerencia en PDF mediante impresión.
+- Libro Excel con general, marcas e histórico.
+- Resumen ejecutivo para copiar en correo o Teams.
+- Centro de aplicaciones para AVA, Semáforo, Happy Moments, Factor, Adeudos y Chatbot.
+- Configuración y respaldo del histórico.
+- Diseño adaptable y modo oscuro.
+
+## Importante sobre el “asistente”
+
+El análisis es automático y funciona localmente mediante reglas matemáticas; no envía información a una IA externa y no necesita claves de API.
+
+## Configurar accesos a otras aplicaciones
+
+Edita `config.js` y agrega la dirección de cada aplicación en la propiedad `url`.
+
+Ejemplo:
+
+```javascript
+{
+  name: "AVA Dashboard",
+  icon: "📊",
+  description: "Análisis de ventas.",
+  url: "https://tuusuario.github.io/ava/",
+  status: "ready"
+}
+```
 
 ## Instalación
 
-1. Reemplaza los archivos del repositorio de GitHub por los incluidos en este ZIP.
-2. Espera a que GitHub Pages publique la actualización.
-3. Presiona Ctrl + F5.
-4. Pulsa “Actualizar Google Sheets”.
+1. Reemplaza todos los archivos del repositorio de GitHub.
+2. Espera a que GitHub Pages termine de publicar.
+3. Presiona `Ctrl + F5`.
+4. Pulsa **Actualizar información**.
+5. Guarda los meses validados para activar los comparativos.
 
 ## Histórico
 
-El histórico se guarda en el navegador mediante localStorage. Para conservarlo en varios equipos sería necesario agregar una hoja histórica en Google Sheets o una base de datos.
-
-## Nota sobre mapa regional
-
-No se incluyó un mapa de México porque las fuentes actuales identifican marcas, no estados o regiones geográficas. Mostrar un mapa sin esos datos produciría información incorrecta.
+Se guarda en el navegador con `localStorage`. El botón **Exportar histórico** permite respaldarlo en JSON.
