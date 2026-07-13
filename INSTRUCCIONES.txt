@@ -1,0 +1,16 @@
+ENTREGA DEL PROYECTO
+
+ARCHIVOS PARA GITHUB:
+- index.html
+- styles.css
+- app.js
+- config.js
+
+SCRIPT DE GOOGLE:
+- Code.gs
+
+IMPORTANTE:
+1. Primero puedes probar la página abriendo index.html.
+2. Para que funcione el botón "Cargar desde Google Sheets", coloca la URL /exec en config.js.
+3. El archivo Excel se procesa localmente.
+4. La opción "Solo marcas no vacías" corresponde al bloque TRT VB del reporte proporcionado.

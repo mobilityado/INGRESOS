@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#172554">
+  <title>Sistema de Ingresos | TRT VB</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">RECAUDACIÓN · MOBILITY ADO</p>
+      <h1>Sistema de Ingresos</h1>
+      <p class="subtitle">Procesamiento profesional de tarjetas capturadas</p>
+    </div>
+    <button id="themeBtn" class="icon-btn" title="Cambiar tema">◐</button>
+  </header>
+
+  <main class="container">
+    <section class="hero-card">
+      <div>
+        <span class="badge">TRT Villahermosa</span>
+        <h2>Convierte el reporte de tarjetas en un concentrado listo para entregar</h2>
+        <p>La información se procesa localmente en tu navegador. El archivo no se envía a servidores externos.</p>
+      </div>
+      <div class="hero-actions">
+        <label class="upload-btn">
+          <input id="fileInput" type="file" accept=".xlsx,.xls" multiple hidden>
+          <span>📂 Seleccionar Excel</span>
+        </label>
+        <button id="loadApiBtn" class="secondary-btn">☁️ Cargar desde Google Sheets</button>
+      </div>
+    </section>
+
+    <section class="config-grid">
+      <article class="panel">
+        <div class="panel-head">
+          <h3>Configuración del reporte</h3>
+          <span id="fileStatus" class="status neutral">Sin archivo</span>
+        </div>
+        <div class="form-grid">
+          <label>Mes
+            <select id="month">
+              <option>ENERO</option><option>FEBRERO</option><option>MARZO</option>
+              <option>ABRIL</option><option>MAYO</option><option selected>JUNIO</option>
+              <option>JULIO</option><option>AGOSTO</option><option>SEPTIEMBRE</option>
+              <option>OCTUBRE</option><option>NOVIEMBRE</option><option>DICIEMBRE</option>
+            </select>
+          </label>
+          <label>Año
+            <input id="year" type="number" min="2020" max="2100" value="2026">
+          </label>
+          <label>Unidad / Marca
+            <select id="unit">
+              <option value="TRT VB" selected>TRT VB</option>
+              <option value="TRT">TRT</option>
+              <option value="SUR VB">SUR VB</option>
+              <option value="SUR">SUR</option>
+            </select>
+          </label>
+          <label>Hoja del archivo
+            <select id="sheetSelect" disabled><option>Primera hoja</option></select>
+          </label>
+        </div>
+        <details>
+          <summary>Opciones avanzadas</summary>
+          <div class="form-grid advanced">
+            <label>Columna Canje
+              <input id="canjeCol" value="Vta Man">
+            </label>
+            <label>Columna Abordo
+              <input id="abordoCol" value="Vta Abor">
+            </label>
+            <label>Columna Prepago
+              <input id="prepagoCol" value="Vta Prepago">
+            </label>
+            <label>Filtrar columna Marca
+              <select id="brandMode">
+                <option value="nonempty" selected>Solo marcas no vacías</option>
+                <option value="all">Todos los registros</option>
+                <option value="empty">Solo marca vacía</option>
+              </select>
+            </label>
+          </div>
+        </details>
+        <button id="processBtn" class="primary-btn" disabled>Procesar información</button>
+      </article>
+
+      <article class="panel help-panel">
+        <h3>Reglas detectadas</h3>
+        <div class="rule"><span>Canje</span><strong>Vta Man</strong></div>
+        <div class="rule"><span>Abordo</span><strong>Vta Abor</strong></div>
+        <div class="rule"><span>Prepago</span><strong>Vta Prepago</strong></div>
+        <div class="rule"><span>TRT VB</span><strong>Marca no vacía</strong></div>
+        <p class="hint">Estas reglas reproducen los importes de tu formato actual. Puedes modificarlas en “Opciones avanzadas”.</p>
+      </article>
+    </section>
+
+    <section id="dashboard" class="hidden">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">RESUMEN EJECUTIVO</p>
+          <h2 id="reportTitle">INGRESOS TRT VB JUNIO 2026</h2>
+        </div>
+        <div class="action-row">
+          <button id="exportExcelBtn" class="secondary-btn">⬇ Excel</button>
+          <button id="saveApiBtn" class="secondary-btn">☁ Guardar concentrado</button>
+          <button id="printBtn" class="secondary-btn">🖨 PDF / Imprimir</button>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <article class="kpi"><span>Canje</span><strong id="kpiCanje">$0.00</strong><small id="pctCanje">0%</small></article>
+        <article class="kpi"><span>Abordo</span><strong id="kpiAbordo">$0.00</strong><small id="pctAbordo">0%</small></article>
+        <article class="kpi"><span>Prepago</span><strong id="kpiPrepago">$0.00</strong><small id="pctPrepago">0%</small></article>
+        <article class="kpi total"><span>Total general</span><strong id="kpiTotal">$0.00</strong><small id="rowCount">0 registros</small></article>
+      </div>
+
+      <div class="chart-grid">
+        <article class="panel chart-card"><canvas id="barChart"></canvas></article>
+        <article class="panel chart-card"><canvas id="pieChart"></canvas></article>
+      </div>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h3>Concentrado</h3>
+          <span id="processedAt" class="muted"></span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Concepto</th><th>Importe</th><th>Participación</th></tr></thead>
+            <tbody id="summaryBody"></tbody>
+            <tfoot><tr><th>Total</th><th id="tableTotal">$0.00</th><th>100%</th></tr></tfoot>
+          </table>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h3>Vista previa de registros procesados</h3>
+          <span id="previewCount" class="muted"></span>
+        </div>
+        <div class="table-wrap preview">
+          <table>
+            <thead id="previewHead"></thead>
+            <tbody id="previewBody"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
