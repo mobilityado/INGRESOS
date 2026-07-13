@@ -1,52 +1,47 @@
-# Recaudación 365 Enterprise v15 Estable
+# NEXUS — Business Intelligence Platform v16
 
-Esta versión conserva el portal corporativo de la V14 y añade mejoras enfocadas en operación, presentación ejecutiva y uso móvil.
+Evolución visual y de identidad sobre la versión estable anterior.
 
-## Mejoras incluidas
+## Nueva identidad
 
-- KPI con animación y variación frente al periodo anterior.
-- Indicadores positivos y negativos.
-- Centro de notificaciones.
-- Mensajes de progreso durante la carga.
-- Copilot local ampliado.
-- Comparación rápida de las cuatro marcas.
-- Consulta de participación de Prepago.
-- Portada ejecutiva para impresión/PDF.
-- Datos del usuario y periodo en el reporte.
-- Tablas y gráficas optimizadas para celular.
-- Histórico y avisos al guardar periodos.
-- Mejoras de rendimiento y retroalimentación visual.
-- Panel administrativo y cambio de contraseña conservados.
+- Nombre: **NEXUS**
+- Subtítulo: **Business Intelligence Platform**
+- Firma: **Mobility ADO**
+- Isotipo: hexágono tornasol con una N geométrica y una flecha ascendente.
+
+El hexágono representa integración y tecnología. La N representa NEXUS y la flecha comunica análisis, avance y toma de decisiones.
+
+## Cambios incluidos
+
+- Rebranding completo del portal.
+- Nuevo logotipo SVG escalable.
+- Favicon propio.
+- Azul tornasol: índigo, azul eléctrico, cian y menta.
+- Pantalla de acceso renovada.
+- Barra lateral con nueva identidad.
+- Encabezados, botones, KPIs y reportes con paleta NEXUS.
+- Eliminación completa del módulo Aplicaciones.
+- Conservación de:
+  - Login seguro.
+  - Lista desplegable de usuarios.
+  - Roles y administración.
+  - Cambio de contraseña.
+  - Ingresos generales.
+  - TRT, TRTVB, AAO y AAOVB.
+  - Histórico.
+  - Comparativos.
+  - NEXUS Copilot local.
+  - Reportes Excel y PDF.
+  - Notificaciones.
 
 ## Instalación
 
-1. Sustituye `Code.gs` en Google Apps Script.
-2. En **Implementar > Administrar implementaciones**, edita la implementación.
-3. Selecciona **Nueva versión**.
-4. Conserva:
-   - Ejecutar como: **Yo**
-   - Acceso: **Cualquier persona**
-5. Copia la URL terminada en `/exec`.
-6. Colócala en `config.js`.
-7. Reemplaza todos los archivos del repositorio.
-8. Presiona `Ctrl + F5`.
+1. Sustituye `Code.gs` en Apps Script.
+2. Actualiza la implementación usando **Nueva versión**.
+3. Conserva o pega la URL `/exec` en `config.js`.
+4. Reemplaza todos los archivos en GitHub.
+5. Presiona `Ctrl + F5`.
 
-## Copilot local
+## Archivo de logotipo
 
-No utiliza servicios externos. Responde con base en los datos cargados:
-
-- Marca líder.
-- Total general.
-- Composición por concepto.
-- Resumen ejecutivo.
-- Comparación entre marcas.
-- Participación de Prepago.
-- Desglose individual de TRT, TRTVB, AAO y AAOVB.
-
-## Notificaciones
-
-Las notificaciones se almacenan localmente en el navegador. Incluyen:
-
-- Inicio de sesión.
-- Actualización de información.
-- Periodos guardados.
+Se incluye `nexus-logo.svg`, que puedes utilizar en documentos, portadas o accesos directos.

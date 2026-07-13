@@ -122,3 +122,121 @@ body.dark .app-header{background:rgba(10,22,38,.92)}body.dark .pill,body.dark .q
   .notification-menu,.load-progress-wrap{display:none!important}
   .report-cover{display:block!important;break-after:page}
 }
+
+
+/* V15.1 theme overrides */
+:root{
+  --blue:#2b6fff;
+  --blue-2:#45d7ff;
+}
+.enterprise-welcome{
+  background:linear-gradient(135deg,#153b8a 0%,#2b6fff 35%,#2fc8ff 70%,#79f2ff 100%) !important;
+}
+.hero-stat-card{
+  background:linear-gradient(145deg,rgba(255,255,255,.18),rgba(255,255,255,.08)) !important;
+}
+.pill{
+  background:linear-gradient(90deg,#2b6fff,#45d7ff) !important;
+}
+
+/* =========================================================
+   NEXUS V16 — Premium iridescent branding
+   ========================================================= */
+:root{
+  --nexus-indigo:#6558ff;
+  --nexus-blue:#2f74ff;
+  --nexus-cyan:#45ddff;
+  --nexus-mint:#7af7e8;
+  --nexus-navy:#07152c;
+  --nexus-gradient:linear-gradient(135deg,var(--nexus-indigo) 0%,var(--nexus-blue) 42%,var(--nexus-cyan) 76%,var(--nexus-mint) 100%);
+}
+.nexus-logo-svg{width:100%;height:100%;display:block;filter:drop-shadow(0 8px 18px rgba(47,116,255,.28))}
+.nexus-mark{background:transparent!important;box-shadow:none!important;padding:0!important;overflow:visible!important}
+.mobility-signature{display:block;font-size:8px;letter-spacing:1.4px;color:#8fbae8;margin-top:2px;text-transform:uppercase;font-weight:800}
+.side-brand .nexus-mark{width:43px;height:43px}
+.login-brand .nexus-mark{width:59px;height:59px}
+.report-cover-logo.nexus-mark{width:55px;height:55px}
+
+.sidebar{
+  background:
+    radial-gradient(circle at 15% 10%,rgba(101,88,255,.3),transparent 27%),
+    radial-gradient(circle at 90% 85%,rgba(69,221,255,.16),transparent 32%),
+    linear-gradient(180deg,#07152c 0%,#0c2550 52%,#102f63 100%)!important;
+}
+.side-nav button.active{
+  background:linear-gradient(100deg,#6558ff,#2f74ff 58%,#32c8f4)!important;
+  box-shadow:0 10px 24px rgba(47,116,255,.3)!important;
+}
+.app-header{
+  border-bottom:1px solid rgba(91,130,210,.16)!important;
+}
+.enterprise-welcome,.welcome-panel,.hero,.login-visual{
+  background:
+    radial-gradient(circle at 76% 18%,rgba(122,247,232,.19),transparent 24%),
+    radial-gradient(circle at 12% 78%,rgba(111,89,248,.24),transparent 31%),
+    linear-gradient(125deg,#101d60 0%,#493fca 24%,#2f74ff 56%,#32c8f4 82%,#7af7e8 112%)!important;
+}
+.enterprise-welcome:before,.hero:after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(112deg,transparent 15%,rgba(255,255,255,.16) 38%,transparent 55%);
+  transform:translateX(-100%);animation:nexusShimmer 8s ease-in-out infinite;
+}
+@keyframes nexusShimmer{0%,70%,100%{transform:translateX(-110%)}82%{transform:translateX(110%)}}
+.pill{
+  background:rgba(255,255,255,.14)!important;
+  border:1px solid rgba(255,255,255,.2)!important;
+  color:#fff!important;
+  backdrop-filter:blur(12px);
+}
+.primary,.login-submit{
+  background:linear-gradient(110deg,#6558ff,#2f74ff 55%,#29c7f0)!important;
+  box-shadow:0 14px 30px rgba(47,116,255,.25)!important;
+}
+.today-card,.card,.metric,.control-panel{
+  border-color:rgba(68,118,205,.14)!important;
+}
+.today-card:hover,.metric:hover,.card:hover{
+  border-color:rgba(58,146,255,.28)!important;
+}
+.today-icon,.quick-actions button>span,.report-option>span,.rank-no,.copilot-icon{
+  background:linear-gradient(135deg,rgba(101,88,255,.14),rgba(69,221,255,.16))!important;
+  color:#326ee8!important;
+}
+.copilot-icon{
+  color:#fff!important;background:var(--nexus-gradient)!important;
+  box-shadow:0 10px 24px rgba(47,116,255,.22)
+}
+.executive-kpis article{
+  background:linear-gradient(145deg,#101d60,#2350b5 55%,#2b8fce)!important;
+  position:relative;overflow:hidden;
+}
+.executive-kpis article:after{
+  content:"";position:absolute;width:120px;height:120px;border-radius:50%;
+  right:-55px;top:-58px;background:rgba(122,247,232,.1)
+}
+.report-cover{
+  background:
+    radial-gradient(circle at 88% 20%,rgba(122,247,232,.18),transparent 26%),
+    linear-gradient(135deg,#101d60,#443dcc 35%,#2f74ff 68%,#32c8f4)!important;
+}
+.login-screen{
+  background:
+    radial-gradient(circle at 12% 15%,rgba(101,88,255,.24),transparent 28%),
+    radial-gradient(circle at 86% 80%,rgba(69,221,255,.2),transparent 30%),
+    #061226!important;
+}
+.login-shell{border:1px solid rgba(102,143,220,.17)}
+.user-chip>span,.profile-avatar{
+  background:var(--nexus-gradient)!important;
+}
+.status.ok,.state-pill.active,.positive-delta{
+  background:linear-gradient(90deg,#dffbf4,#daf5ff)!important;color:#086a62!important
+}
+.load-progress-track i{background:var(--nexus-gradient)!important}
+.notification-btn span{background:linear-gradient(135deg,#765cff,#2dc9ef)!important}
+.tabs button.active{background:linear-gradient(100deg,#5145db,#2674e8,#28bfe5)!important}
+.brand-name{background:linear-gradient(145deg,#101d60,#295fce,#29b8df)!important}
+a{color:#3676ec}
+@media(prefers-reduced-motion:reduce){
+  .enterprise-welcome:before,.hero:after{animation:none}
+}

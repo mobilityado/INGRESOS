@@ -182,12 +182,12 @@ function renderHomeChart(){
   if(!state.summary)return;
   const canvas=$("homeChart");if(canvas)state.platformCharts.push(new Chart(canvas,{type:"bar",data:{labels:state.brands.map(b=>b.name),datasets:[{label:"Ingreso total",data:state.brands.map(b=>b.total),borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money.format(c.raw)}}},scales:{y:{ticks:{callback:v=>money.format(v)},grid:{color:"rgba(148,163,184,.15)"}},x:{grid:{display:false}}}}}))
 }
-const pageTitles={inicio:"Centro ejecutivo",ingresos:"Ingresos 360",comparativos:"Comparativos",reportes:"Reportes ejecutivos",aplicaciones:"Centro de aplicaciones",usuarios:"Usuarios y accesos",configuracion:"Configuración"};
+const pageTitles={inicio:"Centro ejecutivo",ingresos:"Ingresos 360",comparativos:"Comparativos",reportes:"Reportes ejecutivos",usuarios:"Usuarios y accesos",configuracion:"Configuración"};
 function openView(name){
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.dataset.viewPanel===name));
   document.querySelectorAll(".side-nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===name));
-  $("pageTitle").textContent=pageTitles[name]||"Recaudación 360";$("sidebar").classList.remove("open");window.scrollTo({top:0,behavior:"smooth"});
-  if(name==="comparativos")populateCompareSelectors();if(name==="aplicaciones")renderApps();if(name==="usuarios")loadAdminUsers();if(name==="configuracion")renderSettings();
+  $("pageTitle").textContent=pageTitles[name]||"NEXUS";$("sidebar").classList.remove("open");window.scrollTo({top:0,behavior:"smooth"});
+  if(name==="comparativos")populateCompareSelectors();if(name==="usuarios")loadAdminUsers();if(name==="configuracion")renderSettings();
 }
 document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>openView(b.dataset.view));
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>openView(b.dataset.go));
@@ -216,7 +216,8 @@ $("runCompareBtn").onclick=()=>{
 };
 function renderApps(){
   const apps=window.APP_CONFIG?.APPS||[];
-  $("appsGrid").innerHTML=apps.map(a=>`<article class="card app-card"><span class="app-status ${a.url?"ready":"pending"}">${a.url?"Disponible":"Configurar URL"}</span><div class="app-icon">${a.icon}</div><h3>${a.name}</h3><p>${a.description}</p>${a.url?`<a class="btn primary" href="${a.url}" target="_blank" rel="noopener">Abrir aplicación</a>`:`<button class="btn" disabled>Dirección pendiente</button>`}</article>`).join("")
+  const grid=document.getElementById("appsGrid");
+  if(grid) grid.innerHTML="";
 }
 function renderSettings(){$("sheetIdPreview").textContent=apiUrl()&&!apiUrl().includes("PEGA_AQUI")?"API segura configurada":"API pendiente de configurar";$("historyCount").textContent=`${getHistory().length} periodos almacenados`}
 $("reportPrintBtn").onclick=()=>{if(!state.summary){toast("Primero carga la información");return}openView("ingresos");setTimeout(()=>window.print(),250)};
@@ -448,7 +449,7 @@ $("clearNotificationsBtn").onclick=()=>{saveNotifications([]);renderNotification
 document.addEventListener("click",e=>{if(!e.target.closest(".notification-menu"))$("notificationPanel").classList.add("hidden")});
 renderNotifications();
 
-renderApps();renderSettings();populateCompareSelectors();loadLoginUsers();restoreSession();
+renderSettings();populateCompareSelectors();loadLoginUsers();restoreSession();
 
 updateSources();
 })();
