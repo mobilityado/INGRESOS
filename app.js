@@ -26,7 +26,10 @@
     const n=Number(s);return Number.isFinite(n)?n:0;
   };
   const toast=msg=>{$("toast").textContent=msg;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),3200)};
-  const apiUrl=()=>String(window.APP_CONFIG?.API_URL||"").trim();
+  const sheetId = () => String(window.APP_CONFIG?.SHEET_ID || "").trim();
+  const configuredSheets = () => window.APP_CONFIG?.SHEETS || {TRT:"TRT",TRTVB:"TRTVB",AAO:"AAO",AAOVB:"AAOVB"};
+  const csvUrl = sheetName =>
+    `https://docs.google.com/spreadsheets/d/${encodeURIComponent(sheetId())}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&cache=${Date.now()}`;
 
   if(localStorage.getItem("ingresos-theme")==="dark")document.body.classList.add("dark");
   $("themeBtn").onclick=()=>{document.body.classList.toggle("dark");localStorage.setItem("ingresos-theme",document.body.classList.contains("dark")?"dark":"light")};
@@ -150,4 +153,97 @@
   $("loadApiBtn").onclick=async()=>{try{if(!apiUrl()||apiUrl().includes("PEGA_AQUI"))throw new Error("Configura la URL del Apps Script en config.js.");const u=new URL(apiUrl());u.searchParams.set("accion","todasLasHojas");const j=await(await fetch(u)).json();if(j.error)throw new Error(j.mensaje);clearSources(false);(j.hojas||[]).forEach(h=>{const brand=identifyBrand(h.nombre);if(brand){const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(h.datos),h.nombre);state.sources[brand]={brand,workbook:wb,sheetName:h.nombre,fileName:"Google Sheets"}}});updateSourceUI();if(Object.keys(state.sources).length===4)processAll(true)}catch(e){setError(e.message)}};
   function setError(msg){$("fileStatus").className="status error";$("fileStatus").textContent="Revisar archivos";$("validationMessage").className="validation-message error-box";$("validationMessage").textContent=msg;toast(msg);console.error(msg)}
   updateSourceUI();
+$("loadApiBtn").onclick = async () => {
+    const btn = $("loadApiBtn");
+    const original = btn.textContent;
+    try {
+      if (!sheetId()) throw new Error("No está configurado el ID del Google Sheets.");
+      btn.disabled = true;
+      btn.textContent = "⏳ Leyendo las 4 marcas...";
+      if (typeof Papa === "undefined") throw new Error("No se pudo cargar el lector CSV.");
+
+      const mapping = configuredSheets();
+      const loaded = {};
+      const errors = [];
+
+      for (const brand of ["TRT", "TRTVB", "AAO", "AAOVB"]) {
+        const sheetName = mapping[brand] || brand;
+        try {
+          const response = await fetch(csvUrl(sheetName), { cache: "no-store" });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const csv = await response.text();
+          if (/<!doctype html|<html/i.test(csv)) {
+            throw new Error("Google devolvió una página de acceso. Revisa que la hoja esté compartida.");
+          }
+          const parsed = Papa.parse(csv, {
+            header: false,
+            skipEmptyLines: false,
+            dynamicTyping: false
+          });
+          if (parsed.errors?.length && !parsed.data?.length) {
+            throw new Error(parsed.errors[0].message);
+          }
+          const matrix = parsed.data || [];
+          const detected = matrixToObjects(matrix);
+          if (!detected.length) throw new Error("No se encontraron registros válidos.");
+          loaded[brand] = {
+            brand,
+            fileName: "Google Sheets",
+            sheetName,
+            rows: detected
+          };
+        } catch (error) {
+          errors.push(`${brand}: ${error.message}`);
+        }
+      }
+
+      if (errors.length) {
+        throw new Error("No fue posible leer todas las marcas. " + errors.join(" | "));
+      }
+
+      state.sources = loaded;
+      refreshSourceCards();
+      setReadyMessage();
+      toast("Las cuatro marcas se cargaron desde Google Sheets");
+    } catch (error) {
+      showError(error.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  };
+
+
+  function matrixToObjects(matrix) {
+    if (!Array.isArray(matrix) || !matrix.length) return [];
+    const normalizeLocal = value => String(value ?? "").replace(/\s+/g, " ").trim().toLowerCase();
+
+    const headerIndex = matrix.findIndex(row => {
+      const values = (row || []).map(normalizeLocal);
+      const hasCanje = values.some(v => v === "vta man" || v.includes("vta man"));
+      const hasAbordo = values.some(v => v === "vta abor" || v.includes("vta abor"));
+      const hasPrepago = values.some(v => v === "vta prepago" || v.includes("prepago"));
+      return hasCanje && hasAbordo && hasPrepago;
+    });
+
+    if (headerIndex < 0) {
+      throw new Error("No se localizó la fila de encabezados Vta Man, Vta Abor y Vta Prepago.");
+    }
+
+    const headers = (matrix[headerIndex] || []).map((value, index) => {
+      const text = String(value ?? "").trim();
+      return text || `Columna ${index + 1}`;
+    });
+
+    return matrix.slice(headerIndex + 1)
+      .filter(row => Array.isArray(row) && row.some(cell => String(cell ?? "").trim() !== ""))
+      .map(row => {
+        const obj = {};
+        headers.forEach((header, index) => {
+          obj[header] = row[index] ?? "";
+        });
+        return obj;
+      });
+  }
+
 })();

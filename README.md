@@ -1,41 +1,50 @@
-# Ingresos 360 — TRT, TRTVB, AAO y AAOVB
+# Sistema de Ingresos 360 — conexión directa con Google Sheets
 
-## Corrección principal de la versión 5
-La aplicación ya no exige que las cuatro marcas estén dentro de un solo libro. Admite:
+Esta versión ya no utiliza Google Apps Script para consultar la información.
 
-- Un Excel que contenga las pestañas `TRT`, `TRTVB`, `AAO` y `AAOVB`.
-- Hasta cuatro archivos separados, identificados por el nombre del archivo o de la pestaña.
-- Selecciones sucesivas: puedes cargar primero una marca y después las restantes.
+## Fuente configurada
 
-El botón **Generar reporte ejecutivo** se habilita únicamente cuando se detectan las cuatro marcas.
+- Google Sheets ID: `1t7_19QrIufcoX-osGVlm4sZ4fpGt4ljP26wwg8nh-Tc`
+- Pestañas obligatorias:
+  - `TRT`
+  - `TRTVB`
+  - `AAO`
+  - `AAOVB`
 
-## Resultado
-- Concentrado general.
-- Comparativo gráfico de las cuatro marcas.
-- Participación porcentual por marca.
-- Reporte TRT con dos gráficas.
-- Reporte TRTVB con dos gráficas.
-- Reporte AAO con dos gráficas.
-- Reporte AAOVB con dos gráficas.
-- Exportación a Excel con pestaña GENERAL y cuatro pestañas individuales.
+La aplicación consulta las cuatro pestañas mediante la salida CSV de Google Visualization.
 
-## Publicación en GitHub Pages
-Sube todos los archivos de esta carpeta al repositorio, reemplazando los anteriores. Luego presiona Ctrl+F5 en el navegador para evitar que se conserve la versión anterior en caché.
+## Requisito de acceso
 
+El Google Sheets debe estar compartido como:
 
-## Corrección versión 6
+**Cualquier persona que tenga el vínculo — Lector**
 
-Se corrigió la lectura de importes con separador decimal mexicano y americano.
+No hace falta publicarlo para editar ni compartir permisos de escritura.
 
-- `$27,00` ahora se interpreta como **27.00**, no como 2,700.
-- `$1.446,52` se interpreta como **1,446.52**.
-- `$1,446.52` también se interpreta como **1,446.52**.
+## Publicar en GitHub Pages
 
-Con el archivo `REPORTE DE INGRESOS (2).xlsx`, el cálculo directo de los registros es:
+1. Reemplaza en tu repositorio todos los archivos por los de esta carpeta.
+2. Conserva la estructura en la raíz.
+3. Espera a que GitHub Pages termine de publicar.
+4. Abre la página y presiona `Ctrl + F5`.
+5. Usa **Actualizar desde Google Sheets**.
 
-- Canje: $1,684,123.87
-- Abordo: $4,337,792.15
-- Prepago: $16,155,928.09
-- Total: $22,177,844.11
+## Si cambia el nombre de una pestaña
 
-El concentrado manual mostrado tiene una diferencia de $12.00 en Canje. La aplicación usa los datos reales de las cuatro pestañas, sin ajustes manuales.
+Edita `config.js`:
+
+```javascript
+window.APP_CONFIG = {
+  SHEET_ID: "ID_DE_TU_HOJA",
+  SHEETS: {
+    TRT: "TRT",
+    TRTVB: "TRTVB",
+    AAO: "AAO",
+    AAOVB: "AAOVB"
+  }
+};
+```
+
+## Respaldo
+
+La carga manual de archivos Excel continúa disponible.
