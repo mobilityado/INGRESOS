@@ -6,33 +6,57 @@
   <meta name="theme-color" content="#081a33">
   <title>Ingresos 360 | Recaudación</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
   <header class="topbar">
-    <div class="brand-lockup">
-      <div class="logo-mark"><span>R</span></div>
-      <div><p class="eyebrow light">RECAUDACIÓN · CONTROL EJECUTIVO</p><h1>Ingresos <em>360</em></h1><p class="subtitle">TRT · TRTVB · AAO · AAOVB</p></div>
+    <div class="topbar-inner">
+      <div class="brand-lockup">
+        <div class="logo-mark"><span>R</span></div>
+        <div>
+          <p class="eyebrow light">RECAUDACIÓN · INTELIGENCIA OPERATIVA</p>
+          <h1>Ingresos <em>360</em></h1>
+          <p class="subtitle">Panel ejecutivo multimarcas</p>
+        </div>
+      </div>
+      <div class="header-meta">
+        <div class="header-status"><span class="live-dot"></span><div><small>FUENTE PRINCIPAL</small><b>Google Sheets</b></div></div>
+        <div class="header-brands"><span>TRT</span><span>TRTVB</span><span>AAO</span><span>AAOVB</span></div>
+        <button id="themeBtn" class="icon-btn" title="Cambiar apariencia">◐</button>
+      </div>
     </div>
-    <button id="themeBtn" class="icon-btn" title="Cambiar apariencia">◐</button>
   </header>
 
   <main class="container">
-    <section class="hero-card glass">
+    <section class="hero-card glass executive-hero">
       <div class="hero-copy">
-        <span class="badge">REPORTE MULTIMARCA</span>
-        <h2>Un panorama general y cuatro análisis individuales</h2>
-        <p>Carga un libro con cuatro pestañas o varios archivos separados. El sistema identifica automáticamente <strong>TRT, TRTVB, AAO y AAOVB</strong>.</p>
-        <div class="privacy-note"><span>✓</span> Procesamiento local: tus archivos no se suben a servidores externos.</div>
+        <div class="hero-label-row"><span class="badge">CENTRO DE CONTROL</span><span class="period-chip">TRT · TRTVB · AAO · AAOVB</span></div>
+        <h2>Visión ejecutiva de ingresos, en un solo lugar</h2>
+        <p>Consolida las cuatro marcas, compara su participación y consulta cada operación de forma individual con indicadores listos para presentación.</p>
+        <div class="hero-proof">
+          <div><strong>4</strong><span>marcas integradas</span></div>
+          <div><strong>1</strong><span>concentrado general</span></div>
+          <div><strong>100%</strong><span>procesamiento local</span></div>
+        </div>
       </div>
-      <div class="hero-actions">
-        <label class="upload-btn">
+      <div class="hero-actions executive-actions">
+        <button id="loadApiBtn" class="primary-source-btn"><span class="source-icon">↻</span><span><b>Actualizar desde Google Sheets</b><small>Consulta las 4 pestañas en tiempo real</small></span></button>
+        <label class="upload-btn upload-secondary">
           <input id="fileInput" type="file" accept=".xlsx,.xls" multiple hidden>
-          <span class="upload-icon">＋</span><span><b>Seleccionar archivo(s)</b><small>Uno con 4 pestañas o hasta 4 libros</small></span>
+          <span class="upload-icon">＋</span><span><b>Cargar respaldo Excel</b><small>Libro completo o archivos separados</small></span>
         </label>
-        <button id="loadApiBtn" class="secondary-btn">☁ Actualizar desde Google Sheets</button>
+        <div class="privacy-note"><span>✓</span> Los archivos de respaldo se procesan únicamente en tu navegador.</div>
       </div>
+    </section>
+
+    <section class="executive-strip">
+      <article><span class="strip-icon">01</span><div><small>FUENTE</small><b>Google Sheets conectado</b></div></article>
+      <article><span class="strip-icon">02</span><div><small>COBERTURA</small><b>Cuatro marcas operativas</b></div></article>
+      <article><span class="strip-icon">03</span><div><small>SALIDA</small><b>Excel y reporte imprimible</b></div></article>
     </section>
 
     <section class="setup-card panel">

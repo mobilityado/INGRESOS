@@ -1,50 +1,25 @@
-# Sistema de Ingresos 360 — conexión directa con Google Sheets
+# Sistema de Ingresos 360 — Diseño Ejecutivo v8
 
-Esta versión ya no utiliza Google Apps Script para consultar la información.
+Esta versión conserva la conexión directa con Google Sheets y renueva por completo la presentación visual.
 
-## Fuente configurada
+## Cambios de diseño
 
-- Google Sheets ID: `1t7_19QrIufcoX-osGVlm4sZ4fpGt4ljP26wwg8nh-Tc`
-- Pestañas obligatorias:
-  - `TRT`
-  - `TRTVB`
-  - `AAO`
-  - `AAOVB`
+- Encabezado institucional más sobrio.
+- Jerarquía visual de nivel ejecutivo.
+- Botón principal para Google Sheets.
+- Carga de Excel presentada como respaldo.
+- Indicadores de cobertura, fuente y salida.
+- Tarjetas KPI más limpias.
+- Gráficas y tablas con mejor contraste.
+- Mejor experiencia en pantallas grandes y dispositivos móviles.
+- Modo oscuro refinado.
+- Impresión y PDF más limpios.
 
-La aplicación consulta las cuatro pestañas mediante la salida CSV de Google Visualization.
+## Instalación
 
-## Requisito de acceso
+1. Reemplaza todos los archivos del repositorio.
+2. Espera a que GitHub Pages termine de publicar.
+3. Presiona `Ctrl + F5`.
+4. Usa **Actualizar desde Google Sheets**.
 
-El Google Sheets debe estar compartido como:
-
-**Cualquier persona que tenga el vínculo — Lector**
-
-No hace falta publicarlo para editar ni compartir permisos de escritura.
-
-## Publicar en GitHub Pages
-
-1. Reemplaza en tu repositorio todos los archivos por los de esta carpeta.
-2. Conserva la estructura en la raíz.
-3. Espera a que GitHub Pages termine de publicar.
-4. Abre la página y presiona `Ctrl + F5`.
-5. Usa **Actualizar desde Google Sheets**.
-
-## Si cambia el nombre de una pestaña
-
-Edita `config.js`:
-
-```javascript
-window.APP_CONFIG = {
-  SHEET_ID: "ID_DE_TU_HOJA",
-  SHEETS: {
-    TRT: "TRT",
-    TRTVB: "TRTVB",
-    AAO: "AAO",
-    AAOVB: "AAOVB"
-  }
-};
-```
-
-## Respaldo
-
-La carga manual de archivos Excel continúa disponible.
+La configuración de las cuatro pestañas permanece en `config.js`.
