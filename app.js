@@ -3,7 +3,28 @@
   const money=new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN"});
   const state={sources:{},brands:[],summary:null,charts:[]};
   const normalize=v=>String(v??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/gi,"").toUpperCase();
-  const number=v=>{if(typeof v==="number")return Number.isFinite(v)?v:0;const n=Number(String(v??"").replace(/[$,\s]/g,""));return Number.isFinite(n)?n:0};
+  // Convierte importes en formato mexicano ($1.446,52) y americano ($1,446.52).
+  // La versión anterior eliminaba todas las comas; por eso $27,00 se interpretaba como $2,700.
+  const number=v=>{
+    if(typeof v==="number")return Number.isFinite(v)?v:0;
+    let s=String(v??"").trim().replace(/\$/g,"").replace(/\s/g,"").replace(/[^0-9,.-]/g,"");
+    if(!s||s==="-")return 0;
+    const comma=s.lastIndexOf(","),dot=s.lastIndexOf(".");
+    if(comma>=0&&dot>=0){
+      if(comma>dot)s=s.replace(/\./g,"").replace(",",".");
+      else s=s.replace(/,/g,"");
+    }else if(comma>=0){
+      const decimals=s.length-comma-1;
+      s=decimals===1||decimals===2?s.replace(/\./g,"").replace(",","."):s.replace(/,/g,"");
+    }else if(dot>=0){
+      const pieces=s.split(".");
+      if(pieces.length>2){
+        const last=pieces.pop();
+        s=(last.length===1||last.length===2)?pieces.join("")+"."+last:pieces.join("")+last;
+      }
+    }
+    const n=Number(s);return Number.isFinite(n)?n:0;
+  };
   const toast=msg=>{$("toast").textContent=msg;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),3200)};
   const apiUrl=()=>String(window.APP_CONFIG?.API_URL||"").trim();
 
@@ -92,7 +113,7 @@
       const missing=BRANDS.filter(b=>!state.sources[b]);if(missing.length)throw new Error(`Faltan las marcas: ${missing.join(", ")}.`);
       state.brands=BRANDS.map(b=>parseSource(state.sources[b]));
       state.summary=state.brands.reduce((a,b)=>({canje:a.canje+b.canje,abordo:a.abordo+b.abordo,prepago:a.prepago+b.prepago,total:a.total+b.total,count:a.count+b.count}),{canje:0,abordo:0,prepago:0,total:0,count:0});
-      render();toast("Reporte general y cuatro análisis generados");if(scroll)$("dashboard").scrollIntoView({behavior:"smooth"});
+      render();toast(`Reporte corregido: ${money.format(state.summary.total)}`);if(scroll)$("dashboard").scrollIntoView({behavior:"smooth"});
     }catch(err){setError(err.message)}
   }
   const pct=(v,t)=>`${(v/(t||1)*100).toFixed(2)}%`;

@@ -21,3 +21,21 @@ El botón **Generar reporte ejecutivo** se habilita únicamente cuando se detect
 
 ## Publicación en GitHub Pages
 Sube todos los archivos de esta carpeta al repositorio, reemplazando los anteriores. Luego presiona Ctrl+F5 en el navegador para evitar que se conserve la versión anterior en caché.
+
+
+## Corrección versión 6
+
+Se corrigió la lectura de importes con separador decimal mexicano y americano.
+
+- `$27,00` ahora se interpreta como **27.00**, no como 2,700.
+- `$1.446,52` se interpreta como **1,446.52**.
+- `$1,446.52` también se interpreta como **1,446.52**.
+
+Con el archivo `REPORTE DE INGRESOS (2).xlsx`, el cálculo directo de los registros es:
+
+- Canje: $1,684,123.87
+- Abordo: $4,337,792.15
+- Prepago: $16,155,928.09
+- Total: $22,177,844.11
+
+El concentrado manual mostrado tiene una diferencia de $12.00 en Canje. La aplicación usa los datos reales de las cuatro pestañas, sin ajustes manuales.
