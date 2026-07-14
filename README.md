@@ -1,4 +1,4 @@
-# NEXUS 2030 Enterprise Suite
+# NEXUS 2030 Enterprise Suite 2030.1 — Corrección de acceso
 
 **Enterprise Intelligence Operating System**  
 **Mobility ADO**  
@@ -46,3 +46,12 @@ Las metas por marca se guardan localmente en el navegador. Para compartirlas ent
 4. Presiona `Ctrl + F5`.
 
 La URL `/exec` permanece configurada en `config.js`.
+
+
+## Corrección 2030.1
+
+Se corrigió un error de JavaScript que impedía cargar la lista desplegable de usuarios.
+
+La sección Apariencia fue actualizada para usar un selector de tema, pero el código aún intentaba enlazar un botón anterior llamado `settingsThemeBtn`. Al no existir ese elemento, la ejecución se detenía antes de llamar a `loadLoginUsers()`.
+
+También se agregó una inicialización defensiva para mostrar un mensaje claro si la API no responde.

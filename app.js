@@ -570,7 +570,7 @@ document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>openView(b.dat
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>openView(b.dataset.go));
 $("menuBtn").onclick=()=>$("sidebar").classList.toggle("open");
 $("homeLoadBtn").onclick=()=>$("loadSheetsBtn").click();
-$("settingsThemeBtn").onclick=()=>$("themeBtn").click();
+if($("settingsThemeBtn"))$("settingsThemeBtn").onclick=()=>$("themeBtn").click();
 $("openHistoryAdminBtn").onclick=()=>$("clearHistoryBtn").click();
 $("headerPeriod").textContent=`${$("month").value} ${$("year").value}`;
 $("month").addEventListener("change",()=>$("headerPeriod").textContent=`${$("month").value} ${$("year").value}`);
@@ -1252,7 +1252,15 @@ $("clearNotificationsBtn").onclick=()=>{saveNotifications([]);renderNotification
 document.addEventListener("click",e=>{if(!e.target.closest(".notification-menu"))$("notificationPanel").classList.add("hidden")});
 renderNotifications();
 
-renderSettings();populateCompareSelectors();loadLoginUsers();restoreSession();
+renderSettings();
+populateCompareSelectors();
+Promise.resolve()
+  .then(()=>loadLoginUsers())
+  .catch(err=>{
+    const error=$("loginError");
+    if(error){error.textContent=err.message||"No fue posible cargar los usuarios.";error.classList.remove("hidden");}
+  });
+restoreSession();
 
 updateSources();
 })();
