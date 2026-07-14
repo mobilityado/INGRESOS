@@ -838,3 +838,12 @@ body:after{width:500px;height:500px;border-radius:50%;background:linear-gradient
 body.presentation-active{overflow:hidden}
 @media(max-width:900px){.signature-showcase-grid,.presentation-kpis{grid-template-columns:repeat(2,1fr)}.presentation-grid{grid-template-columns:1fr}}
 @media(max-width:600px){.signature-showcase-grid,.presentation-kpis{grid-template-columns:1fr}.presentation-overlay{padding:16px}.presentation-overlay header{align-items:flex-start}}
+
+/* NEXUS ONE 2.1 — Automatic Google Sheets loading */
+.autoload-status{display:inline-flex;align-items:center;gap:8px;margin-top:15px;padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.17);font-size:8px;color:#d8ebf8}
+.autoload-status i{width:9px;height:9px;border:2px solid rgba(255,255,255,.30);border-top-color:#fff;border-radius:50%;animation:autoloadSpin .8s linear infinite}
+.autoload-status.success i{border:0;background:#43d59d;animation:none;box-shadow:0 0 0 4px rgba(67,213,157,.12)}
+.autoload-status.error i{border:0;background:#ef6a6a;animation:none;box-shadow:0 0 0 4px rgba(239,106,106,.12)}
+@keyframes autoloadSpin{to{transform:rotate(360deg)}}
+.one-source-info{display:flex;align-items:center;gap:7px}
+.one-source-badge{padding:7px 10px;border-radius:999px;background:linear-gradient(90deg,rgba(110,88,255,.10),rgba(66,217,255,.13));border:1px solid rgba(74,112,190,.12);font-size:8px;color:#526b91;font-weight:800}

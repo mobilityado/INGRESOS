@@ -106,6 +106,7 @@ function processAll(){
   }catch(e){setError(e.message)}
 }
 $("loadSheetsBtn").onclick=async()=>{
+  if($("oneDataSource"))$("oneDataSource").textContent="Google Sheets";
   const btn=$("loadSheetsBtn"),old=btn.innerHTML;
   try{
     btn.disabled=true;
@@ -120,6 +121,7 @@ $("loadSheetsBtn").onclick=async()=>{
       loaded[b]={brand:b,fileName:"Google Sheets",sheetName:b,rows};
     });
     state.sources=loaded;setLoadProgress(78,"Calculando indicadores...");
+    if($("oneDataSource"))$("oneDataSource").textContent="Archivo local";
     updateSources();processAll();setLoadProgress(100,"Reporte actualizado");
     addNotification("Información actualizada",`Se procesaron ${Object.values(loaded).reduce((a,x)=>a+x.rows.length,0).toLocaleString("es-MX")} registros.`,"↻");
   }catch(e){setError(e.message)}
@@ -667,6 +669,7 @@ function showApp(){
   $("loginScreen").classList.add("hidden");
   $("appLayout").classList.remove("hidden");
   setUserInterface(authSession.user);
+  setTimeout(()=>autoLoadGoogleSheets(),350);
   const overlay=$("startupOverlay");
   if(overlay){
     $("startupUserName").textContent=authSession.user.name||authSession.user.username;
@@ -805,6 +808,44 @@ function updateEnterpriseHeader(){
   }
 }
 setInterval(updateEnterpriseHeader,30000);
+
+
+let nexusAutoLoadStarted=false;
+async function autoLoadGoogleSheets(){
+  if(nexusAutoLoadStarted||state.summary)return;
+  nexusAutoLoadStarted=true;
+  const status=$("autoLoadStatus"),text=$("autoLoadStatusText"),button=$("loadSheetsBtn");
+  if(status){status.classList.remove("hidden","success","error");}
+  if(text)text.textContent="Sincronizando Google Sheets...";
+  if($("oneDataSource"))$("oneDataSource").textContent="Google Sheets";
+  try{
+    if(!button)throw new Error("No se encontró el control de actualización.");
+    button.click();
+
+    // Wait for the existing loader to finish or for a timeout.
+    const started=Date.now();
+    await new Promise((resolve,reject)=>{
+      const timer=setInterval(()=>{
+        if(state.summary){
+          clearInterval(timer);
+          resolve();
+        }else if(Date.now()-started>30000){
+          clearInterval(timer);
+          reject(new Error("La consulta tardó demasiado."));
+        }
+      },250);
+    });
+
+    if(status)status.classList.add("success");
+    if(text)text.textContent="Información actualizada desde Google Sheets";
+    setTimeout(()=>status?.classList.add("hidden"),2400);
+  }catch(error){
+    nexusAutoLoadStarted=false;
+    if(status)status.classList.add("error");
+    if(text)text.textContent="No se pudo cargar automáticamente. Puedes intentarlo manualmente.";
+    console.error("NEXUS autoload:",error);
+  }
+}
 
 async function restoreSession(){
   try{

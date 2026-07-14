@@ -1,8 +1,7 @@
 # Changelog
 
-## 2.0
-- Signature branding and logo
-- Executive presentation mode
-- Signature overview
-- Refined microanimations
-- Premium executive visuals
+## 2.1
+- Automatic Google Sheets loading after login.
+- Source badge: Google Sheets / Archivo local.
+- Automatic loading state and error message.
+- Manual Excel loading remains available.
