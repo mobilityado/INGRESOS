@@ -3,7 +3,7 @@ const PRODUCT_VERSION="2030";
 const PRODUCT_BUILD="3000.0713";
 const BRANDS=["TRT","TRTVB","AAO","AAOVB"],$=id=>document.getElementById(id);
 const money=new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN"});
-const state={sources:{},brands:[],summary:null,charts:[],platformCharts:[],intelligenceCharts:[],directorCharts:[],commandCharts:[],forecastCharts:[],commandAlerts:[],publisher:null,oneCharts:[],notifications:[]};
+const state={sources:{},brands:[],summary:null,charts:[],platformCharts:[],intelligenceCharts:[],directorCharts:[],commandCharts:[],forecastCharts:[],commandAlerts:[],publisher:null,oneCharts:[],presentationCharts:[],notifications:[]};
 const notificationKey="recaudacion365-notifications-v15";
 const loadNotifications=()=>{try{return JSON.parse(localStorage.getItem(notificationKey)||"[]")}catch{return[]}};
 const saveNotifications=v=>localStorage.setItem(notificationKey,JSON.stringify(v));
@@ -907,7 +907,80 @@ const getGoals=()=>{try{return JSON.parse(localStorage.getItem(goalsKey)||"{}")}
 const oneCommands=[{label:"Inicio",desc:"Resumen ejecutivo",view:"one",keys:"inicio resumen"},{label:"Analytics",desc:"Ingresos y marcas",view:"ingresos",keys:"trt trtvb aao aaovb ingresos"},{label:"NEXUS AI",desc:"Preguntas y recomendaciones",view:"ai",keys:"ia resumen alertas"},{label:"Reportes",desc:"PDF y Excel",view:"reportes",keys:"reporte pdf excel"},{label:"Publisher",desc:"Publicar periodo",view:"publisher",role:"GERENCIA",keys:"publicar cargar excel"},{label:"Configuración",desc:"Tema y respaldos",view:"configuracion",role:"GERENCIA",keys:"configuracion respaldo"},{label:"Usuarios",desc:"Roles y accesos",view:"usuarios",role:"ADMINISTRADOR",keys:"usuarios roles"}];
 function oneMatches(q){q=normalize(q);return oneCommands.filter(c=>(!c.role||canAccess(c.role))&&(!q||normalize(c.label+' '+c.desc+' '+c.keys).includes(q)))}
 function fillOneResults(id,q){const t=$(id),rows=oneMatches(q);t.innerHTML=rows.length?rows.map(c=>`<div class="${id==='onePaletteResults'?'one-palette-item':'one-search-item'}" data-one-result="${c.view}"><div><b>${c.label}</b><small>${c.desc}</small></div><span>→</span></div>`).join(''):'<div class="one-empty">Sin resultados.</div>';t.querySelectorAll('[data-one-result]').forEach(e=>e.onclick=()=>{openView(e.dataset.oneResult);$('onePalette')?.classList.add('hidden');$('oneSearchResults')?.classList.add('hidden')})}
-function renderNexusOne(){if(!$('oneGreetingName'))return;$('oneGreetingLabel').textContent=getDayGreeting();$('oneGreetingName').textContent=authSession?.user?.name||authSession?.user?.username||'Usuario';$('onePeriodBadge').textContent=`${$('month').value} ${$('year').value}`;const n=loadNotifications().slice(0,5);$('oneActivity').innerHTML=n.length?n.map(x=>`<div class="one-activity-row"><i>${x.icon}</i><div><b>${escapeHtml(x.title)}</b><small>${escapeHtml(x.detail)} · ${escapeHtml(x.time)}</small></div></div>`).join(''):'<div class="one-empty">Sin actividad reciente.</div>';document.querySelectorAll('[data-one-go]').forEach(b=>b.classList.toggle('restricted-role',!!b.dataset.minRole&&!canAccess(b.dataset.minRole)));if(!state.summary)return;const s=state.summary,bs=[...state.brands].sort((a,b)=>b.total-a.total),lead=bs[0],cs=[["Canje",s.canje],["Abordo",s.abordo],["Prepago",s.prepago]].sort((a,b)=>b[1]-a[1]),prev=getCurrentPreviousPeriod(),chg=prev?((s.total-prev.total)/(prev.total||1)*100):null,alerts=getCommandAlerts().filter(a=>a.icon!=="✓"),score=calculateDirectorScore();$('oneTotal').textContent=money.format(s.total);$('oneTotalTrend').textContent=chg==null?'Sin comparativo':`${chg>=0?'▲':'▼'} ${Math.abs(chg).toFixed(2)}% vs. ${prev.label}`;$('oneLeader').textContent=lead.name;$('oneLeaderShare').textContent=`${pct(lead.total,s.total)} del total`;$('oneConcept').textContent=cs[0][0];$('oneConceptShare').textContent=`${pct(cs[0][1],s.total)} del total`;$('oneAlerts').textContent=alerts.length;$('oneAlertsDetail').textContent=alerts.length?alerts[0].text:'Sin alertas críticas';$('oneHealthScore').textContent=`${score}/100`;$('oneHealthMessage').textContent=score>=80?'Excelente':score>=60?'Atención':'Riesgo';$('oneHealthRing').style.background=`conic-gradient(#79f5e9 0deg,#46dbff ${score*3.6}deg,rgba(255,255,255,.12) ${score*3.6}deg)`;$('oneInsights').innerHTML=[`🏆|${lead.name} lidera con ${pct(lead.total,s.total)}.`,`◉|${cs[0][0]} representa ${pct(cs[0][1],s.total)}.`,`${chg==null?'▥':chg>=0?'↗':'↘'}|${chg==null?'Guarda otro periodo para comparar.':`El total ${chg>=0?'aumentó':'disminuyó'} ${Math.abs(chg).toFixed(2)}%.`}`].map(x=>{const [i,t]=x.split('|');return `<div class="one-insight"><i>${i}</i><div>${t}</div></div>`}).join('');state.oneCharts?.forEach(c=>c.destroy());state.oneCharts=[];if($('oneBrandChart'))state.oneCharts.push(new Chart($('oneBrandChart'),{type:'bar',data:{labels:bs.map(b=>b.name),datasets:[{data:bs.map(b=>b.total),borderRadius:10}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money.format(c.raw)}}},scales:{y:{ticks:{callback:v=>money.format(v)},grid:{color:'rgba(148,163,184,.14)'}},x:{grid:{display:false}}}}}))}
+
+function renderOneBriefing(){
+  if(!$("oneBriefingBody"))return;
+  $("oneBriefingTitle").textContent=`${getDayGreeting()}, ${authSession?.user?.name||authSession?.user?.username||"Usuario"}`;
+  const hist=getHistory();
+  if($("oneHistoryState"))$("oneHistoryState").textContent=hist.length?`${hist.length} periodos`:"Sin histórico";
+  if($("oneHistoryDot"))$("oneHistoryDot").className=hist.length?"ok":"";
+  if($("onePublisherState"))$("onePublisherState").textContent=canAccess("GERENCIA")?"Disponible":"Solo consulta";
+  if($("onePublisherDot"))$("onePublisherDot").className=canAccess("GERENCIA")?"ok":"";
+  if(!state.summary){
+    $("oneBriefingBody").innerHTML='<div class="one-empty">Actualiza los datos para generar el briefing.</div>';
+    return;
+  }
+  const s=state.summary,brands=[...state.brands].sort((a,b)=>b.total-a.total),leader=brands[0],lowest=brands.at(-1);
+  const concepts=[["Canje",s.canje],["Abordo",s.abordo],["Prepago",s.prepago]].sort((a,b)=>b[1]-a[1]);
+  const previous=getCurrentPreviousPeriod();
+  const change=previous?((s.total-previous.total)/(previous.total||1)*100):null;
+  const cards=[
+    {icon:"🏆",title:`${leader.name} lidera`,detail:`${pct(leader.total,s.total)} del total general.`},
+    {icon:"◉",title:`${concepts[0][0]} domina`,detail:`${pct(concepts[0][1],s.total)} de participación.`},
+    {icon:change==null?"▥":change>=0?"↗":"↘",title:change==null?"Sin comparativo":`${change>=0?"Aumento":"Disminución"} ${Math.abs(change).toFixed(2)}%`,detail:previous?`Frente a ${previous.label}.`:"Guarda otro periodo."},
+    {icon:"◎",title:`${lowest.name} en seguimiento`,detail:`Menor participación: ${pct(lowest.total,s.total)}.`}
+  ];
+  $("oneBriefingBody").innerHTML=cards.map(c=>`<div class="one-briefing-card"><i>${c.icon}</i><b>${c.title}</b><small>${c.detail}</small></div>`).join("");
+}
+
+
+function renderSignatureOverview(){
+  if(!$("signaturePeriod"))return;
+  $("signaturePeriod").textContent=`${$("month").value} ${$("year").value}`;
+  if(!state.summary){
+    $("signaturePerformance").textContent="—";
+    $("signatureGrowth").textContent="—";
+    $("signatureFocus").textContent="—";
+    return;
+  }
+  const s=state.summary,brands=[...state.brands].sort((a,b)=>b.total-a.total),leader=brands[0];
+  const previous=getCurrentPreviousPeriod(),change=previous?((s.total-previous.total)/(previous.total||1)*100):null;
+  const score=calculateDirectorScore();
+  $("signaturePerformance").textContent=`${score}/100`;
+  $("signaturePerformanceDetail").textContent=score>=80?"Excelente":score>=60?"Atención":"Riesgo";
+  $("signatureGrowth").textContent=change==null?"—":`${change>=0?"+":""}${change.toFixed(2)}%`;
+  $("signatureGrowthDetail").textContent=previous?`Frente a ${previous.label}`:"Sin periodo anterior";
+  $("signatureFocus").textContent=leader.name;
+  $("signatureFocusDetail").textContent=`${pct(leader.total,s.total)} de participación`;
+}
+function renderPresentation(){
+  if(!state.summary)return;
+  const s=state.summary,brands=[...state.brands].sort((a,b)=>b.total-a.total),leader=brands[0];
+  const previous=getCurrentPreviousPeriod(),change=previous?((s.total-previous.total)/(previous.total||1)*100):null;
+  const score=calculateDirectorScore(),alerts=getCommandAlerts().filter(a=>a.icon!=="✓");
+  $("presentationPeriod").textContent=`${$("month").value} ${$("year").value}`;
+  $("presentationTotal").textContent=money.format(s.total);
+  $("presentationTrend").textContent=change==null?"Sin comparativo":`${change>=0?"▲":"▼"} ${Math.abs(change).toFixed(2)}% vs. ${previous.label}`;
+  $("presentationLeader").textContent=leader.name;
+  $("presentationLeaderShare").textContent=`${pct(leader.total,s.total)} del total`;
+  $("presentationHealth").textContent=`${score}/100`;
+  $("presentationHealthDetail").textContent=score>=80?"Excelente":score>=60?"Atención":"Riesgo";
+  $("presentationAlerts").textContent=alerts.length;
+  $("presentationAlertsDetail").textContent=alerts[0]?.text||"Sin alertas críticas";
+  const concepts=[["Canje",s.canje],["Abordo",s.abordo],["Prepago",s.prepago]].sort((a,b)=>b[1]-a[1]);
+  $("presentationInsights").innerHTML=[
+    `${leader.name} lidera con ${pct(leader.total,s.total)}.`,
+    `${concepts[0][0]} representa ${pct(concepts[0][1],s.total)}.`,
+    change==null?"Guarda otro periodo para comparar.":`El total ${change>=0?"aumentó":"disminuyó"} ${Math.abs(change).toFixed(2)}%.`
+  ].map((x,i)=>`<div class="one-insight"><i>${["🏆","◉",change>=0?"↗":"↘"][i]}</i><div>${x}</div></div>`).join("");
+  state.presentationCharts?.forEach(c=>c.destroy());state.presentationCharts=[];
+  const canvas=$("presentationChart");
+  if(canvas){
+    state.presentationCharts.push(new Chart(canvas,{type:"bar",data:{labels:brands.map(b=>b.name),datasets:[{label:"Ingreso",data:brands.map(b=>b.total),borderRadius:11}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money.format(c.raw)}}},scales:{y:{ticks:{color:"#b9d3ea",callback:v=>money.format(v)},grid:{color:"rgba(255,255,255,.08)"}},x:{ticks:{color:"#b9d3ea"},grid:{display:false}}}}}));
+  }
+}
+
+function renderNexusOne(){renderSignatureOverview();renderOneBriefing();if(!$('oneGreetingName'))return;$('oneGreetingLabel').textContent=getDayGreeting();$('oneGreetingName').textContent=authSession?.user?.name||authSession?.user?.username||'Usuario';$('onePeriodBadge').textContent=`${$('month').value} ${$('year').value}`;const n=loadNotifications().slice(0,5);$('oneActivity').innerHTML=n.length?n.map(x=>`<div class="one-activity-row"><i>${x.icon}</i><div><b>${escapeHtml(x.title)}</b><small>${escapeHtml(x.detail)} · ${escapeHtml(x.time)}</small></div></div>`).join(''):'<div class="one-empty">Sin actividad reciente.</div>';document.querySelectorAll('[data-one-go]').forEach(b=>b.classList.toggle('restricted-role',!!b.dataset.minRole&&!canAccess(b.dataset.minRole)));if(!state.summary)return;const s=state.summary,bs=[...state.brands].sort((a,b)=>b.total-a.total),lead=bs[0],cs=[["Canje",s.canje],["Abordo",s.abordo],["Prepago",s.prepago]].sort((a,b)=>b[1]-a[1]),prev=getCurrentPreviousPeriod(),chg=prev?((s.total-prev.total)/(prev.total||1)*100):null,alerts=getCommandAlerts().filter(a=>a.icon!=="✓"),score=calculateDirectorScore();$('oneTotal').textContent=money.format(s.total);$('oneTotalTrend').textContent=chg==null?'Sin comparativo':`${chg>=0?'▲':'▼'} ${Math.abs(chg).toFixed(2)}% vs. ${prev.label}`;$('oneLeader').textContent=lead.name;$('oneLeaderShare').textContent=`${pct(lead.total,s.total)} del total`;$('oneConcept').textContent=cs[0][0];$('oneConceptShare').textContent=`${pct(cs[0][1],s.total)} del total`;$('oneAlerts').textContent=alerts.length;$('oneAlertsDetail').textContent=alerts.length?alerts[0].text:'Sin alertas críticas';$('oneHealthScore').textContent=`${score}/100`;$('oneHealthMessage').textContent=score>=80?'Excelente':score>=60?'Atención':'Riesgo';$('oneHealthRing').style.background=`conic-gradient(#79f5e9 0deg,#46dbff ${score*3.6}deg,rgba(255,255,255,.12) ${score*3.6}deg)`;$('oneInsights').innerHTML=[`🏆|${lead.name} lidera con ${pct(lead.total,s.total)}.`,`◉|${cs[0][0]} representa ${pct(cs[0][1],s.total)}.`,`${chg==null?'▥':chg>=0?'↗':'↘'}|${chg==null?'Guarda otro periodo para comparar.':`El total ${chg>=0?'aumentó':'disminuyó'} ${Math.abs(chg).toFixed(2)}%.`}`].map(x=>{const [i,t]=x.split('|');return `<div class="one-insight"><i>${i}</i><div>${t}</div></div>`}).join('');state.oneCharts?.forEach(c=>c.destroy());state.oneCharts=[];if($('oneBrandChart'))state.oneCharts.push(new Chart($('oneBrandChart'),{type:'bar',data:{labels:bs.map(b=>b.name),datasets:[{data:bs.map(b=>b.total),borderRadius:10}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money.format(c.raw)}}},scales:{y:{ticks:{callback:v=>money.format(v)},grid:{color:'rgba(148,163,184,.14)'}},x:{grid:{display:false}}}}}))}
 
 function forecastData(){
   const h=getHistory().sort((a,b)=>a.key.localeCompare(b.key));
@@ -1271,3 +1344,30 @@ restoreSession();
 
 updateSources();
 })();
+if($("oneBriefingRefresh")){
+  $("oneBriefingRefresh").onclick=()=>{
+    if(state.summary){renderOneBriefing();toast("Briefing actualizado")}
+    else $("loadSheetsBtn").click();
+  };
+}
+
+if($("presentationModeBtn")){
+  $("presentationModeBtn").onclick=()=>{
+    if(!state.summary){toast("Actualiza los datos antes de iniciar la presentación");return}
+    renderPresentation();
+    $("presentationOverlay").classList.remove("hidden");
+    document.body.classList.add("presentation-active");
+  };
+}
+if($("presentationCloseBtn")){
+  $("presentationCloseBtn").onclick=()=>{
+    $("presentationOverlay").classList.add("hidden");
+    document.body.classList.remove("presentation-active");
+  };
+}
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"&&$("presentationOverlay")&&!$("presentationOverlay").classList.contains("hidden")){
+    $("presentationOverlay").classList.add("hidden");
+    document.body.classList.remove("presentation-active");
+  }
+});
