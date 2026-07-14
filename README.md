@@ -1,40 +1,40 @@
-# NEXUS Business Intelligence Platform v20
+# NEXUS Business Intelligence Platform v21
 
-## Panel de Dirección General
+## Command Center
 
-La V20 incorpora una vista exclusiva para los roles `GERENCIA` y `ADMINISTRADOR`.
+La V21 incorpora una pantalla principal de control operativo y ejecutivo.
 
 Incluye:
 
-- Ingreso general del periodo.
-- Variación frente al mes anterior.
-- Marca estratégica.
-- Índice NEXUS.
-- Tendencia anual basada en el histórico guardado.
-- Participación por marca.
-- Ranking ejecutivo.
-- Recomendaciones automáticas.
-- Resumen listo para copiar.
+- Estado de API.
+- Estado de Google Sheets.
+- Estado del histórico.
+- Estado de la sesión.
+- Estado de los datos.
+- Ingreso general.
+- Tendencia mensual.
+- Marca líder.
+- Salud del negocio.
+- Alertas activas.
+- Última actualización.
+- Gráfica consolidada por marca.
+- Composición por concepto.
+- Actividad reciente.
+- Recomendación automática de NEXUS AI.
 
-## Dashboard vivo
+## Accesos rápidos
 
-- Micrográfica en la tarjeta de Total General.
-- Efectos interactivos en tarjetas.
-- Estado de API, Google Sheets e histórico.
-- Indicadores actualizados al cargar la información.
+Desde Command Center se puede:
 
-## Acceso por rol
-
-- `ADMINISTRADOR`: acceso total.
-- `GERENCIA`: acceso al Panel de Dirección General.
-- `SUPERVISOR`: Centro de Inteligencia y comparativos.
-- `USUARIO`: consulta general.
+- Actualizar Google Sheets.
+- Abrir Reportes.
+- Abrir Centro de Inteligencia.
 
 ## Instalación
 
 1. Sustituye `Code.gs`.
-2. Actualiza Apps Script mediante una nueva versión.
-3. Reemplaza los archivos en GitHub.
+2. Publica una nueva versión en Apps Script.
+3. Reemplaza todos los archivos en GitHub.
 4. Presiona `Ctrl + F5`.
 
-La URL de la implementación continúa configurada dentro de `config.js`.
+La aplicación abrirá Command Center después de iniciar sesión.

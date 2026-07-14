@@ -105,7 +105,8 @@
       <div><small>BUSINESS INTELLIGENCE</small><b>NEXUS</b></div>
     </div>
     <nav class="side-nav">
-      <button class="active" data-view="inicio"><span>⌂</span>Inicio</button>
+      <button class="active" data-view="command"><span>◈</span>Command Center</button>
+      <button data-view="inicio"><span>⌂</span>Inicio</button>
       <button data-view="ingresos"><span>▥</span>Ingresos 360</button>
       <button data-view="inteligencia"><span>✦</span>Centro de Inteligencia</button>
       <button data-view="direccion" class="direction-nav"><span>◆</span>Dirección General</button>
@@ -155,7 +156,104 @@
     </header>
 
     <main class="content-shell">
-      <section class="view active" data-view-panel="inicio">
+      
+      <section class="view active" data-view-panel="command">
+        <section class="command-hero">
+          <div class="command-title-block">
+            <span class="pill">NEXUS COMMAND CENTER</span>
+            <h2>Control ejecutivo en tiempo real</h2>
+            <p>Estado operativo, indicadores clave, alertas y actividad consolidada en una sola pantalla.</p>
+          </div>
+          <div class="command-actions">
+            <button id="commandRefreshBtn" class="btn primary large"><span>↻</span><div><b>Actualizar sistema</b><small>Sincronizar Google Sheets</small></div></button>
+            <button id="commandReportBtn" class="btn outline large"><span>▤</span><div><b>Generar reporte</b><small>Preparar vista ejecutiva</small></div></button>
+          </div>
+        </section>
+
+        <section class="command-status-bar">
+          <article><i class="ok"></i><div><small>API</small><b>Operativa</b></div></article>
+          <article><i class="ok"></i><div><small>GOOGLE SHEETS</small><b>Conectado</b></div></article>
+          <article><i id="commandHistoryDot"></i><div><small>HISTÓRICO</small><b id="commandHistoryState">Pendiente</b></div></article>
+          <article><i class="ok"></i><div><small>SESIÓN</small><b id="commandSessionState">Activa</b></div></article>
+          <article><i id="commandDataDot"></i><div><small>DATOS</small><b id="commandDataState">Sin actualizar</b></div></article>
+        </section>
+
+        <section class="command-kpis">
+          <article class="command-kpi primary-kpi">
+            <span>Ingreso general</span>
+            <strong id="commandTotal">$0.00</strong>
+            <small id="commandTotalDetail">Sin información cargada</small>
+            <div id="commandSparkline" class="command-sparkline"></div>
+          </article>
+          <article class="command-kpi">
+            <span>Tendencia</span>
+            <strong id="commandTrend">—</strong>
+            <small id="commandTrendDetail">Sin comparativo</small>
+          </article>
+          <article class="command-kpi">
+            <span>Marca líder</span>
+            <strong id="commandLeader">—</strong>
+            <small id="commandLeaderDetail">Pendiente</small>
+          </article>
+          <article class="command-kpi">
+            <span>Salud del negocio</span>
+            <div class="command-health-wrap">
+              <div id="commandHealthLight" class="command-health-light neutral"><i></i></div>
+              <div><strong id="commandHealth">—</strong><small id="commandHealthDetail">Sin evaluación</small></div>
+            </div>
+          </article>
+          <article class="command-kpi">
+            <span>Alertas activas</span>
+            <strong id="commandAlerts">0</strong>
+            <small id="commandAlertsDetail">Sin alertas críticas</small>
+          </article>
+          <article class="command-kpi">
+            <span>Última actualización</span>
+            <strong id="commandUpdated">—</strong>
+            <small id="commandUpdatedDetail">Pendiente</small>
+          </article>
+        </section>
+
+        <section class="command-main-grid">
+          <article class="card command-chart-card">
+            <div class="section-head">
+              <div class="card-title"><small>PANORAMA MULTIMARCA</small><h3>Ingresos por marca</h3></div>
+              <span id="commandPeriodLabel" class="period-badge">—</span>
+            </div>
+            <canvas id="commandBrandChart"></canvas>
+          </article>
+
+          <article class="card command-alert-card">
+            <div class="section-head">
+              <div class="card-title"><small>PRIORIDADES</small><h3>Alertas ejecutivas</h3></div>
+              <button id="clearCommandAlertsBtn" class="text-link">Limpiar</button>
+            </div>
+            <div id="commandAlertList" class="command-alert-list">
+              <div class="command-empty">Actualiza la información para detectar alertas.</div>
+            </div>
+          </article>
+        </section>
+
+        <section class="command-secondary-grid">
+          <article class="card command-concepts-card">
+            <div class="card-title"><small>COMPOSICIÓN</small><h3>Participación por concepto</h3></div>
+            <div id="commandConceptBars" class="command-concept-bars"></div>
+          </article>
+
+          <article class="card command-activity-card">
+            <div class="card-title"><small>ACTIVIDAD RECIENTE</small><h3>Últimos eventos del sistema</h3></div>
+            <div id="commandActivityList" class="command-activity-list"></div>
+          </article>
+
+          <article class="card command-ai-card">
+            <div class="command-ai-head"><div class="copilot-icon">✦</div><div><small>NEXUS AI</small><h3>Recomendación del momento</h3></div></div>
+            <div id="commandRecommendation" class="command-recommendation">Carga la información para generar una recomendación.</div>
+            <button id="commandOpenIntelligenceBtn" class="btn compact">Abrir Centro de Inteligencia</button>
+          </article>
+        </section>
+      </section>
+
+      <section class="view" data-view-panel="inicio">
         <section class="enterprise-welcome">
           <div class="welcome-copy">
             <span class="pill">BUSINESS INTELLIGENCE PLATFORM</span>

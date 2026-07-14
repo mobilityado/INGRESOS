@@ -1,7 +1,7 @@
 (() => {
 const BRANDS=["TRT","TRTVB","AAO","AAOVB"],$=id=>document.getElementById(id);
 const money=new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN"});
-const state={sources:{},brands:[],summary:null,charts:[],platformCharts:[],intelligenceCharts:[],directorCharts:[],notifications:[]};
+const state={sources:{},brands:[],summary:null,charts:[],platformCharts:[],intelligenceCharts:[],directorCharts:[],commandCharts:[],commandAlerts:[],notifications:[]};
 const notificationKey="recaudacion365-notifications-v15";
 const loadNotifications=()=>{try{return JSON.parse(localStorage.getItem(notificationKey)||"[]")}catch{return[]}};
 const saveNotifications=v=>localStorage.setItem(notificationKey,JSON.stringify(v));
@@ -233,7 +233,7 @@ function renderPlatform(){
   if($("reportCoverUser"))$("reportCoverUser").textContent=authSession?.user?.name||authSession?.user?.username||"Usuario";
   if($("reportCoverDate"))$("reportCoverDate").textContent=new Date().toLocaleString("es-MX");
   $("managementPreview").innerHTML=`<h3>Resumen ejecutivo · ${m} ${y}</h3><p>El ingreso general fue de <b>${money.format(s.total)}</b>, integrado por ${s.count.toLocaleString("es-MX")} registros. ${leader.name} encabezó la recaudación con ${pct(leader.total,s.total)} de participación. ${concepts[0][0]} fue el concepto principal, con ${money.format(concepts[0][1])}.</p>${prev?`<p>En comparación con ${prev.label}, el resultado ${s.total>=prev.total?"aumentó":"disminuyó"} ${Math.abs((s.total-prev.total)/(prev.total||1)*100).toFixed(2)}%.</p>`:"<p>No existe todavía un periodo previo guardado para calcular variación.</p>"}`;
-  renderHomeChart();renderTotalSparkline();renderProactiveBriefing();renderIntelligence();renderDirectorPanel();populateCompareSelectors();$("historyCount").textContent=`${hist.length} periodo${hist.length===1?"":"s"} almacenado${hist.length===1?"":"s"}`;if($("historyStatusDot"))$("historyStatusDot").className=hist.length?"ok":"";
+  renderHomeChart();renderTotalSparkline();renderProactiveBriefing();renderIntelligence();renderDirectorPanel();renderCommandCenter();populateCompareSelectors();$("historyCount").textContent=`${hist.length} periodo${hist.length===1?"":"s"} almacenado${hist.length===1?"":"s"}`;if($("historyStatusDot"))$("historyStatusDot").className=hist.length?"ok":"";
 }
 
 function getCurrentPreviousPeriod(){
@@ -373,6 +373,90 @@ function calculateDirectorScore(){
   score+=conceptShare<75?7:conceptShare<85?0:-7;
   return Math.max(0,Math.min(100,Math.round(score)));
 }
+
+function getCommandAlerts(){
+  if(!state.summary)return[];
+  const s=state.summary,alerts=[],previous=getCurrentPreviousPeriod(),sorted=[...state.brands].sort((a,b)=>b.total-a.total);
+  const leader=sorted[0],lowest=sorted.at(-1);
+  const concepts=[["Canje",s.canje],["Abordo",s.abordo],["Prepago",s.prepago]].sort((a,b)=>b[1]-a[1]);
+  if(previous){
+    const change=(s.total-previous.total)/(previous.total||1)*100;
+    if(change<0)alerts.push({icon:"↘",text:`El ingreso general disminuyó ${Math.abs(change).toFixed(2)}% frente a ${previous.label}.`});
+    state.brands.forEach(b=>{
+      const old=(previous.brands||[]).find(x=>x.name===b.name)?.total||0;
+      if(old){
+        const c=(b.total-old)/old*100;
+        if(c<-3)alerts.push({icon:"!",text:`${b.name} presenta una caída de ${Math.abs(c).toFixed(2)}%.`});
+      }
+    });
+  }
+  if(leader.total/(s.total||1)>.6)alerts.push({icon:"◎",text:`${leader.name} concentra más del 60% del ingreso general.`});
+  if(concepts[0][1]/(s.total||1)>.8)alerts.push({icon:"◉",text:`${concepts[0][0]} concentra más del 80% de los ingresos.`});
+  if(!alerts.length)alerts.push({icon:"✓",text:"No se detectaron alertas críticas en el periodo actual."});
+  return alerts;
+}
+function renderCommandCenter(){
+  const s=state.summary;
+  const dataState=$("commandDataState"),dataDot=$("commandDataDot");
+  const hist=getHistory().sort((a,b)=>a.key.localeCompare(b.key));
+  if($("commandHistoryState"))$("commandHistoryState").textContent=hist.length?`${hist.length} periodos`:"Sin histórico";
+  if($("commandHistoryDot"))$("commandHistoryDot").className=hist.length?"ok":"";
+  if(!s){
+    if(dataState)dataState.textContent="Sin actualizar";
+    if(dataDot)dataDot.className="";
+    return;
+  }
+
+  const sorted=[...state.brands].sort((a,b)=>b.total-a.total),leader=sorted[0];
+  const previous=getCurrentPreviousPeriod(),change=previous?((s.total-previous.total)/(previous.total||1)*100):null;
+  const score=calculateDirectorScore();
+  const alerts=getCommandAlerts();
+  state.commandAlerts=alerts;
+
+  $("commandTotal").textContent=money.format(s.total);
+  $("commandTotalDetail").textContent=`${s.count.toLocaleString("es-MX")} registros`;
+  $("commandTrend").textContent=change==null?"—":`${change>=0?"+":""}${change.toFixed(2)}%`;
+  $("commandTrendDetail").textContent=previous?`vs. ${previous.label}`:"Sin periodo anterior";
+  $("commandLeader").textContent=leader.name;
+  $("commandLeaderDetail").textContent=`${pct(leader.total,s.total)} del total`;
+  $("commandHealth").textContent=`${score}/100`;
+  $("commandHealthDetail").textContent=score>=80?"Excelente":score>=60?"Atención":"Riesgo";
+  $("commandHealthLight").className=`command-health-light ${score>=80?"green":score>=60?"yellow":"red"}`;
+  $("commandAlerts").textContent=alerts.filter(a=>a.icon!=="✓").length;
+  $("commandAlertsDetail").textContent=alerts[0]?.text||"Sin alertas";
+  $("commandUpdated").textContent="Ahora";
+  $("commandUpdatedDetail").textContent=new Date().toLocaleString("es-MX");
+  $("commandPeriodLabel").textContent=`${$("month").value} ${$("year").value}`;
+  if(dataState)dataState.textContent="Actualizados";
+  if(dataDot)dataDot.className="ok";
+
+  const values=hist.slice(-8).map(h=>h.total);
+  if(!values.length)values.push(s.total);
+  const max=Math.max(...values,1),min=Math.min(...values,0),range=max-min||1;
+  $("commandSparkline").innerHTML=values.map(v=>`<i style="height:${8+((v-min)/range)*22}px"></i>`).join("");
+
+  $("commandAlertList").innerHTML=alerts.map(a=>`<div class="command-alert-item"><i>${a.icon}</i><div>${a.text}</div></div>`).join("");
+
+  const conceptRows=[{name:"Prepago",value:s.prepago},{name:"Abordo",value:s.abordo},{name:"Canje",value:s.canje}].sort((a,b)=>b.value-a.value);
+  $("commandConceptBars").innerHTML=conceptRows.map(c=>`<div class="command-concept-row"><b>${c.name}</b><div class="command-concept-track"><i style="width:${(c.value/(s.total||1)*100).toFixed(2)}%"></i></div><small>${pct(c.value,s.total)}</small></div>`).join("");
+
+  const notifications=loadNotifications().slice(0,5);
+  $("commandActivityList").innerHTML=notifications.length?notifications.map(n=>`<div class="command-activity-row"><i>${n.icon}</i><div><b>${escapeHtml(n.title)}</b><small>${escapeHtml(n.detail)} · ${escapeHtml(n.time)}</small></div></div>`).join(""):'<div class="command-empty">No hay actividad reciente.</div>';
+
+  let recommendation="";
+  if(change!=null&&change<0)recommendation=`Prioriza el análisis de las marcas con caída y revisa las causas de la disminución general de ${Math.abs(change).toFixed(2)}%.`;
+  else if(leader.total/(s.total||1)>.6)recommendation=`Conviene reducir la dependencia de ${leader.name}, que concentra ${pct(leader.total,s.total)} del total.`;
+  else if(score>=80)recommendation="El periodo presenta un desempeño sólido. Mantén las acciones actuales y documenta las mejores prácticas.";
+  else recommendation="El desempeño es estable, pero conviene monitorear las marcas con menor participación y el concepto dominante.";
+  $("commandRecommendation").textContent=recommendation;
+
+  state.commandCharts.forEach(c=>c.destroy());state.commandCharts=[];
+  const canvas=$("commandBrandChart");
+  if(canvas){
+    state.commandCharts.push(new Chart(canvas,{type:"bar",data:{labels:sorted.map(b=>b.name),datasets:[{label:"Ingreso total",data:sorted.map(b=>b.total),borderRadius:9}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money.format(c.raw)}}},scales:{y:{ticks:{callback:v=>money.format(v)},grid:{color:"rgba(148,163,184,.14)"}},x:{grid:{display:false}}}}}));
+  }
+}
+
 function renderDirectorPanel(){
   const empty=$("directorEmpty"),content=$("directorContent");
   if(!empty||!content)return;
@@ -428,7 +512,7 @@ function renderHomeChart(){
   if(!state.summary)return;
   const canvas=$("homeChart");if(canvas)state.platformCharts.push(new Chart(canvas,{type:"bar",data:{labels:state.brands.map(b=>b.name),datasets:[{label:"Ingreso total",data:state.brands.map(b=>b.total),borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money.format(c.raw)}}},scales:{y:{ticks:{callback:v=>money.format(v)},grid:{color:"rgba(148,163,184,.15)"}},x:{grid:{display:false}}}}}))
 }
-const pageTitles={inicio:"Centro ejecutivo",ingresos:"Ingresos 360",direccion:"Dirección General",inteligencia:"Centro de Inteligencia",comparativos:"Comparativos",reportes:"Reportes ejecutivos",usuarios:"Usuarios y accesos",configuracion:"Configuración"};
+const pageTitles={command:"Command Center",inicio:"Centro ejecutivo",ingresos:"Ingresos 360",direccion:"Dirección General",inteligencia:"Centro de Inteligencia",comparativos:"Comparativos",reportes:"Reportes ejecutivos",usuarios:"Usuarios y accesos",configuracion:"Configuración"};
 function openView(name){
   if(name==="usuarios"&&!canAccess("ADMINISTRADOR")){toast("Tu rol no permite administrar usuarios.");return}
   if(name==="configuracion"&&!canAccess("GERENCIA")){toast("Tu rol no permite acceder a configuración.");return}
@@ -437,7 +521,7 @@ function openView(name){
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.dataset.viewPanel===name));
   document.querySelectorAll(".side-nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===name));
   $("pageTitle").textContent=pageTitles[name]||"NEXUS";$("sidebar").classList.remove("open");window.scrollTo({top:0,behavior:"smooth"});
-  if(name==="direccion")renderDirectorPanel();if(name==="inteligencia")renderIntelligence();if(name==="comparativos")populateCompareSelectors();if(name==="usuarios")loadAdminUsers();if(name==="configuracion")renderSettings();
+  if(name==="command")renderCommandCenter();if(name==="direccion")renderDirectorPanel();if(name==="inteligencia")renderIntelligence();if(name==="comparativos")populateCompareSelectors();if(name==="usuarios")loadAdminUsers();if(name==="configuracion")renderSettings();
 }
 document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>openView(b.dataset.view));
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>openView(b.dataset.go));
@@ -476,6 +560,10 @@ $("copySummaryBtn").onclick=async()=>{if(!state.summary){toast("Primero carga la
 $("refreshBriefingBtn").onclick=()=>{
   if(state.summary){renderProactiveBriefing();toast("Briefing actualizado")}else $("loadSheetsBtn").click();
 };
+$("commandRefreshBtn").onclick=()=>$("loadSheetsBtn").click();
+$("commandReportBtn").onclick=()=>{openView("reportes");setTimeout(()=>$("reportPrintBtn")?.focus(),150)};
+$("commandOpenIntelligenceBtn").onclick=()=>openView("inteligencia");
+$("clearCommandAlertsBtn").onclick=()=>{$("commandAlertList").innerHTML='<div class="command-empty">Alertas ocultadas temporalmente.</div>';toast("Alertas ocultadas")};
 $("copyDirectorSummaryBtn").onclick=async()=>{
   const text=$("directorSummary")?.innerText||"";
   if(!text){toast("Primero actualiza la información");return}
@@ -646,7 +734,7 @@ async function restoreSession(){
     const check=await apiRequest("validate");
     authSession.user=check.user;
     sessionStorage.setItem(sessionKey,JSON.stringify(authSession));
-    showApp();
+    showApp();openView("command");
   }catch(e){
     sessionStorage.removeItem(sessionKey);authSession=null;showLogin();
   }
@@ -660,7 +748,7 @@ $("loginForm").onsubmit=async e=>{
     const result=await apiRequest("login",{username:$("loginUser").value.trim(),password:$("loginPassword").value});
     authSession={token:result.token,user:result.user};
     sessionStorage.setItem(sessionKey,JSON.stringify(authSession));
-    showApp();toast(`Bienvenido, ${result.user.name}`);addNotification("Inicio de sesión",`Bienvenido, ${result.user.name}.`,"✓");
+    showApp();openView("command");toast(`Bienvenido, ${result.user.name}`);addNotification("Inicio de sesión",`Bienvenido, ${result.user.name}.`,"✓");
   }catch(err){
     error.textContent=err.message;error.classList.remove("hidden");
   }finally{
