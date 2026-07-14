@@ -84,6 +84,36 @@
   </div>
 </section>
 
+
+<section id="startupOverlay" class="startup-overlay hidden">
+  <div class="startup-content">
+    <div class="startup-logo-wrap">
+      <svg class="startup-logo" viewBox="0 0 64 64" aria-hidden="true">
+        <defs>
+          <linearGradient id="startupGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#7a5cff"/>
+            <stop offset="48%" stop-color="#2f74ff"/>
+            <stop offset="100%" stop-color="#45e1ff"/>
+          </linearGradient>
+        </defs>
+        <path d="M32 3 55 16v32L32 61 9 48V16Z" fill="url(#startupGrad)"/>
+        <path d="M20 44V20h7l10 14V20h7v24h-7L27 30v14Z" fill="#fff"/>
+        <path d="M43 17h8v8M36 31l15-14" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <span class="startup-eyebrow">NEXUS ENTERPRISE</span>
+    <h1>Bienvenido, <span id="startupUserName">Usuario</span></h1>
+    <p>Enterprise Intelligence Platform · Mobility ADO</p>
+    <div class="startup-status">
+      <span><i></i>API</span>
+      <span><i></i>Google Sheets</span>
+      <span><i></i>Seguridad</span>
+      <span><i></i>NEXUS AI</span>
+    </div>
+    <div class="startup-progress"><i></i></div>
+  </div>
+</section>
+
 <div class="app-layout" id="appLayout">
   <aside class="sidebar" id="sidebar">
     <div class="side-brand">
@@ -115,7 +145,12 @@
       <button data-view="usuarios" class="admin-nav"><span>👥</span>Usuarios</button>
       <button data-view="configuracion"><span>⚙</span>Configuración</button>
     </nav>
-    <div class="side-footer">
+    <div class="product-build">
+        <small>NEXUS ENTERPRISE</small>
+        <b>2027.1</b>
+        <span>Build 2701.0713</span>
+      </div>
+      <div class="side-footer">
       <span class="online-dot"></span>
       <div><small>FUENTE ACTIVA</small><b>Google Sheets</b></div>
     </div>
@@ -160,7 +195,7 @@
       <section class="view active" data-view-panel="command">
         <section class="command-hero">
           <div class="command-title-block">
-            <span class="pill">NEXUS COMMAND CENTER</span>
+            <span class="pill">NEXUS ENTERPRISE COMMAND CENTER</span>
             <h2>Control ejecutivo en tiempo real</h2>
             <p>Estado operativo, indicadores clave, alertas y actividad consolidada en una sola pantalla.</p>
           </div>
@@ -168,6 +203,15 @@
             <button id="commandRefreshBtn" class="btn primary large"><span>↻</span><div><b>Actualizar sistema</b><small>Sincronizar Google Sheets</small></div></button>
             <button id="commandReportBtn" class="btn outline large"><span>▤</span><div><b>Generar reporte</b><small>Preparar vista ejecutiva</small></div></button>
           </div>
+        </section>
+
+        <section class="enterprise-greeting">
+          <div>
+            <small>RESUMEN DE SESIÓN</small>
+            <h3 id="enterpriseGreeting">Buenos días</h3>
+            <p id="enterpriseRoleSummary">Tu plataforma está lista.</p>
+          </div>
+          <div class="enterprise-clock"><strong id="enterpriseClock">--:--</strong><span id="enterpriseDate">—</span></div>
         </section>
 
         <section class="command-status-bar">
@@ -752,6 +796,10 @@
   </div>
 </div>
 
+<footer class="enterprise-footer">
+  <span>NEXUS Enterprise 2027.1</span>
+  <small>Build 2701.0713 · Mobility ADO</small>
+</footer>
 <div id="toast" class="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>

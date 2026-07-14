@@ -1,40 +1,44 @@
-# NEXUS Business Intelligence Platform v21
+# NEXUS Enterprise 2027.1
 
-## Command Center
+**Enterprise Intelligence Platform**  
+**Mobility ADO**  
+**Build 2701.0713**
 
-La V21 incorpora una pantalla principal de control operativo y ejecutivo.
+## Evolución de producto
 
-Incluye:
+Esta entrega deja atrás la numeración V21 y adopta una identidad de producto empresarial:
 
-- Estado de API.
-- Estado de Google Sheets.
-- Estado del histórico.
-- Estado de la sesión.
-- Estado de los datos.
-- Ingreso general.
-- Tendencia mensual.
-- Marca líder.
-- Salud del negocio.
-- Alertas activas.
-- Última actualización.
-- Gráfica consolidada por marca.
-- Composición por concepto.
-- Actividad reciente.
-- Recomendación automática de NEXUS AI.
+- Producto: NEXUS Enterprise
+- Versión: 2027.1
+- Build: 2701.0713
 
-## Accesos rápidos
+## Novedades
 
-Desde Command Center se puede:
-
-- Actualizar Google Sheets.
-- Abrir Reportes.
-- Abrir Centro de Inteligencia.
+- Pantalla de bienvenida animada después del login.
+- Saludo personalizado según la hora.
+- Reloj y fecha en tiempo real.
+- Edición Enterprise visible en la interfaz.
+- Estado de API, Google Sheets, seguridad y NEXUS AI.
+- Identidad visual premium tornasol.
+- Command Center como pantalla principal.
+- Marca de versión y build en el portal.
+- Mejoras de interacción y profundidad visual.
+- Conservación de todos los módulos existentes:
+  - Ingresos 360
+  - Centro de Inteligencia
+  - Dirección General
+  - Comparativos
+  - Reportes
+  - Usuarios y roles
+  - Configuración
+  - NEXUS AI
+  - Notificaciones
 
 ## Instalación
 
-1. Sustituye `Code.gs`.
-2. Publica una nueva versión en Apps Script.
+1. Sustituye `Code.gs` en Apps Script.
+2. Publica una nueva versión.
 3. Reemplaza todos los archivos en GitHub.
 4. Presiona `Ctrl + F5`.
 
-La aplicación abrirá Command Center después de iniciar sesión.
+La URL `/exec` permanece configurada en `config.js`.

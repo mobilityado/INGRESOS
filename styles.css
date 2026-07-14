@@ -603,3 +603,60 @@ a{color:#3676ec}
   .command-kpi.primary-kpi{grid-column:auto}
   .command-chart-card{height:320px}
 }
+
+/* ==========================================================
+   NEXUS ENTERPRISE 2027.1
+   Build 2701.0713
+   ========================================================== */
+.product-build{padding:12px 13px;margin-top:auto;margin-bottom:10px;border:1px solid rgba(255,255,255,.08);border-radius:11px;background:rgba(255,255,255,.035)}
+.product-build small,.product-build b,.product-build span{display:block}
+.product-build small{font-size:7px;letter-spacing:1.4px;color:#80aee0}
+.product-build b{font-size:13px;margin-top:3px;color:#fff}
+.product-build span{font-size:7px;margin-top:3px;color:#7394b9}
+.product-edition{display:block;font-size:8px;color:var(--muted);font-weight:700;margin-top:2px}
+.enterprise-footer{display:flex;justify-content:space-between;align-items:center;padding:15px 24px;border-top:1px solid var(--line);color:var(--muted);font-size:9px}
+.enterprise-footer small{font-size:8px}
+
+.startup-overlay{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;background:
+radial-gradient(circle at 15% 18%,rgba(122,92,255,.22),transparent 28%),
+radial-gradient(circle at 85% 82%,rgba(69,225,255,.18),transparent 30%),
+linear-gradient(145deg,#050f23,#0c2450 58%,#123c72);color:#fff;transition:opacity .5s,visibility .5s}
+.startup-overlay.fade-out{opacity:0;visibility:hidden}
+.startup-content{text-align:center;width:min(560px,90vw)}
+.startup-logo-wrap{width:92px;height:92px;margin:0 auto 20px;animation:startupFloat 2.4s ease-in-out infinite}
+.startup-logo{width:100%;height:100%;filter:drop-shadow(0 20px 35px rgba(47,116,255,.38))}
+.startup-eyebrow{font-size:9px;letter-spacing:2.2px;color:#8ccfff;font-weight:900}
+.startup-content h1{font-size:clamp(32px,6vw,58px);margin:12px 0 8px;letter-spacing:-2px}
+.startup-content h1 span{background:linear-gradient(90deg,#9b89ff,#62cfff,#8bf5ea);-webkit-background-clip:text;background-clip:text;color:transparent}
+.startup-content p{color:#b8cee6}
+.startup-status{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:25px 0}
+.startup-status span{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.05);font-size:8px;font-weight:800}
+.startup-status i{width:7px;height:7px;border-radius:50%;background:#39d89b;box-shadow:0 0 0 4px rgba(57,216,155,.1)}
+.startup-progress{width:min(360px,80%);height:5px;margin:0 auto;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden}
+.startup-progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,#7a5cff,#2f74ff,#45e1ff);animation:startupLoad 1.6s ease forwards}
+@keyframes startupLoad{to{width:100%}}
+@keyframes startupFloat{50%{transform:translateY(-7px)}}
+
+.enterprise-greeting{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px 20px;margin:15px 0;border-radius:16px;background:linear-gradient(90deg,rgba(101,88,255,.07),rgba(69,221,255,.08));border:1px solid rgba(73,132,225,.16)}
+.enterprise-greeting small{font-size:8px;letter-spacing:1.4px;color:#5a67d8;font-weight:900}
+.enterprise-greeting h3{margin:4px 0;font-size:20px}
+.enterprise-greeting p{margin:0;color:var(--muted);font-size:10px}
+.enterprise-clock{text-align:right}
+.enterprise-clock strong,.enterprise-clock span{display:block}
+.enterprise-clock strong{font-size:25px;font-variant-numeric:tabular-nums}
+.enterprise-clock span{font-size:8px;color:var(--muted);margin-top:3px}
+
+.command-hero,.director-hero,.enterprise-welcome,.login-visual{
+  background:
+  radial-gradient(circle at 84% 10%,rgba(139,245,234,.2),transparent 26%),
+  radial-gradient(circle at 10% 88%,rgba(122,92,255,.24),transparent 30%),
+  linear-gradient(125deg,#11195d,#493cc7 32%,#2f74ff 66%,#34c8f0)!important;
+}
+.app-header{box-shadow:0 5px 25px rgba(14,43,95,.06)}
+.command-status-bar article,.command-kpi,.card{transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.command-status-bar article:hover,.command-kpi:hover,.card:hover{transform:translateY(-2px);border-color:rgba(72,138,235,.24)}
+@media(max-width:700px){
+  .enterprise-greeting{flex-direction:column;align-items:flex-start}
+  .enterprise-clock{text-align:left}
+  .enterprise-footer{flex-direction:column;gap:4px;text-align:center}
+}

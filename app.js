@@ -1,4 +1,6 @@
 (() => {
+const PRODUCT_VERSION="2027.1";
+const PRODUCT_BUILD="2701.0713";
 const BRANDS=["TRT","TRTVB","AAO","AAOVB"],$=id=>document.getElementById(id);
 const money=new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN"});
 const state={sources:{},brands:[],summary:null,charts:[],platformCharts:[],intelligenceCharts:[],directorCharts:[],commandCharts:[],commandAlerts:[],notifications:[]};
@@ -512,7 +514,7 @@ function renderHomeChart(){
   if(!state.summary)return;
   const canvas=$("homeChart");if(canvas)state.platformCharts.push(new Chart(canvas,{type:"bar",data:{labels:state.brands.map(b=>b.name),datasets:[{label:"Ingreso total",data:state.brands.map(b=>b.total),borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money.format(c.raw)}}},scales:{y:{ticks:{callback:v=>money.format(v)},grid:{color:"rgba(148,163,184,.15)"}},x:{grid:{display:false}}}}}))
 }
-const pageTitles={command:"Command Center",inicio:"Centro ejecutivo",ingresos:"Ingresos 360",direccion:"Dirección General",inteligencia:"Centro de Inteligencia",comparativos:"Comparativos",reportes:"Reportes ejecutivos",usuarios:"Usuarios y accesos",configuracion:"Configuración"};
+const pageTitles={command:"Command Center · Enterprise 2027.1",inicio:"Centro ejecutivo",ingresos:"Ingresos 360",direccion:"Dirección General",inteligencia:"Centro de Inteligencia",comparativos:"Comparativos",reportes:"Reportes ejecutivos",usuarios:"Usuarios y accesos",configuracion:"Configuración"};
 function openView(name){
   if(name==="usuarios"&&!canAccess("ADMINISTRADOR")){toast("Tu rol no permite administrar usuarios.");return}
   if(name==="configuracion"&&!canAccess("GERENCIA")){toast("Tu rol no permite acceder a configuración.");return}
@@ -610,6 +612,7 @@ function setUserInterface(user){
   document.querySelectorAll('[data-view="comparativos"]').forEach(el=>el.classList.toggle("restricted-role",roleLevel(role)<2));
   document.querySelectorAll('[data-view="inteligencia"]').forEach(el=>el.classList.toggle("restricted-role",roleLevel(role)<2));
 
+  updateEnterpriseHeader();
   if(!isAdmin && document.querySelector('[data-view-panel="usuarios"]')?.classList.contains("active"))openView("inicio");
   if(roleLevel(role)<2 && ["inteligencia","comparativos"].some(v=>document.querySelector(`[data-view-panel="${v}"]`)?.classList.contains("active")))openView("inicio");
 }
@@ -617,6 +620,13 @@ function showApp(){
   $("loginScreen").classList.add("hidden");
   $("appLayout").classList.remove("hidden");
   setUserInterface(authSession.user);
+  const overlay=$("startupOverlay");
+  if(overlay){
+    $("startupUserName").textContent=authSession.user.name||authSession.user.username;
+    overlay.classList.remove("hidden","fade-out");
+    setTimeout(()=>overlay.classList.add("fade-out"),1700);
+    setTimeout(()=>overlay.classList.add("hidden"),2250);
+  }
 }
 function showLogin(){
   $("loginScreen").classList.remove("hidden");
@@ -725,6 +735,29 @@ $("resetPasswordForm").onsubmit=async e=>{
 };
 $("closeResetModalBtn").onclick=()=>$("resetPasswordModal").classList.add("hidden");
 $("resetPasswordModal").onclick=e=>{if(e.target===$("resetPasswordModal"))$("resetPasswordModal").classList.add("hidden")};
+
+
+function getDayGreeting(){
+  const h=new Date().getHours();
+  return h<12?"Buenos días":h<19?"Buenas tardes":"Buenas noches";
+}
+function updateEnterpriseHeader(){
+  const now=new Date();
+  if($("enterpriseClock"))$("enterpriseClock").textContent=now.toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});
+  if($("enterpriseDate"))$("enterpriseDate").textContent=now.toLocaleDateString("es-MX",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  if($("enterpriseGreeting"))$("enterpriseGreeting").textContent=`${getDayGreeting()}, ${authSession?.user?.name||authSession?.user?.username||"Usuario"}`;
+  if($("enterpriseRoleSummary")){
+    const role=normalizeRole(authSession?.user?.role);
+    const summaries={
+      ADMINISTRADOR:"Acceso total habilitado. Todos los módulos están disponibles.",
+      GERENCIA:"Panel ejecutivo y Dirección General disponibles.",
+      SUPERVISOR:"Monitoreo operativo e inteligencia habilitados.",
+      USUARIO:"Consulta de indicadores y reportes habilitada."
+    };
+    $("enterpriseRoleSummary").textContent=summaries[role]||summaries.USUARIO;
+  }
+}
+setInterval(updateEnterpriseHeader,30000);
 
 async function restoreSession(){
   try{
