@@ -108,6 +108,7 @@
       <button class="active" data-view="inicio"><span>⌂</span>Inicio</button>
       <button data-view="ingresos"><span>▥</span>Ingresos 360</button>
       <button data-view="inteligencia"><span>✦</span>Centro de Inteligencia</button>
+      <button data-view="direccion" class="direction-nav"><span>◆</span>Dirección General</button>
       <button data-view="comparativos"><span>↗</span>Comparativos</button>
       <button data-view="reportes"><span>▤</span>Reportes</button>
       <button data-view="usuarios" class="admin-nav"><span>👥</span>Usuarios</button>
@@ -129,6 +130,11 @@
       <div class="header-tools">
         <span id="headerPeriod" class="period-badge">JUNIO 2026</span>
         <span id="headerRoleBadge" class="header-role-badge">USUARIO</span>
+        <div class="system-status-strip">
+          <span><i class="ok"></i>API</span>
+          <span><i class="ok"></i>Sheets</span>
+          <span><i id="historyStatusDot"></i>Histórico</span>
+        </div>
         <div class="notification-menu">
           <button id="notificationBtn" class="notification-btn" title="Notificaciones">🔔<span id="notificationCount">0</span></button>
           <div id="notificationPanel" class="notification-panel hidden">
@@ -298,7 +304,7 @@
               <span>Total general</span>
               <strong id="totalKpi">$0.00</strong>
               <small id="totalRows">0 registros</small>
-              <em id="totalDelta" class="kpi-delta neutral-delta">Sin comparativo</em>
+              <em id="totalDelta" class="kpi-delta neutral-delta">Sin comparativo</em><div id="totalSparkline" class="sparkline"></div>
             </article>
 
             <article class="kpi-brand-card">
@@ -361,6 +367,65 @@
       </section>
 
       
+      
+      <section class="view" data-view-panel="direccion">
+        <div class="director-hero">
+          <div>
+            <span class="pill">NEXUS EXECUTIVE BOARD</span>
+            <h2>Panel de Dirección General</h2>
+            <p>Una vista estratégica para supervisar desempeño, evolución anual, concentración y señales prioritarias.</p>
+          </div>
+          <div class="director-period">
+            <small>PERIODO ACTUAL</small>
+            <strong id="directorPeriod">—</strong>
+            <span id="directorGenerated">Pendiente</span>
+          </div>
+        </div>
+
+        <section id="directorEmpty" class="card empty-block">
+          Actualiza la información para habilitar el panel de Dirección General.
+        </section>
+
+        <section id="directorContent" class="hidden">
+          <div class="director-kpis">
+            <article><span>Ingreso acumulado</span><strong id="directorTotal">$0.00</strong><small id="directorTotalDetail">Periodo actual</small></article>
+            <article><span>Variación</span><strong id="directorVariation">—</strong><small id="directorVariationDetail">Sin comparativo</small></article>
+            <article><span>Marca estratégica</span><strong id="directorLeader">—</strong><small id="directorLeaderDetail">—</small></article>
+            <article><span>Índice NEXUS</span><strong id="directorScore">—</strong><small id="directorScoreDetail">Pendiente</small></article>
+          </div>
+
+          <div class="director-grid">
+            <article class="card director-chart-card large">
+              <div class="card-title"><small>TENDENCIA ANUAL</small><h3>Evolución mensual del ingreso</h3></div>
+              <canvas id="directorAnnualChart"></canvas>
+            </article>
+            <article class="card director-chart-card">
+              <div class="card-title"><small>PORTAFOLIO</small><h3>Participación por marca</h3></div>
+              <canvas id="directorPortfolioChart"></canvas>
+            </article>
+          </div>
+
+          <div class="director-grid second">
+            <article class="card director-ranking-card">
+              <div class="card-title"><small>RANKING EJECUTIVO</small><h3>Posición estratégica</h3></div>
+              <div id="directorRanking"></div>
+            </article>
+            <article class="card director-recommendations-card">
+              <div class="card-title"><small>RECOMENDACIONES</small><h3>Acciones sugeridas</h3></div>
+              <div id="directorRecommendations"></div>
+            </article>
+          </div>
+
+          <article class="card director-summary-card">
+            <div class="section-head">
+              <div class="card-title"><small>RESUMEN DE DIRECCIÓN</small><h3>Conclusión ejecutiva</h3></div>
+              <button id="copyDirectorSummaryBtn" class="btn compact">Copiar resumen</button>
+            </div>
+            <div id="directorSummary"></div>
+          </article>
+        </section>
+      </section>
+
       <section class="view" data-view-panel="inteligencia">
         <div class="page-intro intelligence-intro">
           <span class="pill">NEXUS INTELLIGENCE</span>

@@ -1,7 +1,7 @@
 (() => {
 const BRANDS=["TRT","TRTVB","AAO","AAOVB"],$=id=>document.getElementById(id);
 const money=new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN"});
-const state={sources:{},brands:[],summary:null,charts:[],platformCharts:[],intelligenceCharts:[],notifications:[]};
+const state={sources:{},brands:[],summary:null,charts:[],platformCharts:[],intelligenceCharts:[],directorCharts:[],notifications:[]};
 const notificationKey="recaudacion365-notifications-v15";
 const loadNotifications=()=>{try{return JSON.parse(localStorage.getItem(notificationKey)||"[]")}catch{return[]}};
 const saveNotifications=v=>localStorage.setItem(notificationKey,JSON.stringify(v));
@@ -9,7 +9,7 @@ function addNotification(title,detail,icon="ℹ"){
   const items=loadNotifications();
   items.unshift({id:Date.now(),title,detail,icon,time:new Date().toLocaleString("es-MX")});
   saveNotifications(items.slice(0,25));
-  renderNotifications();
+  renderNotifications();document.querySelectorAll(".today-card,.metric,.executive-kpis article,.director-kpis article").forEach(el=>el.classList.add("smart-hover"));
 }
 function renderNotifications(){
   const items=loadNotifications(),list=$("notificationList");
@@ -233,7 +233,7 @@ function renderPlatform(){
   if($("reportCoverUser"))$("reportCoverUser").textContent=authSession?.user?.name||authSession?.user?.username||"Usuario";
   if($("reportCoverDate"))$("reportCoverDate").textContent=new Date().toLocaleString("es-MX");
   $("managementPreview").innerHTML=`<h3>Resumen ejecutivo · ${m} ${y}</h3><p>El ingreso general fue de <b>${money.format(s.total)}</b>, integrado por ${s.count.toLocaleString("es-MX")} registros. ${leader.name} encabezó la recaudación con ${pct(leader.total,s.total)} de participación. ${concepts[0][0]} fue el concepto principal, con ${money.format(concepts[0][1])}.</p>${prev?`<p>En comparación con ${prev.label}, el resultado ${s.total>=prev.total?"aumentó":"disminuyó"} ${Math.abs((s.total-prev.total)/(prev.total||1)*100).toFixed(2)}%.</p>`:"<p>No existe todavía un periodo previo guardado para calcular variación.</p>"}`;
-  renderHomeChart();renderProactiveBriefing();renderIntelligence();populateCompareSelectors();$("historyCount").textContent=`${hist.length} periodo${hist.length===1?"":"s"} almacenado${hist.length===1?"":"s"}`;
+  renderHomeChart();renderTotalSparkline();renderProactiveBriefing();renderIntelligence();renderDirectorPanel();populateCompareSelectors();$("historyCount").textContent=`${hist.length} periodo${hist.length===1?"":"s"} almacenado${hist.length===1?"":"s"}`;if($("historyStatusDot"))$("historyStatusDot").className=hist.length?"ok":"";
 }
 
 function getCurrentPreviousPeriod(){
@@ -352,20 +352,92 @@ function renderIntelligence(){
   }
 }
 
+
+function renderTotalSparkline(){
+  const el=$("totalSparkline");if(!el)return;
+  const history=getHistory().sort((a,b)=>a.key.localeCompare(b.key)).slice(-8);
+  const values=history.length?history.map(h=>h.total):state.summary?[state.summary.total]:[];
+  if(!values.length){el.innerHTML="";return}
+  const max=Math.max(...values,1),min=Math.min(...values,0),range=max-min||1;
+  el.innerHTML=values.map(v=>`<i style="height:${8+((v-min)/range)*20}px"></i>`).join("");
+}
+function calculateDirectorScore(){
+  if(!state.summary)return 0;
+  const s=state.summary,previous=getCurrentPreviousPeriod(),leader=[...state.brands].sort((a,b)=>b.total-a.total)[0];
+  const concepts=[s.canje,s.abordo,s.prepago].sort((a,b)=>b-a);
+  let score=68;
+  if(previous){const g=(s.total-previous.total)/(previous.total||1)*100;score+=Math.max(-25,Math.min(25,g*2))}
+  const leaderShare=leader.total/(s.total||1)*100;
+  const conceptShare=concepts[0]/(s.total||1)*100;
+  score+=leaderShare<50?7:leaderShare<65?1:-6;
+  score+=conceptShare<75?7:conceptShare<85?0:-7;
+  return Math.max(0,Math.min(100,Math.round(score)));
+}
+function renderDirectorPanel(){
+  const empty=$("directorEmpty"),content=$("directorContent");
+  if(!empty||!content)return;
+  if(!state.summary){empty.classList.remove("hidden");content.classList.add("hidden");return}
+  empty.classList.add("hidden");content.classList.remove("hidden");
+
+  const s=state.summary,sorted=[...state.brands].sort((a,b)=>b.total-a.total),leader=sorted[0];
+  const previous=getCurrentPreviousPeriod(),variation=previous?((s.total-previous.total)/(previous.total||1)*100):null;
+  const score=calculateDirectorScore();
+  const period=`${$("month").value} ${$("year").value}`;
+
+  $("directorPeriod").textContent=period;
+  $("directorGenerated").textContent=`Actualizado ${new Date().toLocaleString("es-MX")}`;
+  $("directorTotal").textContent=money.format(s.total);
+  $("directorTotalDetail").textContent=`${s.count.toLocaleString("es-MX")} registros procesados`;
+  $("directorVariation").textContent=variation==null?"—":`${variation>=0?"+":""}${variation.toFixed(2)}%`;
+  $("directorVariationDetail").textContent=previous?`Frente a ${previous.label}`:"Sin periodo anterior";
+  $("directorLeader").textContent=leader.name;
+  $("directorLeaderDetail").textContent=`${pct(leader.total,s.total)} del total`;
+  $("directorScore").textContent=`${score}/100`;
+  $("directorScoreDetail").textContent=score>=80?"Excelente":score>=60?"Atención":"Riesgo";
+
+  $("directorRanking").innerHTML=sorted.map((b,i)=>`<div class="director-rank-row"><span>${i+1}</span><div><b>${b.name}</b><small>${pct(b.total,s.total)} de participación</small></div><strong>${money.format(b.total)}</strong></div>`).join("");
+
+  const concepts=[["Canje",s.canje],["Abordo",s.abordo],["Prepago",s.prepago]].sort((a,b)=>b[1]-a[1]);
+  const recs=[];
+  if(variation==null)recs.push("Guardar el periodo actual para habilitar la comparación mensual.");
+  else if(variation<0)recs.push(`Revisar las causas de la disminución general de ${Math.abs(variation).toFixed(2)}%.`);
+  else recs.push(`Mantener las acciones que impulsaron el crecimiento de ${variation.toFixed(2)}%.`);
+  if(leader.total/(s.total||1)>.6)recs.push(`Reducir la dependencia de ${leader.name}, que concentra más del 60% del ingreso.`);
+  recs.push(`Dar seguimiento a ${sorted.at(-1).name}, la marca con menor participación.`);
+  if(concepts[0][1]/(s.total||1)>.8)recs.push(`Diversificar la composición: ${concepts[0][0]} representa más del 80% del total.`);
+  else recs.push(`La composición por concepto se mantiene dentro de un rango controlado.`);
+  $("directorRecommendations").innerHTML=recs.map((r,i)=>`<div class="director-rec"><i>${["◎","⚠","↗","◉"][i%4]}</i><div>${r}</div></div>`).join("");
+
+  const summary=`NEXUS — Resumen de Dirección ${period}. El ingreso general fue de ${money.format(s.total)} con ${s.count.toLocaleString("es-MX")} registros. ${leader.name} lideró con ${pct(leader.total,s.total)} de participación. ${concepts[0][0]} fue el concepto principal con ${pct(concepts[0][1],s.total)} del total.${variation==null?" No existe un periodo previo guardado para comparar.":` Frente a ${previous.label}, el resultado ${variation>=0?"aumentó":"disminuyó"} ${Math.abs(variation).toFixed(2)}%.`} El índice NEXUS fue ${score}/100.`;
+  $("directorSummary").textContent=summary;
+
+  state.directorCharts.forEach(c=>c.destroy());state.directorCharts=[];
+  const history=getHistory().sort((a,b)=>a.key.localeCompare(b.key)).filter(h=>String(h.key).startsWith(String($("year").value)));
+  const annualCanvas=$("directorAnnualChart");
+  if(annualCanvas){
+    state.directorCharts.push(new Chart(annualCanvas,{type:"line",data:{labels:history.map(h=>h.label),datasets:[{label:"Ingreso general",data:history.map(h=>h.total),tension:.35,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money.format(c.raw)}}},scales:{y:{ticks:{callback:v=>money.format(v)},grid:{color:"rgba(148,163,184,.14)"}},x:{grid:{display:false}}}}}));
+  }
+  const portfolioCanvas=$("directorPortfolioChart");
+  if(portfolioCanvas){
+    state.directorCharts.push(new Chart(portfolioCanvas,{type:"doughnut",data:{labels:sorted.map(b=>b.name),datasets:[{data:sorted.map(b=>b.total),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:"66%",plugins:{legend:{position:"bottom",labels:{usePointStyle:true}},tooltip:{callbacks:{label:c=>`${c.label}: ${money.format(c.raw)}`}}}}}));
+  }
+}
+
 function renderHomeChart(){
   state.platformCharts.forEach(c=>c.destroy());state.platformCharts=[];
   if(!state.summary)return;
   const canvas=$("homeChart");if(canvas)state.platformCharts.push(new Chart(canvas,{type:"bar",data:{labels:state.brands.map(b=>b.name),datasets:[{label:"Ingreso total",data:state.brands.map(b=>b.total),borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money.format(c.raw)}}},scales:{y:{ticks:{callback:v=>money.format(v)},grid:{color:"rgba(148,163,184,.15)"}},x:{grid:{display:false}}}}}))
 }
-const pageTitles={inicio:"Centro ejecutivo",ingresos:"Ingresos 360",inteligencia:"Centro de Inteligencia",comparativos:"Comparativos",reportes:"Reportes ejecutivos",usuarios:"Usuarios y accesos",configuracion:"Configuración"};
+const pageTitles={inicio:"Centro ejecutivo",ingresos:"Ingresos 360",direccion:"Dirección General",inteligencia:"Centro de Inteligencia",comparativos:"Comparativos",reportes:"Reportes ejecutivos",usuarios:"Usuarios y accesos",configuracion:"Configuración"};
 function openView(name){
   if(name==="usuarios"&&!canAccess("ADMINISTRADOR")){toast("Tu rol no permite administrar usuarios.");return}
   if(name==="configuracion"&&!canAccess("GERENCIA")){toast("Tu rol no permite acceder a configuración.");return}
+  if(name==="direccion"&&!canAccess("GERENCIA")){toast("Este panel está reservado para Gerencia y Administración.");return}
   if(["inteligencia","comparativos"].includes(name)&&!canAccess("SUPERVISOR")){toast("Tu rol no permite acceder a este módulo.");return}
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.dataset.viewPanel===name));
   document.querySelectorAll(".side-nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===name));
   $("pageTitle").textContent=pageTitles[name]||"NEXUS";$("sidebar").classList.remove("open");window.scrollTo({top:0,behavior:"smooth"});
-  if(name==="inteligencia")renderIntelligence();if(name==="comparativos")populateCompareSelectors();if(name==="usuarios")loadAdminUsers();if(name==="configuracion")renderSettings();
+  if(name==="direccion")renderDirectorPanel();if(name==="inteligencia")renderIntelligence();if(name==="comparativos")populateCompareSelectors();if(name==="usuarios")loadAdminUsers();if(name==="configuracion")renderSettings();
 }
 document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>openView(b.dataset.view));
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>openView(b.dataset.go));
@@ -404,6 +476,11 @@ $("copySummaryBtn").onclick=async()=>{if(!state.summary){toast("Primero carga la
 $("refreshBriefingBtn").onclick=()=>{
   if(state.summary){renderProactiveBriefing();toast("Briefing actualizado")}else $("loadSheetsBtn").click();
 };
+$("copyDirectorSummaryBtn").onclick=async()=>{
+  const text=$("directorSummary")?.innerText||"";
+  if(!text){toast("Primero actualiza la información");return}
+  try{await navigator.clipboard.writeText(text);toast("Resumen de Dirección copiado")}catch{toast("No fue posible copiar automáticamente")}
+};
 $("copyIntelligenceBriefBtn").onclick=async()=>{
   const text=$("intelligenceBrief")?.innerText||"";
   if(!text){toast("Primero actualiza la información");return}
@@ -441,6 +518,7 @@ function setUserInterface(user){
 
   // Role-based navigation.
   document.querySelectorAll('[data-view="configuracion"]').forEach(el=>el.classList.toggle("restricted-role",roleLevel(role)<3));
+  document.querySelectorAll('[data-view="direccion"]').forEach(el=>el.classList.toggle("restricted-role",roleLevel(role)<3));
   document.querySelectorAll('[data-view="comparativos"]').forEach(el=>el.classList.toggle("restricted-role",roleLevel(role)<2));
   document.querySelectorAll('[data-view="inteligencia"]').forEach(el=>el.classList.toggle("restricted-role",roleLevel(role)<2));
 

@@ -468,3 +468,56 @@ a{color:#3676ec}
   .executive-kpis-v19{grid-template-columns:1fr!important}
   .executive-kpis-v19 article{min-height:auto}
 }
+
+/* NEXUS V20 — Dirección General */
+.system-status-strip{display:flex;gap:6px}
+.system-status-strip span{display:inline-flex;align-items:center;gap:5px;padding:7px 9px;border-radius:9px;background:var(--soft);border:1px solid var(--line);font-size:8px;font-weight:800;color:var(--muted)}
+.system-status-strip i{width:7px;height:7px;border-radius:50%;background:#d7a33d}
+.system-status-strip i.ok{background:#31c790;box-shadow:0 0 0 4px rgba(49,199,144,.08)}
+.sparkline{height:28px;margin-top:10px;display:flex;align-items:end;gap:3px}
+.sparkline i{flex:1;min-width:3px;border-radius:4px 4px 1px 1px;background:linear-gradient(180deg,#83efff,#5d7dff);opacity:.9}
+
+.director-hero{
+  display:flex;justify-content:space-between;align-items:center;gap:24px;
+  padding:31px;border-radius:23px;color:#fff;
+  background:
+    radial-gradient(circle at 86% 12%,rgba(122,247,232,.2),transparent 27%),
+    radial-gradient(circle at 12% 88%,rgba(101,88,255,.22),transparent 30%),
+    linear-gradient(125deg,#101d60,#443dcc 34%,#2f74ff 67%,#32c8f4);
+  box-shadow:0 20px 50px rgba(32,75,170,.2);position:relative;overflow:hidden
+}
+.director-hero h2{font-size:clamp(30px,4vw,47px);margin:13px 0 8px;letter-spacing:-1.3px}
+.director-hero p{color:#d6e5f5;max-width:760px;line-height:1.6}
+.director-period{min-width:220px;padding:18px;border-radius:16px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.15);backdrop-filter:blur(12px)}
+.director-period small,.director-period strong,.director-period span{display:block}
+.director-period small{font-size:8px;letter-spacing:1.4px;color:#b9d4ef}.director-period strong{font-size:22px;margin:7px 0}.director-period span{font-size:9px;color:#d9e7f4}
+
+.director-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin:15px 0}
+.director-kpis article{padding:19px;border-radius:18px;color:#fff;background:linear-gradient(145deg,#111f61,#2658bd,#2e8cc8);box-shadow:var(--shadow);position:relative;overflow:hidden}
+.director-kpis article:after{content:"";position:absolute;width:110px;height:110px;border-radius:50%;right:-52px;top:-55px;background:rgba(122,247,232,.11)}
+.director-kpis span,.director-kpis small{display:block;color:#d0e1f2;font-size:9px}.director-kpis strong{display:block;font-size:27px;margin:9px 0 6px}
+
+.director-grid{display:grid;grid-template-columns:1.45fr .75fr;gap:15px;margin-bottom:15px}
+.director-grid.second{grid-template-columns:.85fr 1.15fr}
+.director-chart-card,.director-ranking-card,.director-recommendations-card,.director-summary-card{padding:21px;border-radius:18px}
+.director-chart-card{height:390px}.director-chart-card canvas{max-height:315px}
+.director-rank-row{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.director-rank-row>span{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,rgba(101,88,255,.14),rgba(69,221,255,.18));color:#2f69df;display:grid;place-items:center;font-size:10px;font-weight:900}
+.director-rank-row b,.director-rank-row small{display:block}.director-rank-row small{font-size:8px;color:var(--muted);margin-top:3px}.director-rank-row strong{font-size:11px}
+.director-rec{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);font-size:10px;line-height:1.55}
+.director-rec i{width:28px;height:28px;border-radius:8px;background:var(--soft);display:grid;place-items:center;font-style:normal;flex:0 0 auto}
+#directorSummary{padding-top:11px;font-size:11px;line-height:1.75}
+.smart-hover{transition:transform .2s,box-shadow .2s}.smart-hover:hover{transform:translateY(-4px);box-shadow:0 22px 50px rgba(20,55,120,.14)}
+.direction-nav.restricted-role{display:none!important}
+
+@media(max-width:1050px){
+  .system-status-strip{display:none}
+  .director-kpis{grid-template-columns:repeat(2,1fr)}
+  .director-grid,.director-grid.second{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .director-hero{flex-direction:column;align-items:flex-start;padding:23px}
+  .director-period{width:100%;min-width:0}
+  .director-kpis{grid-template-columns:1fr}
+  .director-chart-card{height:320px}
+}

@@ -1,5 +1,5 @@
 /**
- * NEXUS BUSINESS INTELLIGENCE PLATFORM v19
+ * NEXUS BUSINESS INTELLIGENCE PLATFORM v20
  * Autenticación, sesiones y administración de usuarios.
  *
  * USUARIOS admite:
@@ -18,7 +18,7 @@ const DURACION_SESION_SEGUNDOS = 21600;
 const ROLES_VALIDOS = ['USUARIO','SUPERVISOR','GERENCIA','ADMINISTRADOR'];
 
 function doGet() {
-  return respuesta({ error:false, message:'API NEXUS v19 activa' });
+  return respuesta({ error:false, message:'API NEXUS v20 activa' });
 }
 
 function doPost(e) {
