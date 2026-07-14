@@ -107,6 +107,7 @@
     <nav class="side-nav">
       <button class="active" data-view="inicio"><span>⌂</span>Inicio</button>
       <button data-view="ingresos"><span>▥</span>Ingresos 360</button>
+      <button data-view="inteligencia"><span>✦</span>Centro de Inteligencia</button>
       <button data-view="comparativos"><span>↗</span>Comparativos</button>
       <button data-view="reportes"><span>▤</span>Reportes</button>
       <button data-view="usuarios" class="admin-nav"><span>👥</span>Usuarios</button>
@@ -303,6 +304,82 @@
             <div class="chart-grid"><article class="card chart-card wide"><div class="card-title"><small>TENDENCIA</small><h3>Histórico mensual guardado</h3></div><canvas id="historyChart"></canvas></article><article class="card history-list-card"><div class="card-title"><small>PERIODOS</small><h3>Meses disponibles</h3></div><div id="historyList"></div></article></div>
           </section>
           <div id="brandPanels"></div>
+        </section>
+      </section>
+
+      
+      <section class="view" data-view-panel="inteligencia">
+        <div class="page-intro intelligence-intro">
+          <span class="pill">NEXUS INTELLIGENCE</span>
+          <h2>Centro de Inteligencia</h2>
+          <p>Interpretación automática del periodo, semáforo ejecutivo, oportunidades y alertas basadas en el histórico disponible.</p>
+        </div>
+
+        <section id="intelligenceEmpty" class="card empty-block">
+          Actualiza la información desde Google Sheets para generar el análisis ejecutivo.
+        </section>
+
+        <section id="intelligenceContent" class="hidden">
+          <div class="intelligence-status-grid">
+            <article class="intelligence-status-card">
+              <div id="generalLight" class="traffic-light neutral-light"><span></span></div>
+              <div><small>DESEMPEÑO GENERAL</small><strong id="generalStatus">Sin histórico</strong><p id="generalStatusDetail">Guarda al menos un periodo anterior.</p></div>
+            </article>
+            <article class="intelligence-status-card">
+              <div class="intelligence-icon">🏆</div>
+              <div><small>FORTALEZA PRINCIPAL</small><strong id="mainStrength">—</strong><p id="mainStrengthDetail">—</p></div>
+            </article>
+            <article class="intelligence-status-card">
+              <div class="intelligence-icon">⚠</div>
+              <div><small>PUNTO DE ATENCIÓN</small><strong id="attentionPoint">—</strong><p id="attentionDetail">—</p></div>
+            </article>
+            <article class="intelligence-status-card">
+              <div class="intelligence-icon">◎</div>
+              <div><small>CONCENTRACIÓN</small><strong id="concentrationStatus">—</strong><p id="concentrationDetail">—</p></div>
+            </article>
+          </div>
+
+          <div class="intelligence-main-grid">
+            <article class="card intelligence-narrative">
+              <div class="card-title"><small>RESUMEN AUTOMÁTICO</small><h3>Lectura para dirección</h3></div>
+              <div id="executiveNarrative"></div>
+            </article>
+            <article class="card intelligence-score-card">
+              <div class="card-title"><small>ÍNDICE EJECUTIVO</small><h3>Evaluación del periodo</h3></div>
+              <div class="score-ring" id="scoreRing"><div><strong id="executiveScore">0</strong><span>/100</span></div></div>
+              <p id="scoreDescription">Pendiente de información.</p>
+            </article>
+          </div>
+
+          <div class="chart-grid intelligence-charts">
+            <article class="card chart-card">
+              <div class="card-title"><small>SEMÁFORO POR MARCA</small><h3>Variación frente al periodo anterior</h3></div>
+              <canvas id="intelligenceGrowthChart"></canvas>
+            </article>
+            <article class="card chart-card">
+              <div class="card-title"><small>COMPOSICIÓN</small><h3>Dependencia por concepto</h3></div>
+              <canvas id="intelligenceConceptChart"></canvas>
+            </article>
+          </div>
+
+          <div class="intelligence-lists-grid">
+            <article class="card intelligence-list-card">
+              <div class="card-title"><small>OPORTUNIDADES</small><h3>Aspectos favorables</h3></div>
+              <div id="opportunityList"></div>
+            </article>
+            <article class="card intelligence-list-card alert-list-card">
+              <div class="card-title"><small>ALERTAS</small><h3>Indicadores que requieren atención</h3></div>
+              <div id="alertList"></div>
+            </article>
+          </div>
+
+          <article class="card management-brief-card">
+            <div class="section-head">
+              <div class="card-title"><small>BRIEF EJECUTIVO</small><h3>Texto listo para compartir</h3></div>
+              <button id="copyIntelligenceBriefBtn" class="btn compact">Copiar brief</button>
+            </div>
+            <div id="intelligenceBrief"></div>
+          </article>
         </section>
       </section>
 

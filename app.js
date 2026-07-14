@@ -1,7 +1,7 @@
 (() => {
 const BRANDS=["TRT","TRTVB","AAO","AAOVB"],$=id=>document.getElementById(id);
 const money=new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN"});
-const state={sources:{},brands:[],summary:null,charts:[],platformCharts:[],notifications:[]};
+const state={sources:{},brands:[],summary:null,charts:[],platformCharts:[],intelligenceCharts:[],notifications:[]};
 const notificationKey="recaudacion365-notifications-v15";
 const loadNotifications=()=>{try{return JSON.parse(localStorage.getItem(notificationKey)||"[]")}catch{return[]}};
 const saveNotifications=v=>localStorage.setItem(notificationKey,JSON.stringify(v));
@@ -178,19 +178,113 @@ function renderPlatform(){
   if($("reportCoverUser"))$("reportCoverUser").textContent=authSession?.user?.name||authSession?.user?.username||"Usuario";
   if($("reportCoverDate"))$("reportCoverDate").textContent=new Date().toLocaleString("es-MX");
   $("managementPreview").innerHTML=`<h3>Resumen ejecutivo · ${m} ${y}</h3><p>El ingreso general fue de <b>${money.format(s.total)}</b>, integrado por ${s.count.toLocaleString("es-MX")} registros. ${leader.name} encabezó la recaudación con ${pct(leader.total,s.total)} de participación. ${concepts[0][0]} fue el concepto principal, con ${money.format(concepts[0][1])}.</p>${prev?`<p>En comparación con ${prev.label}, el resultado ${s.total>=prev.total?"aumentó":"disminuyó"} ${Math.abs((s.total-prev.total)/(prev.total||1)*100).toFixed(2)}%.</p>`:"<p>No existe todavía un periodo previo guardado para calcular variación.</p>"}`;
-  renderHomeChart();populateCompareSelectors();$("historyCount").textContent=`${hist.length} periodo${hist.length===1?"":"s"} almacenado${hist.length===1?"":"s"}`;
+  renderHomeChart();renderIntelligence();populateCompareSelectors();$("historyCount").textContent=`${hist.length} periodo${hist.length===1?"":"s"} almacenado${hist.length===1?"":"s"}`;
 }
+
+function getCurrentPreviousPeriod(){
+  if(!state.summary)return null;
+  const months=["ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"];
+  const key=`${$("year").value}-${String(months.indexOf($("month").value)+1).padStart(2,"0")}`;
+  return [...getHistory()].filter(h=>h.key<key).sort((a,b)=>b.key.localeCompare(a.key))[0]||null;
+}
+function renderIntelligence(){
+  const empty=$("intelligenceEmpty"),content=$("intelligenceContent");
+  if(!empty||!content)return;
+  if(!state.summary){
+    empty.classList.remove("hidden");content.classList.add("hidden");return;
+  }
+  empty.classList.add("hidden");content.classList.remove("hidden");
+
+  const s=state.summary,brands=[...state.brands].sort((a,b)=>b.total-a.total);
+  const leader=brands[0],lowest=brands.at(-1);
+  const concepts=[["Canje",s.canje],["Abordo",s.abordo],["Prepago",s.prepago]].sort((a,b)=>b[1]-a[1]);
+  const previous=getCurrentPreviousPeriod();
+  const brandChanges=brands.map(b=>{
+    const old=(previous?.brands||[]).find(x=>x.name===b.name)?.total||0;
+    return {name:b.name,current:b.total,previous:old,change:old?((b.total-old)/old*100):null};
+  });
+  const generalChange=previous?((s.total-previous.total)/(previous.total||1)*100):null;
+  const leaderShare=leader.total/(s.total||1)*100;
+  const conceptShare=concepts[0][1]/(s.total||1)*100;
+
+  let score=65;
+  if(generalChange!=null)score+=Math.max(-25,Math.min(25,generalChange*2));
+  score+=leaderShare<45?8:leaderShare<60?2:-7;
+  score+=conceptShare<70?7:conceptShare<82?1:-6;
+  const positiveBrands=brandChanges.filter(x=>x.change!=null&&x.change>0).length;
+  const negativeBrands=brandChanges.filter(x=>x.change!=null&&x.change<0).length;
+  score+=positiveBrands*3-negativeBrands*4;
+  score=Math.max(0,Math.min(100,Math.round(score)));
+
+  const light=$("generalLight");
+  light.className="traffic-light "+(generalChange==null?"neutral-light":generalChange>=3?"green-light":generalChange>-3?"yellow-light":"red-light");
+  $("generalStatus").textContent=generalChange==null?"Sin histórico":generalChange>=3?"Excelente":generalChange>-3?"Atención":"Riesgo";
+  $("generalStatusDetail").textContent=generalChange==null?"Guarda un periodo anterior para comparar.":`${generalChange>=0?"+":""}${generalChange.toFixed(2)}% frente a ${previous.label}.`;
+
+  $("mainStrength").textContent=leader.name;
+  $("mainStrengthDetail").textContent=`Lidera con ${money.format(leader.total)} (${pct(leader.total,s.total)}).`;
+
+  const worstChange=[...brandChanges].filter(x=>x.change!=null).sort((a,b)=>a.change-b.change)[0];
+  $("attentionPoint").textContent=worstChange&&worstChange.change<0?worstChange.name:lowest.name;
+  $("attentionDetail").textContent=worstChange&&worstChange.change<0?`Disminuyó ${Math.abs(worstChange.change).toFixed(2)}%.`:`Menor participación: ${pct(lowest.total,s.total)}.`;
+
+  $("concentrationStatus").textContent=concepts[0][0];
+  $("concentrationDetail").textContent=`Concentra ${pct(concepts[0][1],s.total)} del ingreso.`;
+
+  const ring=$("scoreRing"),scoreEl=$("executiveScore");
+  scoreEl.textContent=score;
+  scoreEl.className=score>=80?"score-excellent":score>=60?"score-attention":"score-risk";
+  ring.style.background=`conic-gradient(#2f74ff 0deg,#45ddff ${score*3.6}deg,rgba(148,163,184,.16) ${score*3.6}deg)`;
+  $("scoreDescription").textContent=score>=80?"Periodo sólido con señales favorables.":score>=60?"Resultado estable con áreas que conviene vigilar.":"Periodo con indicadores que requieren seguimiento.";
+
+  const narrative=[];
+  narrative.push(`<div class="narrative-block"><i>◎</i><div>El ingreso general del periodo asciende a <b>${money.format(s.total)}</b>, integrado por ${s.count.toLocaleString("es-MX")} registros.</div></div>`);
+  narrative.push(`<div class="narrative-block"><i>🏆</i><div><b>${leader.name}</b> ocupa la primera posición y aporta ${pct(leader.total,s.total)} del consolidado.</div></div>`);
+  narrative.push(`<div class="narrative-block"><i>◉</i><div><b>${concepts[0][0]}</b> es el concepto dominante, con ${money.format(concepts[0][1])}.</div></div>`);
+  if(previous)narrative.push(`<div class="narrative-block"><i>${generalChange>=0?"↗":"↘"}</i><div>Frente a ${previous.label}, el total ${generalChange>=0?"aumentó":"disminuyó"} <b>${Math.abs(generalChange).toFixed(2)}%</b>.</div></div>`);
+  else narrative.push(`<div class="narrative-block"><i>▥</i><div>No existe un periodo anterior guardado; el análisis de crecimiento se activará al guardar otro mes.</div></div>`);
+  $("executiveNarrative").innerHTML=narrative.join("");
+
+  const opportunities=[
+    `${leader.name} representa la principal fuente de ingreso del periodo.`,
+    `${concepts[0][0]} mantiene la mayor aportación dentro del concentrado.`,
+    positiveBrands?`${positiveBrands} marca${positiveBrands===1?"":"s"} presenta${positiveBrands===1?"":"n"} crecimiento frente al periodo anterior.`:"El periodo actual sirve como nueva línea base para comparaciones."
+  ];
+  $("opportunityList").innerHTML=opportunities.map(x=>`<div class="intelligence-list-item"><i>✓</i><div>${x}</div></div>`).join("");
+
+  const alerts=[];
+  if(generalChange!=null&&generalChange<0)alerts.push(`El ingreso general disminuyó ${Math.abs(generalChange).toFixed(2)}%.`);
+  brandChanges.filter(x=>x.change!=null&&x.change<0).forEach(x=>alerts.push(`${x.name} cayó ${Math.abs(x.change).toFixed(2)}%.`));
+  if(leaderShare>60)alerts.push(`${leader.name} concentra más del 60% del ingreso general.`);
+  if(conceptShare>80)alerts.push(`${concepts[0][0]} concentra más del 80% del ingreso, lo que incrementa la dependencia de un solo concepto.`);
+  if(!alerts.length)alerts.push("No se detectaron alertas críticas con la información disponible.");
+  $("alertList").innerHTML=alerts.map(x=>`<div class="intelligence-list-item"><i>!</i><div>${x}</div></div>`).join("");
+
+  const brief=`NEXUS — Brief ejecutivo ${$("month").value} ${$("year").value}. El ingreso general fue de ${money.format(s.total)} con ${s.count.toLocaleString("es-MX")} registros. ${leader.name} fue la marca líder con ${pct(leader.total,s.total)} de participación. ${concepts[0][0]} representó ${pct(concepts[0][1],s.total)} del total.${previous?` En comparación con ${previous.label}, el resultado ${generalChange>=0?"aumentó":"disminuyó"} ${Math.abs(generalChange).toFixed(2)}%.`:""} Índice ejecutivo: ${score}/100.`;
+  $("intelligenceBrief").textContent=brief;
+
+  state.intelligenceCharts.forEach(c=>c.destroy());state.intelligenceCharts=[];
+  const growthCanvas=$("intelligenceGrowthChart");
+  if(growthCanvas){
+    state.intelligenceCharts.push(new Chart(growthCanvas,{type:"bar",data:{labels:brandChanges.map(x=>x.name),datasets:[{label:"Variación %",data:brandChanges.map(x=>x.change??0),borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw>=0?"+":""}${Number(c.raw).toFixed(2)}%`}}},scales:{y:{ticks:{callback:v=>`${v}%`},grid:{color:"rgba(148,163,184,.15)"}},x:{grid:{display:false}}}}}));
+  }
+  const conceptCanvas=$("intelligenceConceptChart");
+  if(conceptCanvas){
+    state.intelligenceCharts.push(new Chart(conceptCanvas,{type:"doughnut",data:{labels:["Canje","Abordo","Prepago"],datasets:[{data:[s.canje,s.abordo,s.prepago],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:"66%",plugins:{legend:{position:"bottom",labels:{usePointStyle:true}},tooltip:{callbacks:{label:c=>`${c.label}: ${money.format(c.raw)} (${pct(c.raw,s.total)})`}}}}}));
+  }
+}
+
 function renderHomeChart(){
   state.platformCharts.forEach(c=>c.destroy());state.platformCharts=[];
   if(!state.summary)return;
   const canvas=$("homeChart");if(canvas)state.platformCharts.push(new Chart(canvas,{type:"bar",data:{labels:state.brands.map(b=>b.name),datasets:[{label:"Ingreso total",data:state.brands.map(b=>b.total),borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money.format(c.raw)}}},scales:{y:{ticks:{callback:v=>money.format(v)},grid:{color:"rgba(148,163,184,.15)"}},x:{grid:{display:false}}}}}))
 }
-const pageTitles={inicio:"Centro ejecutivo",ingresos:"Ingresos 360",comparativos:"Comparativos",reportes:"Reportes ejecutivos",usuarios:"Usuarios y accesos",configuracion:"Configuración"};
+const pageTitles={inicio:"Centro ejecutivo",ingresos:"Ingresos 360",inteligencia:"Centro de Inteligencia",comparativos:"Comparativos",reportes:"Reportes ejecutivos",usuarios:"Usuarios y accesos",configuracion:"Configuración"};
 function openView(name){
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.dataset.viewPanel===name));
   document.querySelectorAll(".side-nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===name));
   $("pageTitle").textContent=pageTitles[name]||"NEXUS";$("sidebar").classList.remove("open");window.scrollTo({top:0,behavior:"smooth"});
-  if(name==="comparativos")populateCompareSelectors();if(name==="usuarios")loadAdminUsers();if(name==="configuracion")renderSettings();
+  if(name==="inteligencia")renderIntelligence();if(name==="comparativos")populateCompareSelectors();if(name==="usuarios")loadAdminUsers();if(name==="configuracion")renderSettings();
 }
 document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>openView(b.dataset.view));
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>openView(b.dataset.go));
@@ -226,6 +320,11 @@ function renderSettings(){$("sheetIdPreview").textContent=apiUrl()&&!apiUrl().in
 $("reportPrintBtn").onclick=()=>{if(!state.summary){toast("Primero carga la información");return}openView("ingresos");setTimeout(()=>window.print(),250)};
 $("reportExcelBtn").onclick=()=>{if(!state.summary){toast("Primero carga la información");return}$("exportBtn").click()};
 $("copySummaryBtn").onclick=async()=>{if(!state.summary){toast("Primero carga la información");return}const text=$("managementPreview").innerText;try{await navigator.clipboard.writeText(text);toast("Resumen copiado")}catch{toast("No fue posible copiar automáticamente")}};
+$("copyIntelligenceBriefBtn").onclick=async()=>{
+  const text=$("intelligenceBrief")?.innerText||"";
+  if(!text){toast("Primero actualiza la información");return}
+  try{await navigator.clipboard.writeText(text);toast("Brief ejecutivo copiado")}catch{toast("No fue posible copiar automáticamente")}
+};
 $("exportHistoryBtn").onclick=()=>{const blob=new Blob([JSON.stringify(getHistory(),null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="Ingresos360_Historico.json";a.click();URL.revokeObjectURL(url)};
 
 function setUserInterface(user){

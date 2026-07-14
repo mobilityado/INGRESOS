@@ -1,5 +1,5 @@
 /**
- * NEXUS BUSINESS INTELLIGENCE PLATFORM v16
+ * NEXUS BUSINESS INTELLIGENCE PLATFORM v17
  * Autenticación, sesiones y administración de usuarios.
  *
  * USUARIOS admite:
@@ -18,7 +18,7 @@ const DURACION_SESION_SEGUNDOS = 21600;
 const ROLES_VALIDOS = ['CONSULTA','SUPERVISOR','GERENCIA','ADMIN'];
 
 function doGet() {
-  return respuesta({ error:false, message:'API NEXUS v16 activa' });
+  return respuesta({ error:false, message:'API NEXUS v17 activa' });
 }
 
 function doPost(e) {

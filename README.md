@@ -1,23 +1,33 @@
-# NEXUS v16.1 — Corrección de visualización
+# NEXUS Business Intelligence Platform v17
 
-Esta versión corrige el error:
+## Centro de Inteligencia
 
-`Cannot set properties of null (setting 'innerHTML')`
+La V17 conserva todas las funciones de la V16.1 y agrega un módulo de interpretación automática:
 
-El problema se producía porque se eliminó la sección Aplicaciones, pero una
-función todavía intentaba actualizar un elemento perteneciente a esa sección.
-La excepción detenía el proceso antes de dibujar los indicadores y gráficas.
+- Semáforo ejecutivo general.
+- Índice del periodo de 0 a 100.
+- Fortaleza principal.
+- Punto de atención.
+- Nivel de concentración.
+- Resumen automático para dirección.
+- Variación de cada marca frente al periodo anterior.
+- Oportunidades y alertas.
+- Brief ejecutivo listo para copiar.
+- Gráficas de crecimiento y composición.
 
-## Correcciones
+## Criterios del semáforo
 
-- Renderizado completo de KPIs, tablas y gráficas.
-- Elementos opcionales protegidos para evitar errores futuros.
-- Mejor contraste del texto sobre el fondo tornasol.
-- Distribución adaptable de las cuatro fuentes.
-- Se mantiene eliminada la sección Aplicaciones.
+- Verde: crecimiento general igual o superior a 3%.
+- Amarillo: resultado entre -3% y 3%.
+- Rojo: disminución superior a 3%.
+- Neutral: no existe un periodo anterior guardado.
+
+El análisis se realiza localmente mediante reglas matemáticas. No utiliza servicios externos ni comparte información con una IA.
 
 ## Instalación
 
-Reemplaza los archivos de GitHub por los de este paquete y presiona Ctrl + F5.
-No es obligatorio cambiar la implementación de Apps Script si ya utilizas el
-Code.gs de la V16, aunque se incluye nuevamente para una instalación completa.
+1. Reemplaza los archivos de GitHub.
+2. Actualiza `Code.gs` mediante una nueva versión en Apps Script.
+3. Conserva la URL `/exec` en `config.js`.
+4. Presiona `Ctrl + F5`.
+5. Guarda periodos en el histórico para activar los comparativos y el semáforo.

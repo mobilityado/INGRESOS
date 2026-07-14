@@ -256,3 +256,37 @@ a{color:#3676ec}
 .brand-source-grid small{max-width:100%}
 @media(max-width:900px){.brand-source-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.brand-source-grid{grid-template-columns:1fr}}
+
+/* NEXUS V17 — Centro de Inteligencia */
+.intelligence-intro{position:relative}
+.intelligence-status-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:15px}
+.intelligence-status-card{display:flex;align-items:center;gap:13px;padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow)}
+.intelligence-status-card small,.intelligence-status-card strong,.intelligence-status-card p{display:block}
+.intelligence-status-card small{font-size:8px;letter-spacing:1.2px;color:var(--muted);font-weight:900}
+.intelligence-status-card strong{font-size:17px;margin:6px 0 4px}
+.intelligence-status-card p{font-size:9px;color:var(--muted);margin:0;line-height:1.45}
+.intelligence-icon{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(101,88,255,.13),rgba(69,221,255,.18));font-size:20px;flex:0 0 auto}
+.traffic-light{width:44px;height:62px;border-radius:15px;background:#18243a;padding:8px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.traffic-light span{width:25px;height:25px;border-radius:50%;background:#8491a5;box-shadow:0 0 14px rgba(132,145,165,.3)}
+.green-light span{background:#24c58a;box-shadow:0 0 18px rgba(36,197,138,.65)}
+.yellow-light span{background:#f1b93d;box-shadow:0 0 18px rgba(241,185,61,.65)}
+.red-light span{background:#e85b5b;box-shadow:0 0 18px rgba(232,91,91,.65)}
+.intelligence-main-grid{display:grid;grid-template-columns:1.35fr .65fr;gap:15px;margin-bottom:15px}
+.intelligence-narrative,.intelligence-score-card,.intelligence-list-card,.management-brief-card{padding:21px;border-radius:18px}
+.narrative-block{padding:13px 0;border-bottom:1px solid var(--line);display:flex;gap:11px;line-height:1.55;font-size:11px}
+.narrative-block i{font-style:normal;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--soft);flex:0 0 auto}
+.score-ring{width:165px;height:165px;border-radius:50%;display:grid;place-items:center;margin:18px auto;background:conic-gradient(#2f74ff 0deg,#45ddff 0deg,rgba(148,163,184,.16) 0deg)}
+.score-ring:before{content:"";position:absolute;width:124px;height:124px;border-radius:50%;background:var(--panel)}
+.score-ring{position:relative}
+.score-ring>div{position:relative;z-index:1;text-align:center}.score-ring strong{font-size:43px}.score-ring span{color:var(--muted);font-size:12px}
+.intelligence-score-card>p{text-align:center;color:var(--muted);font-size:10px;line-height:1.5}
+.intelligence-charts{margin-bottom:15px}
+.intelligence-lists-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:15px}
+.intelligence-list-item{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);font-size:10px;line-height:1.5}
+.intelligence-list-item i{width:27px;height:27px;border-radius:8px;display:grid;place-items:center;font-style:normal;background:#e4f8ef;color:#08704d;flex:0 0 auto}
+.alert-list-card .intelligence-list-item i{background:#fde8e8;color:#a03030}
+.management-brief-card{background:linear-gradient(135deg,rgba(101,88,255,.07),rgba(69,221,255,.08));border-color:rgba(64,132,225,.2)}
+#intelligenceBrief{font-size:11px;line-height:1.7;color:var(--text);padding-top:10px}
+.score-excellent{color:#0e9b6c}.score-attention{color:#c4870b}.score-risk{color:#c84646}
+@media(max-width:1050px){.intelligence-status-grid{grid-template-columns:repeat(2,1fr)}.intelligence-main-grid{grid-template-columns:1fr}}
+@media(max-width:700px){.intelligence-status-grid,.intelligence-lists-grid{grid-template-columns:1fr}.score-ring{width:145px;height:145px}.score-ring:before{width:108px;height:108px}}
