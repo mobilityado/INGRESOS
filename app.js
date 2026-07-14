@@ -121,13 +121,13 @@ $("loadSheetsBtn").onclick=async()=>{
       loaded[b]={brand:b,fileName:"Google Sheets",sheetName:b,rows};
     });
     state.sources=loaded;setLoadProgress(78,"Calculando indicadores...");
-    if($("oneDataSource"))$("oneDataSource").textContent="Archivo local";
+    if($("oneDataSource"))$("oneDataSource").textContent="Google Sheets";
     updateSources();processAll();setLoadProgress(100,"Reporte actualizado");
     addNotification("Información actualizada",`Se procesaron ${Object.values(loaded).reduce((a,x)=>a+x.rows.length,0).toLocaleString("es-MX")} registros.`,"↻");
   }catch(e){setError(e.message)}
   finally{btn.disabled=false;btn.innerHTML=old}
 };
-$("fileInput").onchange=async e=>{try{state.sources={};for(const f of [...e.target.files]){const wb=XLSX.read(await f.arrayBuffer(),{type:"array",cellDates:true});wb.SheetNames.forEach(sn=>{const b=identifyBrand(sn)||identifyBrand(f.name);if(b){const m=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:"",raw:true});try{state.sources[b]={brand:b,fileName:f.name,sheetName:sn,rows:matrixToRows(m)}}catch{}}})}updateSources();processAll()}catch(err){setError(err.message)}finally{e.target.value=""}};
+$("fileInput").onchange=async e=>{try{if($("oneDataSource"))$("oneDataSource").textContent="Archivo local";state.sources={};for(const f of [...e.target.files]){const wb=XLSX.read(await f.arrayBuffer(),{type:"array",cellDates:true});wb.SheetNames.forEach(sn=>{const b=identifyBrand(sn)||identifyBrand(f.name);if(b){const m=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:"",raw:true});try{state.sources[b]={brand:b,fileName:f.name,sheetName:sn,rows:matrixToRows(m)}}catch{}}})}updateSources();processAll()}catch(err){setError(err.message)}finally{e.target.value=""}};
 
 function render(){
   const s=state.summary,m=$("month").value,y=$("year").value,sorted=[...state.brands].sort((a,b)=>b.total-a.total),leader=sorted[0],concepts=[["Canje",s.canje],["Abordo",s.abordo],["Prepago",s.prepago]].sort((a,b)=>b[1]-a[1]),hist=getHistory(),currentKey=`${y}-${String(["ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"].indexOf(m)+1).padStart(2,"0")}`,previous=[...hist].filter(h=>h.key<currentKey).sort((a,b)=>b.key.localeCompare(a.key))[0];
