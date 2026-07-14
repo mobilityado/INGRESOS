@@ -1,6 +1,6 @@
 (() => {
-const PRODUCT_VERSION="2027.3";
-const PRODUCT_BUILD="2703.0713";
+const PRODUCT_VERSION="2028.1";
+const PRODUCT_BUILD="2801.0713";
 const BRANDS=["TRT","TRTVB","AAO","AAOVB"],$=id=>document.getElementById(id);
 const money=new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN"});
 const state={sources:{},brands:[],summary:null,charts:[],platformCharts:[],intelligenceCharts:[],directorCharts:[],commandCharts:[],commandAlerts:[],publisher:null,notifications:[]};
@@ -235,7 +235,7 @@ function renderPlatform(){
   if($("reportCoverUser"))$("reportCoverUser").textContent=authSession?.user?.name||authSession?.user?.username||"Usuario";
   if($("reportCoverDate"))$("reportCoverDate").textContent=new Date().toLocaleString("es-MX");
   $("managementPreview").innerHTML=`<h3>Resumen ejecutivo · ${m} ${y}</h3><p>El ingreso general fue de <b>${money.format(s.total)}</b>, integrado por ${s.count.toLocaleString("es-MX")} registros. ${leader.name} encabezó la recaudación con ${pct(leader.total,s.total)} de participación. ${concepts[0][0]} fue el concepto principal, con ${money.format(concepts[0][1])}.</p>${prev?`<p>En comparación con ${prev.label}, el resultado ${s.total>=prev.total?"aumentó":"disminuyó"} ${Math.abs((s.total-prev.total)/(prev.total||1)*100).toFixed(2)}%.</p>`:"<p>No existe todavía un periodo previo guardado para calcular variación.</p>"}`;
-  renderHomeChart();renderTotalSparkline();renderProactiveBriefing();renderIntelligence();renderDirectorPanel();renderCommandCenter();renderWorkspace();populateCompareSelectors();$("historyCount").textContent=`${hist.length} periodo${hist.length===1?"":"s"} almacenado${hist.length===1?"":"s"}`;if($("historyStatusDot"))$("historyStatusDot").className=hist.length?"ok":"";
+  renderHomeChart();renderTotalSparkline();renderProactiveBriefing();renderIntelligence();renderDirectorPanel();renderCommandCenter();renderWorkspace();renderAIExecutive();populateCompareSelectors();$("historyCount").textContent=`${hist.length} periodo${hist.length===1?"":"s"} almacenado${hist.length===1?"":"s"}`;if($("historyStatusDot"))$("historyStatusDot").className=hist.length?"ok":"";
 }
 
 function getCurrentPreviousPeriod(){
@@ -542,7 +542,7 @@ function renderHomeChart(){
   if(!state.summary)return;
   const canvas=$("homeChart");if(canvas)state.platformCharts.push(new Chart(canvas,{type:"bar",data:{labels:state.brands.map(b=>b.name),datasets:[{label:"Ingreso total",data:state.brands.map(b=>b.total),borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money.format(c.raw)}}},scales:{y:{ticks:{callback:v=>money.format(v)},grid:{color:"rgba(148,163,184,.15)"}},x:{grid:{display:false}}}}}))
 }
-const pageTitles={workspace:"Workspace · Enterprise 2027.3",command:"Command Center · Enterprise 2027.3",inicio:"Centro ejecutivo",ingresos:"Ingresos 360",direccion:"Dirección General",inteligencia:"Centro de Inteligencia",comparativos:"Comparativos",reportes:"Reportes ejecutivos",usuarios:"Usuarios y accesos",publisher:"Data Publisher",configuracion:"Configuración"};
+const pageTitles={workspace:"Workspace · Enterprise 2028.1",ai:"NEXUS AI Executive",command:"Command Center · Enterprise 2028.1",inicio:"Centro ejecutivo",ingresos:"Ingresos 360",direccion:"Dirección General",inteligencia:"Centro de Inteligencia",comparativos:"Comparativos",reportes:"Reportes ejecutivos",usuarios:"Usuarios y accesos",publisher:"Data Publisher",configuracion:"Configuración"};
 function openView(name){
   if(name==="usuarios"&&!canAccess("ADMINISTRADOR")){toast("Tu rol no permite administrar usuarios.");return}
   if(name==="publisher"&&!canAccess("GERENCIA")){toast("Data Publisher está reservado para Gerencia y Administración.");return}
@@ -552,7 +552,7 @@ function openView(name){
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.dataset.viewPanel===name));
   document.querySelectorAll(".side-nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===name));
   $("pageTitle").textContent=pageTitles[name]||"NEXUS";$("sidebar").classList.remove("open");window.scrollTo({top:0,behavior:"smooth"});
-  if(name==="publisher")loadPublisherAudit();if(name==="workspace")renderWorkspace();if(name==="command")renderCommandCenter();if(name==="direccion")renderDirectorPanel();if(name==="inteligencia")renderIntelligence();if(name==="comparativos")populateCompareSelectors();if(name==="usuarios")loadAdminUsers();if(name==="configuracion")renderSettings();
+  if(name==="ai")renderAIExecutive();if(name==="publisher")loadPublisherAudit();if(name==="workspace")renderWorkspace();if(name==="command")renderCommandCenter();if(name==="direccion")renderDirectorPanel();if(name==="inteligencia")renderIntelligence();if(name==="comparativos")populateCompareSelectors();if(name==="usuarios")loadAdminUsers();if(name==="configuracion")renderSettings();
 }
 document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>openView(b.dataset.view));
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>openView(b.dataset.go));
@@ -884,6 +884,106 @@ $("selfPasswordForm").onsubmit=async e=>{
 
 
 
+
+
+function getAIContext(){
+  if(!state.summary)return null;
+  const s=state.summary,brands=[...state.brands].sort((a,b)=>b.total-a.total),leader=brands[0],lowest=brands.at(-1);
+  const concepts=[["Canje",s.canje],["Abordo",s.abordo],["Prepago",s.prepago]].sort((a,b)=>b[1]-a[1]);
+  const previous=getCurrentPreviousPeriod();
+  const change=previous?((s.total-previous.total)/(previous.total||1)*100):null;
+  const brandChanges=brands.map(b=>{
+    const old=(previous?.brands||[]).find(x=>x.name===b.name)?.total||0;
+    return {name:b.name,current:b.total,previous:old,change:old?((b.total-old)/old*100):null};
+  });
+  return {s,brands,leader,lowest,concepts,previous,change,brandChanges,score:calculateDirectorScore(),alerts:getCommandAlerts()};
+}
+function buildAIRecommendations(ctx){
+  const recs=[];
+  if(ctx.change!=null&&ctx.change<0)recs.push(`Revisar las causas de la disminución general de ${Math.abs(ctx.change).toFixed(2)}%.`);
+  const falling=ctx.brandChanges.filter(x=>x.change!=null&&x.change<0).sort((a,b)=>a.change-b.change);
+  if(falling.length)recs.push(`Priorizar ${falling[0].name}, que presenta la mayor caída (${Math.abs(falling[0].change).toFixed(2)}%).`);
+  if(ctx.leader.total/(ctx.s.total||1)>.6)recs.push(`Reducir la dependencia de ${ctx.leader.name}, que concentra ${pct(ctx.leader.total,ctx.s.total)} del total.`);
+  if(ctx.concepts[0][1]/(ctx.s.total||1)>.8)recs.push(`Diversificar la composición: ${ctx.concepts[0][0]} representa ${pct(ctx.concepts[0][1],ctx.s.total)}.`);
+  if(!recs.length)recs.push("Mantener las acciones actuales y documentar las prácticas que impulsaron el resultado.");
+  return recs;
+}
+function renderAIExecutive(){
+  const ctx=getAIContext();
+  if($("aiBriefingTitle"))$("aiBriefingTitle").textContent=`${getDayGreeting()}, ${authSession?.user?.name||"Usuario"}`;
+  if(!ctx){
+    if($("aiBriefingCards"))$("aiBriefingCards").innerHTML='<div class="ai-placeholder">Actualiza la información para generar el briefing ejecutivo.</div>';
+    if($("aiPriority"))$("aiPriority").textContent="Sin información disponible.";
+    return;
+  }
+  const cards=[
+    {icon:"🏆",title:`${ctx.leader.name} lidera`,detail:`${pct(ctx.leader.total,ctx.s.total)} del ingreso general.`},
+    {icon:"◉",title:`${ctx.concepts[0][0]} domina`,detail:`${pct(ctx.concepts[0][1],ctx.s.total)} de participación.`},
+    {icon:ctx.change==null?"▥":ctx.change>=0?"↗":"↘",title:ctx.change==null?"Sin histórico":`${ctx.change>=0?"Aumento":"Disminución"} ${Math.abs(ctx.change).toFixed(2)}%`,detail:ctx.previous?`Contra ${ctx.previous.label}.`:"Guarda un periodo anterior."},
+    {icon:"◎",title:`Índice ${ctx.score}/100`,detail:ctx.score>=80?"Desempeño sólido.":ctx.score>=60?"Resultado estable.":"Requiere atención."}
+  ];
+  $("aiBriefingCards").innerHTML=cards.map(c=>`<div class="ai-brief-card"><i>${c.icon}</i><b>${c.title}</b><small>${c.detail}</small></div>`).join("");
+  $("aiPriority").textContent=buildAIRecommendations(ctx)[0];
+  renderPremiumReportAnalysis(ctx);
+}
+function answerAIQuestion(question){
+  const q=String(question||"").trim();if(!q)return;
+  const box=$("aiChatMessages");
+  box.insertAdjacentHTML("beforeend",`<div class="ai-chat-message user">${escapeHtml(q)}</div>`);
+  const ctx=getAIContext();
+  let answer="";
+  if(!ctx)answer="Actualiza la información para que pueda analizar el periodo.";
+  else{
+    const nq=normalize(q),recs=buildAIRecommendations(ctx);
+    if(nq.includes("OCURRIO")||nq.includes("MES"))answer=`El ingreso general fue ${money.format(ctx.s.total)} con ${ctx.s.count.toLocaleString("es-MX")} registros. ${ctx.leader.name} lideró con ${pct(ctx.leader.total,ctx.s.total)} y ${ctx.concepts[0][0]} fue el concepto principal.${ctx.change==null?" No hay un periodo previo guardado.":` Frente a ${ctx.previous.label}, el total ${ctx.change>=0?"aumentó":"disminuyó"} ${Math.abs(ctx.change).toFixed(2)}%.`}`;
+    else if(nq.includes("MEJOR")||nq.includes("LIDER"))answer=`${ctx.leader.name} fue la mejor marca con ${money.format(ctx.leader.total)}, equivalente a ${pct(ctx.leader.total,ctx.s.total)} del total.`;
+    else if(nq.includes("ATENCION")||nq.includes("BAJO")||nq.includes("CAYO")){const f=ctx.brandChanges.filter(x=>x.change!=null).sort((a,b)=>a.change-b.change)[0];answer=f&&f.change<0?`${f.name} requiere atención: disminuyó ${Math.abs(f.change).toFixed(2)}% frente al periodo anterior.`:`${ctx.lowest.name} tiene la menor participación actual (${pct(ctx.lowest.total,ctx.s.total)}).`;}
+    else if(nq.includes("POR QUE")||nq.includes("VARIACION"))answer=ctx.change==null?"No existe un periodo anterior guardado para explicar la variación.":`El total ${ctx.change>=0?"creció":"disminuyó"} ${Math.abs(ctx.change).toFixed(2)}%. Por marca: ${ctx.brandChanges.filter(x=>x.change!=null).map(x=>`${x.name} ${x.change>=0?"+":""}${x.change.toFixed(2)}%`).join(", ")}.`;
+    else if(nq.includes("RECOMEND"))answer=recs.join(" ");
+    else if(nq.includes("CORREO"))answer=buildDirectionEmail(ctx);
+    else if(nq.includes("TOTAL"))answer=`El ingreso general es ${money.format(ctx.s.total)}.`;
+    else answer=`Puedo analizar el total, las marcas, conceptos, variaciones, alertas y recomendaciones. ${recs[0]}`;
+  }
+  box.insertAdjacentHTML("beforeend",`<div class="ai-chat-message answer">${escapeHtml(answer)}</div>`);
+  box.scrollTop=box.scrollHeight;
+}
+function buildExecutiveSummary(ctx=getAIContext()){
+  if(!ctx)return"Actualiza la información para generar el resumen.";
+  return`NEXUS Enterprise — Resumen Ejecutivo ${$("month").value} ${$("year").value}\n\nEl ingreso general fue de ${money.format(ctx.s.total)}, integrado por ${ctx.s.count.toLocaleString("es-MX")} registros. ${ctx.leader.name} ocupó la primera posición con ${pct(ctx.leader.total,ctx.s.total)} de participación. ${ctx.concepts[0][0]} fue el concepto dominante con ${money.format(ctx.concepts[0][1])}.${ctx.change==null?" No existe un periodo previo guardado para comparación.":` Frente a ${ctx.previous.label}, el resultado ${ctx.change>=0?"aumentó":"disminuyó"} ${Math.abs(ctx.change).toFixed(2)}%.`} El índice NEXUS fue ${ctx.score}/100.\n\nRecomendaciones:\n- ${buildAIRecommendations(ctx).join("\n- ")}`;
+}
+function buildDirectionEmail(ctx=getAIContext()){
+  if(!ctx)return"Actualiza la información para preparar el correo.";
+  return`ASUNTO: Informe ejecutivo de ingresos — ${$("month").value} ${$("year").value}\n\nBuen día,\n\nComparto el resumen ejecutivo del periodo ${$("month").value} ${$("year").value}.\n\n${buildExecutiveSummary(ctx)}\n\nQuedo atento a comentarios.\n\nSaludos.`;
+}
+function setAIOutput(text){
+  $("aiGeneratedOutput").textContent=text;
+  $("aiCopyOutputBtn").disabled=!text;
+}
+function renderPremiumReportAnalysis(ctx=getAIContext()){
+  if(!ctx)return;
+  const conclusions=[
+    `${ctx.leader.name} lidera con ${pct(ctx.leader.total,ctx.s.total)} del total.`,
+    `${ctx.concepts[0][0]} es el concepto dominante con ${pct(ctx.concepts[0][1],ctx.s.total)}.`,
+    ctx.change==null?"No hay histórico suficiente para medir crecimiento.":`El total ${ctx.change>=0?"aumentó":"disminuyó"} ${Math.abs(ctx.change).toFixed(2)}% frente a ${ctx.previous.label}.`,
+    `El índice NEXUS del periodo es ${ctx.score}/100.`
+  ];
+  $("premiumReportConclusions").innerHTML=conclusions.map(x=>`<div class="insight"><i>•</i><div>${x}</div></div>`).join("");
+  $("premiumReportRecommendations").innerHTML=buildAIRecommendations(ctx).map(x=>`<div class="insight"><i>→</i><div>${x}</div></div>`).join("");
+  const reportId=`NX-${$("year").value}${String(new Date().getMonth()+1).padStart(2,"0")}-${String(Date.now()).slice(-6)}`;
+  $("reportNumber").textContent=reportId;
+  $("reportVerificationCode").textContent=reportId;
+}
+$("aiChatForm").onsubmit=e=>{e.preventDefault();answerAIQuestion($("aiChatInput").value);$("aiChatInput").value=""};
+document.querySelectorAll("[data-ai-question]").forEach(btn=>btn.onclick=()=>answerAIQuestion(btn.dataset.aiQuestion));
+$("aiClearChatBtn").onclick=()=>$("aiChatMessages").innerHTML='<div class="ai-chat-message system">Conversación reiniciada.</div>';
+$("aiRefreshBtn").onclick=()=>{if(state.summary){renderAIExecutive();toast("Análisis actualizado")}else $("loadSheetsBtn").click()};
+$("aiPrepareReportBtn").onclick=()=>openView("reportes");
+$("aiExplainPriorityBtn").onclick=()=>answerAIQuestion("Explícame la recomendación principal");
+$("aiGenerateSummaryBtn").onclick=()=>setAIOutput(buildExecutiveSummary());
+$("aiGenerateEmailBtn").onclick=()=>setAIOutput(buildDirectionEmail());
+$("aiGenerateReportBtn").onclick=()=>openView("reportes");
+$("aiOpenDirectionBtn").onclick=()=>canAccess("GERENCIA")?openView("direccion"):toast("Tu rol no permite abrir Dirección General.");
+$("aiCopyOutputBtn").onclick=async()=>{try{await navigator.clipboard.writeText($("aiGeneratedOutput").innerText);toast("Contenido copiado")}catch{toast("No fue posible copiar automáticamente")}};
 
 function publisherSetProgress(percent,text){
   const wrap=$("publisherProgressWrap");if(!wrap)return;

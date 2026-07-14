@@ -1,70 +1,57 @@
-# NEXUS Enterprise 2027.3 — Data Publisher
+# NEXUS Enterprise 2028.1 — AI Executive
 
-**Enterprise Intelligence Platform**  
-**Build 2703.0713**
+**AI Executive Intelligence Platform**  
+**Mobility ADO**  
+**Build 2801.0713**
 
-## Data Publisher
+## NEXUS AI Executive
 
-Permite cargar un Excel y convertirlo en la nueva fuente oficial de consulta.
+Nuevo módulo para consultar los datos en lenguaje natural.
 
-### Flujo
+Puede responder:
 
-1. Seleccionar o arrastrar el archivo.
-2. Validar las cuatro marcas.
-3. Revisar registros, importes y totales.
-4. Confirmar el periodo.
-5. Crear respaldo automático.
-6. Sustituir TRT, TRT VB, AAO y AAO VB.
-7. Registrar la publicación.
-8. Actualizar NEXUS.
+- Qué ocurrió en el periodo.
+- Cuál fue la mejor marca.
+- Qué marca requiere atención.
+- Por qué cambió el total.
+- Qué recomendaciones existen.
+- Cómo preparar un correo para Dirección.
 
-## Seguridad
+## Acciones ejecutivas
 
-Solo pueden publicar:
+- Generar resumen ejecutivo.
+- Preparar correo para Dirección.
+- Abrir reporte premium.
+- Abrir Panel de Dirección.
+- Copiar contenidos generados.
 
-- GERENCIA
-- ADMINISTRADOR
+## Reporte premium
 
-Se utiliza `LockService` para impedir publicaciones simultáneas.
+La vista de reporte ahora incluye:
 
-## Pestañas protegidas
+- Código único de reporte.
+- Portada corporativa.
+- Periodo, usuario y fecha.
+- Conclusiones automáticas.
+- Recomendaciones automáticas.
+- Resumen para gerencia.
+- Exportación PDF mediante impresión.
 
-El proceso solo reemplaza:
+## Conserva
 
-- TRT
-- TRT VB
-- AAO
-- AAO VB
-
-No modifica:
-
-- USUARIOS
-- ACCESOS
-- PUBLICACIONES
-- otras pestañas administrativas
-
-## Auditoría
-
-El script crea automáticamente la pestaña `PUBLICACIONES` con:
-
-- Fecha
-- Usuario
-- Nombre
-- Archivo
-- Periodo
-- Registros
-- Estado
-- ID de respaldo
-- Notas
-- Error
-
-## Restauración
-
-El botón **Restaurar último respaldo** recupera la información anterior.
+- Workspace.
+- Command Center.
+- Data Publisher.
+- Centro de Inteligencia.
+- Dirección General.
+- Usuarios y roles.
+- Histórico y comparativos.
+- Excel y PDF.
+- NEXUS Assistant flotante.
 
 ## Instalación
 
 1. Sustituye `Code.gs`.
-2. Publica una nueva versión de Apps Script.
+2. Publica una nueva versión en Apps Script.
 3. Reemplaza todos los archivos en GitHub.
 4. Presiona `Ctrl + F5`.

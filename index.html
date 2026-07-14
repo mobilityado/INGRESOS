@@ -103,7 +103,7 @@
     </div>
     <span class="startup-eyebrow">NEXUS ENTERPRISE</span>
     <h1>Bienvenido, <span id="startupUserName">Usuario</span></h1>
-    <p>Enterprise Intelligence Platform · Mobility ADO</p>
+    <p>AI Executive Intelligence Platform · Mobility ADO</p>
     <div class="startup-status">
       <span><i></i>API</span>
       <span><i></i>Google Sheets</span>
@@ -139,7 +139,8 @@
       <button data-view="command"><span>◈</span>Command Center</button>
       <button data-view="inicio"><span>⌂</span>Inicio</button>
       <button data-view="ingresos"><span>▥</span>Ingresos 360</button>
-      <button data-view="inteligencia"><span>✦</span>Centro de Inteligencia</button>
+      <button data-view="ai"><span>✦</span>NEXUS AI</button>
+      <button data-view="inteligencia"><span>◉</span>Centro de Inteligencia</button>
       <button data-view="direccion" class="direction-nav"><span>◆</span>Dirección General</button>
       <button data-view="comparativos"><span>↗</span>Comparativos</button>
       <button data-view="reportes"><span>▤</span>Reportes</button>
@@ -149,8 +150,8 @@
     </nav>
     <div class="product-build">
         <small>NEXUS ENTERPRISE</small>
-        <b>2027.3</b>
-        <span>Build 2703.0713</span>
+        <b>2028.1</b>
+        <span>Build 2801.0713</span>
       </div>
       <div class="side-footer">
       <span class="online-dot"></span>
@@ -221,8 +222,13 @@
             <div><small>CONTROL</small><h3>Command Center</h3><p>Estado operativo, alertas y actividad.</p></div>
             <b>→</b>
           </button>
-          <button class="workspace-tile intelligence-tile" data-workspace-go="inteligencia" data-min-role="SUPERVISOR">
+          <button class="workspace-tile ai-tile" data-workspace-go="ai">
             <span class="tile-icon">✦</span>
+            <div><small>ASISTENTE</small><h3>NEXUS AI</h3><p>Pregunta, analiza y prepara acciones ejecutivas.</p></div>
+            <b>→</b>
+          </button>
+          <button class="workspace-tile intelligence-tile" data-workspace-go="inteligencia" data-min-role="SUPERVISOR">
+            <span class="tile-icon">◉</span>
             <div><small>ANÁLISIS</small><h3>Centro de Inteligencia</h3><p>Semáforo, alertas y brief ejecutivo.</p></div>
             <b>→</b>
           </button>
@@ -655,6 +661,74 @@
         </section>
       </section>
 
+      
+      <section class="view" data-view-panel="ai">
+        <section class="ai-hero">
+          <div>
+            <span class="pill">NEXUS AI EXECUTIVE</span>
+            <h2>¿Qué ocurrió y qué debemos hacer?</h2>
+            <p>Consulta tus datos en lenguaje natural y genera explicaciones, alertas, resúmenes y acciones recomendadas.</p>
+          </div>
+          <div class="ai-hero-actions">
+            <button id="aiRefreshBtn" class="btn primary">↻ Actualizar análisis</button>
+            <button id="aiPrepareReportBtn" class="btn outline">▤ Preparar reporte</button>
+          </div>
+        </section>
+
+        <section class="ai-proactive-grid">
+          <article class="card ai-proactive-main">
+            <div class="ai-proactive-head">
+              <div class="assistant-avatar large">✦</div>
+              <div><small>BRIEFING AUTOMÁTICO</small><h3 id="aiBriefingTitle">Buenos días</h3></div>
+            </div>
+            <div id="aiBriefingCards" class="ai-briefing-cards">
+              <div class="ai-placeholder">Actualiza la información para generar el briefing ejecutivo.</div>
+            </div>
+          </article>
+          <article class="card ai-priority-card">
+            <div class="card-title"><small>PRIORIDAD DEL MOMENTO</small><h3>Recomendación principal</h3></div>
+            <div id="aiPriority" class="ai-priority-content">Sin información disponible.</div>
+            <button id="aiExplainPriorityBtn" class="btn compact">Explicar recomendación</button>
+          </article>
+        </section>
+
+        <section class="ai-chat-layout">
+          <article class="card ai-chat-card">
+            <header class="ai-chat-header">
+              <div><small>NEXUS AI</small><h3>Conversación ejecutiva</h3></div>
+              <button id="aiClearChatBtn" class="text-link">Limpiar conversación</button>
+            </header>
+            <div id="aiChatMessages" class="ai-chat-messages">
+              <div class="ai-chat-message system">Hola. Puedes preguntarme por totales, marcas, conceptos, variaciones, alertas o recomendaciones.</div>
+            </div>
+            <div class="ai-question-grid">
+              <button data-ai-question="¿Qué ocurrió este mes?">¿Qué ocurrió este mes?</button>
+              <button data-ai-question="¿Cuál fue la mejor marca?">Mejor marca</button>
+              <button data-ai-question="¿Qué marca requiere atención?">Marca con atención</button>
+              <button data-ai-question="¿Por qué cambió el total?">Explicar variación</button>
+              <button data-ai-question="Dame recomendaciones">Recomendaciones</button>
+              <button data-ai-question="Prepara un correo para Dirección">Correo para Dirección</button>
+            </div>
+            <form id="aiChatForm" class="ai-chat-form">
+              <input id="aiChatInput" placeholder="Escribe una pregunta sobre los datos..." autocomplete="off">
+              <button type="submit">Enviar</button>
+            </form>
+          </article>
+
+          <article class="card ai-actions-card">
+            <div class="card-title"><small>ACCIONES EJECUTIVAS</small><h3>Preparar entregables</h3></div>
+            <div class="ai-action-list">
+              <button id="aiGenerateSummaryBtn"><span>▤</span><div><b>Resumen ejecutivo</b><small>Texto listo para compartir</small></div></button>
+              <button id="aiGenerateEmailBtn"><span>✉</span><div><b>Correo para Dirección</b><small>Asunto y cuerpo preparados</small></div></button>
+              <button id="aiGenerateReportBtn"><span>▣</span><div><b>Reporte premium</b><small>Abrir vista PDF corporativa</small></div></button>
+              <button id="aiOpenDirectionBtn"><span>◆</span><div><b>Panel de Dirección</b><small>Abrir análisis estratégico</small></div></button>
+            </div>
+            <div id="aiGeneratedOutput" class="ai-generated-output">Selecciona una acción para preparar el contenido.</div>
+            <button id="aiCopyOutputBtn" class="btn compact" disabled>Copiar contenido</button>
+          </article>
+        </section>
+      </section>
+
       <section class="view" data-view-panel="inteligencia">
         <div class="page-intro intelligence-intro">
           <span class="pill">NEXUS INTELLIGENCE</span>
@@ -775,6 +849,10 @@
 </div>
             <div><small>NEXUS · INFORME EJECUTIVO</small><h2 id="reportCoverTitle">Reporte de ingresos</h2></div>
           </div>
+          <div class="report-verification">
+            <div class="verification-code" id="reportVerificationCode">NX-000000</div>
+            <div><small>CÓDIGO DE REPORTE</small><b id="reportNumber">NX-000000</b><span>Documento generado por NEXUS Enterprise</span></div>
+          </div>
           <div class="report-cover-meta">
             <div><small>PERIODO</small><b id="reportCoverPeriod">—</b></div>
             <div><small>GENERADO POR</small><b id="reportCoverUser">—</b></div>
@@ -782,6 +860,10 @@
           </div>
         </article>
         <article class="card preview-report"><div class="card-title"><small>VISTA PREVIA</small><h3>Resumen para gerencia</h3></div><div id="managementPreview" class="empty-state">Carga la información para preparar el reporte.</div></article>
+        <div class="report-analysis-grid">
+          <article class="card"><div class="card-title"><small>CONCLUSIONES</small><h3>Hallazgos principales</h3></div><div id="premiumReportConclusions"></div></article>
+          <article class="card"><div class="card-title"><small>RECOMENDACIONES</small><h3>Acciones sugeridas</h3></div><div id="premiumReportRecommendations"></div></article>
+        </div>
       </section>
 
       
@@ -1032,8 +1114,8 @@
 </div>
 
 <footer class="enterprise-footer">
-  <span>NEXUS Enterprise 2027.3</span>
-  <small>Build 2703.0713 · Mobility ADO</small>
+  <span>NEXUS Enterprise 2028.1</span>
+  <small>Build 2801.0713 · Mobility ADO</small>
 </footer>
 <div id="toast" class="toast"></div>
 
