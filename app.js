@@ -1,6 +1,6 @@
 (() => {
-const PRODUCT_VERSION="2027.1";
-const PRODUCT_BUILD="2701.0713";
+const PRODUCT_VERSION="2027.2";
+const PRODUCT_BUILD="2702.0713";
 const BRANDS=["TRT","TRTVB","AAO","AAOVB"],$=id=>document.getElementById(id);
 const money=new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN"});
 const state={sources:{},brands:[],summary:null,charts:[],platformCharts:[],intelligenceCharts:[],directorCharts:[],commandCharts:[],commandAlerts:[],notifications:[]};
@@ -235,7 +235,7 @@ function renderPlatform(){
   if($("reportCoverUser"))$("reportCoverUser").textContent=authSession?.user?.name||authSession?.user?.username||"Usuario";
   if($("reportCoverDate"))$("reportCoverDate").textContent=new Date().toLocaleString("es-MX");
   $("managementPreview").innerHTML=`<h3>Resumen ejecutivo · ${m} ${y}</h3><p>El ingreso general fue de <b>${money.format(s.total)}</b>, integrado por ${s.count.toLocaleString("es-MX")} registros. ${leader.name} encabezó la recaudación con ${pct(leader.total,s.total)} de participación. ${concepts[0][0]} fue el concepto principal, con ${money.format(concepts[0][1])}.</p>${prev?`<p>En comparación con ${prev.label}, el resultado ${s.total>=prev.total?"aumentó":"disminuyó"} ${Math.abs((s.total-prev.total)/(prev.total||1)*100).toFixed(2)}%.</p>`:"<p>No existe todavía un periodo previo guardado para calcular variación.</p>"}`;
-  renderHomeChart();renderTotalSparkline();renderProactiveBriefing();renderIntelligence();renderDirectorPanel();renderCommandCenter();populateCompareSelectors();$("historyCount").textContent=`${hist.length} periodo${hist.length===1?"":"s"} almacenado${hist.length===1?"":"s"}`;if($("historyStatusDot"))$("historyStatusDot").className=hist.length?"ok":"";
+  renderHomeChart();renderTotalSparkline();renderProactiveBriefing();renderIntelligence();renderDirectorPanel();renderCommandCenter();renderWorkspace();populateCompareSelectors();$("historyCount").textContent=`${hist.length} periodo${hist.length===1?"":"s"} almacenado${hist.length===1?"":"s"}`;if($("historyStatusDot"))$("historyStatusDot").className=hist.length?"ok":"";
 }
 
 function getCurrentPreviousPeriod(){
@@ -376,6 +376,34 @@ function calculateDirectorScore(){
   return Math.max(0,Math.min(100,Math.round(score)));
 }
 
+
+function renderWorkspace(){
+  if($("workspaceGreeting"))$("workspaceGreeting").textContent=`${getDayGreeting()}, ${authSession?.user?.name||authSession?.user?.username||"Usuario"}`;
+  if($("workspaceRole"))$("workspaceRole").textContent=normalizeRole(authSession?.user?.role);
+  if($("workspacePeriod"))$("workspacePeriod").textContent=`${$("month").value} ${$("year").value}`;
+
+  document.querySelectorAll("[data-workspace-go]").forEach(btn=>{
+    const min=btn.dataset.minRole;
+    btn.classList.toggle("restricted-role",!!min&&!canAccess(min));
+  });
+
+  const recent=loadNotifications().slice(0,4);
+  if($("workspaceRecent"))$("workspaceRecent").innerHTML=recent.length?recent.map(n=>`<div class="workspace-recent-row"><i>${n.icon}</i><div><b>${escapeHtml(n.title)}</b><small>${escapeHtml(n.detail)} · ${escapeHtml(n.time)}</small></div></div>`).join(""):'<div class="command-empty">No hay actividad reciente.</div>';
+
+  if(!state.summary){
+    if($("workspaceTotal"))$("workspaceTotal").textContent="$0.00";
+    if($("workspaceLeader"))$("workspaceLeader").textContent="—";
+    if($("workspaceHealth"))$("workspaceHealth").textContent="—";
+    if($("workspaceAlerts"))$("workspaceAlerts").textContent="0";
+    return;
+  }
+  const s=state.summary,leader=[...state.brands].sort((a,b)=>b.total-a.total)[0],score=calculateDirectorScore(),alerts=getCommandAlerts().filter(a=>a.icon!=="✓").length;
+  $("workspaceTotal").textContent=money.format(s.total);
+  $("workspaceLeader").textContent=leader.name;
+  $("workspaceHealth").textContent=`${score}/100`;
+  $("workspaceAlerts").textContent=alerts;
+}
+
 function getCommandAlerts(){
   if(!state.summary)return[];
   const s=state.summary,alerts=[],previous=getCurrentPreviousPeriod(),sorted=[...state.brands].sort((a,b)=>b.total-a.total);
@@ -514,7 +542,7 @@ function renderHomeChart(){
   if(!state.summary)return;
   const canvas=$("homeChart");if(canvas)state.platformCharts.push(new Chart(canvas,{type:"bar",data:{labels:state.brands.map(b=>b.name),datasets:[{label:"Ingreso total",data:state.brands.map(b=>b.total),borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money.format(c.raw)}}},scales:{y:{ticks:{callback:v=>money.format(v)},grid:{color:"rgba(148,163,184,.15)"}},x:{grid:{display:false}}}}}))
 }
-const pageTitles={command:"Command Center · Enterprise 2027.1",inicio:"Centro ejecutivo",ingresos:"Ingresos 360",direccion:"Dirección General",inteligencia:"Centro de Inteligencia",comparativos:"Comparativos",reportes:"Reportes ejecutivos",usuarios:"Usuarios y accesos",configuracion:"Configuración"};
+const pageTitles={workspace:"Workspace · Enterprise 2027.2",command:"Command Center · Enterprise 2027.2",inicio:"Centro ejecutivo",ingresos:"Ingresos 360",direccion:"Dirección General",inteligencia:"Centro de Inteligencia",comparativos:"Comparativos",reportes:"Reportes ejecutivos",usuarios:"Usuarios y accesos",configuracion:"Configuración"};
 function openView(name){
   if(name==="usuarios"&&!canAccess("ADMINISTRADOR")){toast("Tu rol no permite administrar usuarios.");return}
   if(name==="configuracion"&&!canAccess("GERENCIA")){toast("Tu rol no permite acceder a configuración.");return}
@@ -523,7 +551,7 @@ function openView(name){
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.dataset.viewPanel===name));
   document.querySelectorAll(".side-nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===name));
   $("pageTitle").textContent=pageTitles[name]||"NEXUS";$("sidebar").classList.remove("open");window.scrollTo({top:0,behavior:"smooth"});
-  if(name==="command")renderCommandCenter();if(name==="direccion")renderDirectorPanel();if(name==="inteligencia")renderIntelligence();if(name==="comparativos")populateCompareSelectors();if(name==="usuarios")loadAdminUsers();if(name==="configuracion")renderSettings();
+  if(name==="workspace")renderWorkspace();if(name==="command")renderCommandCenter();if(name==="direccion")renderDirectorPanel();if(name==="inteligencia")renderIntelligence();if(name==="comparativos")populateCompareSelectors();if(name==="usuarios")loadAdminUsers();if(name==="configuracion")renderSettings();
 }
 document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>openView(b.dataset.view));
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>openView(b.dataset.go));
@@ -562,6 +590,8 @@ $("copySummaryBtn").onclick=async()=>{if(!state.summary){toast("Primero carga la
 $("refreshBriefingBtn").onclick=()=>{
   if(state.summary){renderProactiveBriefing();toast("Briefing actualizado")}else $("loadSheetsBtn").click();
 };
+document.querySelectorAll("[data-workspace-go]").forEach(btn=>btn.onclick=()=>openView(btn.dataset.workspaceGo));
+$("workspaceRefreshBtn").onclick=()=>$("loadSheetsBtn").click();
 $("commandRefreshBtn").onclick=()=>$("loadSheetsBtn").click();
 $("commandReportBtn").onclick=()=>{openView("reportes");setTimeout(()=>$("reportPrintBtn")?.focus(),150)};
 $("commandOpenIntelligenceBtn").onclick=()=>openView("inteligencia");
@@ -609,6 +639,7 @@ function setUserInterface(user){
   // Role-based navigation.
   document.querySelectorAll('[data-view="configuracion"]').forEach(el=>el.classList.toggle("restricted-role",roleLevel(role)<3));
   document.querySelectorAll('[data-view="direccion"]').forEach(el=>el.classList.toggle("restricted-role",roleLevel(role)<3));
+  document.querySelectorAll("[data-min-role]").forEach(el=>el.classList.toggle("restricted-role",!canAccess(el.dataset.minRole)));
   document.querySelectorAll('[data-view="comparativos"]').forEach(el=>el.classList.toggle("restricted-role",roleLevel(role)<2));
   document.querySelectorAll('[data-view="inteligencia"]').forEach(el=>el.classList.toggle("restricted-role",roleLevel(role)<2));
 
@@ -767,7 +798,7 @@ async function restoreSession(){
     const check=await apiRequest("validate");
     authSession.user=check.user;
     sessionStorage.setItem(sessionKey,JSON.stringify(authSession));
-    showApp();openView("command");
+    showApp();openView("workspace");
   }catch(e){
     sessionStorage.removeItem(sessionKey);authSession=null;showLogin();
   }
@@ -781,7 +812,7 @@ $("loginForm").onsubmit=async e=>{
     const result=await apiRequest("login",{username:$("loginUser").value.trim(),password:$("loginPassword").value});
     authSession={token:result.token,user:result.user};
     sessionStorage.setItem(sessionKey,JSON.stringify(authSession));
-    showApp();openView("command");toast(`Bienvenido, ${result.user.name}`);addNotification("Inicio de sesión",`Bienvenido, ${result.user.name}.`,"✓");
+    showApp();openView("workspace");toast(`Bienvenido, ${result.user.name}`);addNotification("Inicio de sesión",`Bienvenido, ${result.user.name}.`,"✓");
   }catch(err){
     error.textContent=err.message;error.classList.remove("hidden");
   }finally{
@@ -849,6 +880,44 @@ $("selfPasswordForm").onsubmit=async e=>{
   }catch(err){toast(err.message)}
 };
 
+
+
+function appendAssistantMessage(text,type="answer"){
+  const box=$("assistantConversation");
+  if(!box)return;
+  box.insertAdjacentHTML("beforeend",`<div class="assistant-message assistant-${type}">${escapeHtml(text)}</div>`);
+  box.scrollTop=box.scrollHeight;
+}
+function assistantSummary(){
+  if(!state.summary)return"Primero actualiza la información.";
+  const s=state.summary,leader=[...state.brands].sort((a,b)=>b.total-a.total)[0],concept=[["Canje",s.canje],["Abordo",s.abordo],["Prepago",s.prepago]].sort((a,b)=>b[1]-a[1])[0];
+  return`El ingreso general es ${money.format(s.total)}. ${leader.name} lidera con ${pct(leader.total,s.total)} y ${concept[0]} es el concepto principal con ${pct(concept[1],s.total)}.`;
+}
+function handleAssistantQuestion(question){
+  const q=String(question||"").trim();if(!q)return;
+  appendAssistantMessage(q,"user");
+  const nq=normalize(q);
+  let answer="";
+  if(!state.summary)answer="Actualiza Google Sheets para que pueda analizar el periodo.";
+  else if(nq.includes("ALERTA"))answer=getCommandAlerts().map(a=>a.text).join(" ");
+  else if(nq.includes("RESUMEN"))answer=assistantSummary();
+  else if(nq.includes("REPORTE")){answer="Abrí el módulo de Reportes para que puedas generar PDF o Excel.";openView("reportes")}
+  else if(nq.includes("DIRECCION")){if(canAccess("GERENCIA")){answer="Abrí el Panel de Dirección General.";openView("direccion")}else answer="Tu rol no permite abrir Dirección General."}
+  else if(nq.includes("TOTAL"))answer=`El ingreso general es ${money.format(state.summary.total)}.`;
+  else if(nq.includes("MARCA")&&nq.includes("LIDER")){const l=[...state.brands].sort((a,b)=>b.total-a.total)[0];answer=`${l.name} es la marca líder con ${money.format(l.total)} (${pct(l.total,state.summary.total)}).`}
+  else answer=assistantSummary();
+  appendAssistantMessage(answer,"answer");
+}
+$("assistantToggle").onclick=()=>{$("assistantPanel").classList.toggle("hidden");$("assistantBadge").style.display="none"};
+$("assistantClose").onclick=()=>$("assistantPanel").classList.add("hidden");
+$("assistantForm").onsubmit=e=>{e.preventDefault();handleAssistantQuestion($("assistantInput").value);$("assistantInput").value=""};
+document.querySelectorAll("[data-assistant-action]").forEach(btn=>btn.onclick=()=>{
+  const a=btn.dataset.assistantAction;
+  if(a==="summary")handleAssistantQuestion("Dame un resumen");
+  if(a==="alerts")handleAssistantQuestion("Muéstrame las alertas");
+  if(a==="report")handleAssistantQuestion("Preparar reporte");
+  if(a==="direction")handleAssistantQuestion("Abrir Dirección");
+});
 
 $("notificationBtn").onclick=()=>$("notificationPanel").classList.toggle("hidden");
 $("clearNotificationsBtn").onclick=()=>{saveNotifications([]);renderNotifications()};

@@ -1,44 +1,55 @@
-# NEXUS Enterprise 2027.1
+# NEXUS Enterprise 2027.2
 
 **Enterprise Intelligence Platform**  
 **Mobility ADO**  
-**Build 2701.0713**
+**Build 2702.0713**
 
-## Evolución de producto
+## Workspace
 
-Esta entrega deja atrás la numeración V21 y adopta una identidad de producto empresarial:
+La pantalla inicial ahora es un espacio de trabajo con mosaicos adaptados al rol:
 
-- Producto: NEXUS Enterprise
-- Versión: 2027.1
-- Build: 2701.0713
+- Ingresos 360
+- Command Center
+- Centro de Inteligencia
+- Dirección General
+- Comparativos
+- Reportes
+- Usuarios
+- Configuración
 
-## Novedades
+Los módulos que el usuario no puede abrir se ocultan automáticamente.
 
-- Pantalla de bienvenida animada después del login.
-- Saludo personalizado según la hora.
-- Reloj y fecha en tiempo real.
-- Edición Enterprise visible en la interfaz.
-- Estado de API, Google Sheets, seguridad y NEXUS AI.
-- Identidad visual premium tornasol.
-- Command Center como pantalla principal.
-- Marca de versión y build en el portal.
-- Mejoras de interacción y profundidad visual.
-- Conservación de todos los módulos existentes:
-  - Ingresos 360
-  - Centro de Inteligencia
-  - Dirección General
-  - Comparativos
-  - Reportes
-  - Usuarios y roles
-  - Configuración
-  - NEXUS AI
-  - Notificaciones
+## NEXUS Assistant
+
+Se agregó un asistente fijo en la esquina inferior derecha.
+
+Puede:
+
+- Resumir el periodo.
+- Mostrar alertas.
+- Preparar el módulo de Reportes.
+- Abrir Dirección General cuando el rol lo permite.
+- Responder sobre total general y marca líder.
+
+El asistente funciona localmente y no utiliza una API externa.
+
+## Conserva
+
+- Login seguro.
+- Roles.
+- Administración de usuarios.
+- Ingresos y cuatro marcas.
+- Histórico.
+- Comparativos.
+- Centro de Inteligencia.
+- Dirección General.
+- Command Center.
+- Reportes Excel/PDF.
+- Notificaciones.
 
 ## Instalación
 
-1. Sustituye `Code.gs` en Apps Script.
-2. Publica una nueva versión.
+1. Sustituye `Code.gs`.
+2. Publica una nueva versión en Apps Script.
 3. Reemplaza todos los archivos en GitHub.
 4. Presiona `Ctrl + F5`.
-
-La URL `/exec` permanece configurada en `config.js`.

@@ -135,7 +135,8 @@
       <div><small>BUSINESS INTELLIGENCE</small><b>NEXUS</b></div>
     </div>
     <nav class="side-nav">
-      <button class="active" data-view="command"><span>◈</span>Command Center</button>
+      <button class="active" data-view="workspace"><span>▦</span>Workspace</button>
+      <button data-view="command"><span>◈</span>Command Center</button>
       <button data-view="inicio"><span>⌂</span>Inicio</button>
       <button data-view="ingresos"><span>▥</span>Ingresos 360</button>
       <button data-view="inteligencia"><span>✦</span>Centro de Inteligencia</button>
@@ -147,8 +148,8 @@
     </nav>
     <div class="product-build">
         <small>NEXUS ENTERPRISE</small>
-        <b>2027.1</b>
-        <span>Build 2701.0713</span>
+        <b>2027.2</b>
+        <span>Build 2702.0713</span>
       </div>
       <div class="side-footer">
       <span class="online-dot"></span>
@@ -192,7 +193,87 @@
 
     <main class="content-shell">
       
-      <section class="view active" data-view-panel="command">
+      
+      <section class="view active" data-view-panel="workspace">
+        <section class="workspace-hero">
+          <div>
+            <span class="pill">NEXUS ENTERPRISE WORKSPACE</span>
+            <p class="workspace-greeting-label">Tu espacio de trabajo</p>
+            <h2 id="workspaceGreeting">Bienvenido</h2>
+            <p>Accede a los módulos principales, revisa el estado de la operación y continúa desde donde lo dejaste.</p>
+          </div>
+          <div class="workspace-hero-status">
+            <div><small>SISTEMA</small><b><i class="ok"></i>Operativo</b></div>
+            <div><small>ROL</small><b id="workspaceRole">USUARIO</b></div>
+            <div><small>PERIODO</small><b id="workspacePeriod">—</b></div>
+          </div>
+        </section>
+
+        <section class="workspace-modules" id="workspaceModules">
+          <button class="workspace-tile ingresos-tile" data-workspace-go="ingresos">
+            <span class="tile-icon">▥</span>
+            <div><small>MÓDULO</small><h3>Ingresos 360</h3><p>Concentrado general, marcas y exportación.</p></div>
+            <b>→</b>
+          </button>
+          <button class="workspace-tile command-tile" data-workspace-go="command">
+            <span class="tile-icon">◈</span>
+            <div><small>CONTROL</small><h3>Command Center</h3><p>Estado operativo, alertas y actividad.</p></div>
+            <b>→</b>
+          </button>
+          <button class="workspace-tile intelligence-tile" data-workspace-go="inteligencia" data-min-role="SUPERVISOR">
+            <span class="tile-icon">✦</span>
+            <div><small>ANÁLISIS</small><h3>Centro de Inteligencia</h3><p>Semáforo, alertas y brief ejecutivo.</p></div>
+            <b>→</b>
+          </button>
+          <button class="workspace-tile direction-tile" data-workspace-go="direccion" data-min-role="GERENCIA">
+            <span class="tile-icon">◆</span>
+            <div><small>DIRECCIÓN</small><h3>Dirección General</h3><p>Tendencia anual, ranking y recomendaciones.</p></div>
+            <b>→</b>
+          </button>
+          <button class="workspace-tile compare-tile" data-workspace-go="comparativos" data-min-role="SUPERVISOR">
+            <span class="tile-icon">↗</span>
+            <div><small>HISTÓRICO</small><h3>Comparativos</h3><p>Mes contra mes por marca y concepto.</p></div>
+            <b>→</b>
+          </button>
+          <button class="workspace-tile reports-tile" data-workspace-go="reportes">
+            <span class="tile-icon">▤</span>
+            <div><small>SALIDA</small><h3>Reportes</h3><p>PDF ejecutivo, Excel y resumen para correo.</p></div>
+            <b>→</b>
+          </button>
+          <button class="workspace-tile users-tile admin-only" data-workspace-go="usuarios" data-min-role="ADMINISTRADOR">
+            <span class="tile-icon">👥</span>
+            <div><small>ADMINISTRACIÓN</small><h3>Usuarios</h3><p>Roles, accesos y contraseñas.</p></div>
+            <b>→</b>
+          </button>
+          <button class="workspace-tile settings-tile" data-workspace-go="configuracion" data-min-role="GERENCIA">
+            <span class="tile-icon">⚙</span>
+            <div><small>SISTEMA</small><h3>Configuración</h3><p>Estado técnico y respaldos.</p></div>
+            <b>→</b>
+          </button>
+        </section>
+
+        <section class="workspace-bottom-grid">
+          <article class="card workspace-overview-card">
+            <div class="section-head">
+              <div class="card-title"><small>VISTA RÁPIDA</small><h3>Resumen operativo</h3></div>
+              <button id="workspaceRefreshBtn" class="btn compact">↻ Actualizar</button>
+            </div>
+            <div id="workspaceOverview" class="workspace-overview">
+              <div><span>Ingreso general</span><strong id="workspaceTotal">$0.00</strong></div>
+              <div><span>Marca líder</span><strong id="workspaceLeader">—</strong></div>
+              <div><span>Salud</span><strong id="workspaceHealth">—</strong></div>
+              <div><span>Alertas</span><strong id="workspaceAlerts">0</strong></div>
+            </div>
+          </article>
+
+          <article class="card workspace-recent-card">
+            <div class="card-title"><small>CONTINUAR</small><h3>Actividad reciente</h3></div>
+            <div id="workspaceRecent"></div>
+          </article>
+        </section>
+      </section>
+
+      <section class="view" data-view-panel="command">
         <section class="command-hero">
           <div class="command-title-block">
             <span class="pill">NEXUS ENTERPRISE COMMAND CENTER</span>
@@ -796,9 +877,36 @@
   </div>
 </div>
 
+
+<div id="assistantWidget" class="assistant-widget">
+  <button id="assistantToggle" class="assistant-fab" title="Abrir NEXUS Assistant">
+    <span>✦</span><i id="assistantBadge">1</i>
+  </button>
+  <section id="assistantPanel" class="assistant-panel hidden">
+    <header>
+      <div class="assistant-avatar">✦</div>
+      <div><small>NEXUS ASSISTANT</small><h3>Asistente ejecutivo</h3></div>
+      <button id="assistantClose">×</button>
+    </header>
+    <div id="assistantConversation" class="assistant-conversation">
+      <div class="assistant-message assistant-system">Hola. Puedo ayudarte a interpretar ingresos, generar resúmenes y abrir módulos.</div>
+    </div>
+    <div class="assistant-actions">
+      <button data-assistant-action="summary">Resumen</button>
+      <button data-assistant-action="alerts">Alertas</button>
+      <button data-assistant-action="report">Preparar reporte</button>
+      <button data-assistant-action="direction">Abrir Dirección</button>
+    </div>
+    <form id="assistantForm" class="assistant-input-row">
+      <input id="assistantInput" placeholder="Escribe una pregunta..." autocomplete="off">
+      <button type="submit">Enviar</button>
+    </form>
+  </section>
+</div>
+
 <footer class="enterprise-footer">
-  <span>NEXUS Enterprise 2027.1</span>
-  <small>Build 2701.0713 · Mobility ADO</small>
+  <span>NEXUS Enterprise 2027.2</span>
+  <small>Build 2702.0713 · Mobility ADO</small>
 </footer>
 <div id="toast" class="toast"></div>
 

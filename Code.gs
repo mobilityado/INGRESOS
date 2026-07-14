@@ -1,5 +1,5 @@
 /**
- * NEXUS ENTERPRISE INTELLIGENCE PLATFORM 2027.1
+ * NEXUS ENTERPRISE INTELLIGENCE PLATFORM 2027.2
  * Autenticación, sesiones y administración de usuarios.
  *
  * USUARIOS admite:
@@ -18,7 +18,7 @@ const DURACION_SESION_SEGUNDOS = 21600;
 const ROLES_VALIDOS = ['USUARIO','SUPERVISOR','GERENCIA','ADMINISTRADOR'];
 
 function doGet() {
-  return respuesta({ error:false, message:'API NEXUS Enterprise 2027.1 activa' });
+  return respuesta({ error:false, message:'API NEXUS Enterprise 2027.2 activa' });
 }
 
 function doPost(e) {
