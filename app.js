@@ -3,7 +3,7 @@ const PRODUCT_VERSION="2030";
 const PRODUCT_BUILD="3000.0713";
 const BRANDS=["TRT","TRTVB","AAO","AAOVB"],$=id=>document.getElementById(id);
 const money=new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN"});
-const state={sources:{},brands:[],summary:null,charts:[],platformCharts:[],intelligenceCharts:[],directorCharts:[],commandCharts:[],forecastCharts:[],commandAlerts:[],publisher:null,oneCharts:[],presentationCharts:[],notifications:[]};
+const state={fourFiles:{TRT:null,TRTVB:null,AAO:null,AAOVB:null},sources:{},brands:[],summary:null,charts:[],platformCharts:[],intelligenceCharts:[],directorCharts:[],commandCharts:[],forecastCharts:[],commandAlerts:[],publisher:null,oneCharts:[],presentationCharts:[],notifications:[]};
 const notificationKey="recaudacion365-notifications-v15";
 const loadNotifications=()=>{try{return JSON.parse(localStorage.getItem(notificationKey)||"[]")}catch{return[]}};
 const saveNotifications=v=>localStorage.setItem(notificationKey,JSON.stringify(v));
@@ -567,6 +567,122 @@ function openView(name){
   document.querySelectorAll(".side-nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===name));
   $("pageTitle").textContent=pageTitles[name]||"NEXUS";$("sidebar").classList.remove("open");window.scrollTo({top:0,behavior:"smooth"});
   if(name==="forecast")renderForecast();if(name==="ai")renderAIExecutive();if(name==="publisher")loadPublisherAudit();if(name==="workspace")renderWorkspace();if(name==="command")renderCommandCenter();if(name==="direccion")renderDirectorPanel();if(name==="inteligencia")renderIntelligence();if(name==="comparativos")populateCompareSelectors();if(name==="usuarios")loadAdminUsers();if(name==="configuracion")$('oneRefreshBtn').onclick=()=>$('loadSheetsBtn').click();$('oneReportBtn').onclick=()=>openView('reportes');$('oneOpenAI').onclick=()=>openView('ai');document.querySelectorAll('[data-one-go]').forEach(b=>b.onclick=()=>openView(b.dataset.oneGo));$('oneSearchInput').oninput=e=>{const q=e.target.value.trim();if(!q){$('oneSearchResults').classList.add('hidden');return}fillOneResults('oneSearchResults',q);$('oneSearchResults').classList.remove('hidden')};document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();$('onePalette').classList.remove('hidden');$('onePaletteInput').value='';fillOneResults('onePaletteResults','');setTimeout(()=>$('onePaletteInput').focus(),20)}if(e.key==='Escape')$('onePalette')?.classList.add('hidden')});$('onePalette').onclick=e=>{if(e.target===$('onePalette'))$('onePalette').classList.add('hidden')};$('onePaletteInput').oninput=e=>fillOneResults('onePaletteResults',e.target.value);
+
+const smartImportBrands={
+  TRT:{input:"fileTRT",name:"fileTRTName",sheetNames:["TRT"]},
+  TRTVB:{input:"fileTRTVB",name:"fileTRTVBName",sheetNames:["TRT VB","TRTVB"]},
+  AAO:{input:"fileAAO",name:"fileAAOName",sheetNames:["AAO"]},
+  AAOVB:{input:"fileAAOVB",name:"fileAAOVBName",sheetNames:["AAO VB","AAOVB"]}
+};
+
+function setSmartImportMode(mode){
+  const single=mode==="single";
+  $("singleWorkbookModeBtn").classList.toggle("active",single);
+  $("fourFilesModeBtn").classList.toggle("active",!single);
+  $("singleWorkbookPanel").classList.toggle("hidden",!single);
+  $("fourFilesPanel").classList.toggle("hidden",single);
+  $("smartImportStatus").className="status neutral";
+  $("smartImportStatus").textContent=single?"Modo consolidado":"Modo cuatro archivos";
+}
+
+function updateFourFilesUI(){
+  let ready=0;
+  Object.entries(smartImportBrands).forEach(([brand,cfg])=>{
+    const file=state.fourFiles[brand];
+    const card=document.querySelector(`[data-brand-file-card="${brand}"]`);
+    if(file){
+      ready++;
+      card?.classList.add("ready");
+      $(cfg.name).textContent=file.name;
+    }else{
+      card?.classList.remove("ready","error");
+      $(cfg.name).textContent="Pendiente";
+    }
+  });
+  $("processFourFilesBtn").disabled=ready!==4;
+  $("smartImportStatus").className=`status ${ready===4?"ok":"neutral"}`;
+  $("smartImportStatus").textContent=ready===4?"4 archivos listos":`${ready}/4 archivos`;
+}
+
+function clearFourFiles(){
+  state.fourFiles={TRT:null,TRTVB:null,AAO:null,AAOVB:null};
+  Object.values(smartImportBrands).forEach(cfg=>{$(cfg.input).value=""});
+  updateFourFilesUI();
+}
+
+async function readBrandWorkbook(file,expectedBrand){
+  const wb=XLSX.read(await file.arrayBuffer(),{type:"array",cellDates:true});
+  const cfg=smartImportBrands[expectedBrand];
+  let sheetName=wb.SheetNames.find(name=>cfg.sheetNames.includes(normalize(name)));
+  if(!sheetName){
+    sheetName=wb.SheetNames.find(name=>identifyBrand(name)===expectedBrand);
+  }
+  if(!sheetName && wb.SheetNames.length===1){
+    sheetName=wb.SheetNames[0];
+  }
+  if(!sheetName)throw new Error(`${expectedBrand}: no se encontró una pestaña válida.`);
+
+  const detected=identifyBrand(sheetName)||identifyBrand(file.name);
+  if(detected && detected!==expectedBrand){
+    throw new Error(`${expectedBrand}: el archivo parece corresponder a ${detected}.`);
+  }
+
+  const matrix=XLSX.utils.sheet_to_json(wb.Sheets[sheetName],{header:1,defval:"",raw:true});
+  const rows=matrixToRows(matrix);
+  if(!rows.length)throw new Error(`${expectedBrand}: el archivo no contiene registros.`);
+
+  const parsed=parseRows(expectedBrand,rows,{brand:expectedBrand,fileName:file.name,sheetName});
+  if(!parsed.count)throw new Error(`${expectedBrand}: no se detectaron registros válidos.`);
+  return {source:{brand:expectedBrand,fileName:file.name,sheetName,rows},parsed};
+}
+
+async function processFourFiles(){
+  try{
+    $("processFourFilesBtn").disabled=true;
+    $("smartImportStatus").className="status neutral";
+    $("smartImportStatus").textContent="Validando...";
+    setLoadProgress(10,"Leyendo archivos separados...");
+
+    const loaded={},parsedBrands=[];
+    let step=0;
+    for(const brand of BRANDS){
+      const file=state.fourFiles[brand];
+      if(!file)throw new Error(`Falta el archivo de ${brand}.`);
+      const result=await readBrandWorkbook(file,brand);
+      loaded[brand]=result.source;
+      parsedBrands.push(result.parsed);
+      step++;
+      setLoadProgress(10+step*17,`Validando ${brand}...`);
+    }
+
+    state.sources=loaded;
+    state.brands=parsedBrands;
+    state.summary=parsedBrands.reduce((a,b)=>({
+      canje:a.canje+b.canje,
+      abordo:a.abordo+b.abordo,
+      prepago:a.prepago+b.prepago,
+      total:a.total+b.total,
+      count:a.count+b.count
+    }),{canje:0,abordo:0,prepago:0,total:0,count:0});
+
+    if($("oneDataSource"))$("oneDataSource").textContent="4 archivos locales";
+    updateSources();
+    processAll();
+    setLoadProgress(100,"Cuatro archivos procesados");
+    $("smartImportStatus").className="status ok";
+    $("smartImportStatus").textContent="Importación completada";
+    addNotification("Importación múltiple",`Se procesaron ${state.summary.count.toLocaleString("es-MX")} registros desde cuatro archivos.`,"▦");
+    toast("Los cuatro archivos se procesaron correctamente");
+  }catch(error){
+    $("smartImportStatus").className="status error";
+    $("smartImportStatus").textContent="Error de validación";
+    toast(error.message);
+    console.error(error);
+  }finally{
+    updateFourFilesUI();
+  }
+}
+
 renderSettings();
 }
 document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>openView(b.dataset.view));
@@ -1412,3 +1528,17 @@ document.addEventListener("keydown",e=>{
     document.body.classList.remove("presentation-active");
   }
 });
+
+
+if($("singleWorkbookModeBtn"))$("singleWorkbookModeBtn").onclick=()=>setSmartImportMode("single");
+if($("fourFilesModeBtn"))$("fourFilesModeBtn").onclick=()=>setSmartImportMode("four");
+Object.entries(smartImportBrands).forEach(([brand,cfg])=>{
+  if($(cfg.input))$(cfg.input).onchange=e=>{
+    state.fourFiles[brand]=e.target.files?.[0]||null;
+    updateFourFilesUI();
+  };
+});
+if($("processFourFilesBtn"))$("processFourFilesBtn").onclick=processFourFiles;
+if($("clearFourFilesBtn"))$("clearFourFilesBtn").onclick=clearFourFiles;
+setSmartImportMode("single");
+updateFourFilesUI();

@@ -847,3 +847,30 @@ body.presentation-active{overflow:hidden}
 @keyframes autoloadSpin{to{transform:rotate(360deg)}}
 .one-source-info{display:flex;align-items:center;gap:7px}
 .one-source-badge{padding:7px 10px;border-radius:999px;background:linear-gradient(90deg,rgba(110,88,255,.10),rgba(66,217,255,.13));border:1px solid rgba(74,112,190,.12);font-size:8px;color:#526b91;font-weight:800}
+
+/* NEXUS ONE 3.0 — Smart Import */
+.smart-import-mode{padding:20px;border-radius:18px;margin-bottom:15px}
+.smart-import-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}
+.smart-import-head small{font-size:8px;letter-spacing:1.4px;color:#6a61d7;font-weight:900}
+.smart-import-head h3{margin:4px 0;font-size:18px}
+.smart-import-head p{font-size:9px;color:var(--muted);margin:0}
+.smart-import-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.smart-import-tabs button{display:flex;align-items:center;gap:10px;padding:14px;border:1px solid var(--line);border-radius:13px;background:var(--soft);color:var(--text);text-align:left;cursor:pointer}
+.smart-import-tabs button.active{background:linear-gradient(135deg,rgba(110,88,255,.12),rgba(66,217,255,.12));border-color:rgba(65,128,230,.28);box-shadow:0 10px 25px rgba(47,116,255,.09)}
+.smart-import-tabs button>span{width:38px;height:38px;border-radius:11px;background:var(--one-gradient);color:#fff;display:grid;place-items:center;font-size:17px}
+.smart-import-tabs b,.smart-import-tabs small{display:block}.smart-import-tabs b{font-size:10px}.smart-import-tabs small{font-size:8px;color:var(--muted);margin-top:4px}
+.smart-import-panel{padding-top:5px}
+.smart-file-card{display:flex;align-items:center;gap:11px;padding:14px;border:1px dashed rgba(70,125,220,.30);border-radius:14px;background:linear-gradient(135deg,rgba(110,88,255,.04),rgba(66,217,255,.06));cursor:pointer;transition:.2s}
+.smart-file-card:hover{transform:translateY(-2px);border-color:#2f74ff;background:linear-gradient(135deg,rgba(110,88,255,.08),rgba(66,217,255,.10))}
+.smart-file-card>span{width:42px;height:42px;border-radius:12px;background:var(--one-gradient);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:900}
+.smart-file-card b,.smart-file-card small{display:block}.smart-file-card b{font-size:10px}.smart-file-card small{font-size:8px;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}
+.primary-file{max-width:460px}
+.four-files-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.four-files-actions{display:flex;gap:9px;margin-top:13px}
+[data-brand-file-card].ready{border-style:solid;border-color:rgba(46,200,143,.35);background:rgba(46,200,143,.06)}
+[data-brand-file-card].error{border-style:solid;border-color:rgba(232,95,95,.35);background:rgba(232,95,95,.06)}
+@media(max-width:700px){
+  .smart-import-head{flex-direction:column}
+  .smart-import-tabs,.four-files-grid{grid-template-columns:1fr}
+  .four-files-actions{flex-direction:column}
+}

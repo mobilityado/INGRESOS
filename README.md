@@ -1,21 +1,36 @@
-# NEXUS ONE 2.1 — Automatic Data Loading
+# NEXUS ONE 3.0 — Smart Import
 
-Al iniciar sesión, NEXUS ONE consulta automáticamente Google Sheets y
-muestra el periodo oficial sin que el usuario presione Actualizar datos.
+Esta versión permite dos formas de cargar información:
 
-La carga manual de Excel se conserva. Cuando se carga un archivo local,
-la interfaz identifica claramente el origen de los datos.
+## Opción 1: archivo consolidado
 
-## Comportamiento
+Un solo Excel con las pestañas:
 
-1. El usuario inicia sesión.
-2. NEXUS ONE abre la plataforma.
-3. Consulta Google Sheets automáticamente.
-4. Calcula indicadores, gráficas y briefing.
-5. El usuario todavía puede:
-   - Actualizar manualmente Google Sheets.
-   - Cargar un Excel local.
-   - Publicar un Excel mediante Data Publisher.
+- TRT
+- TRT VB
+- AAO
+- AAO VB
+
+## Opción 2: cuatro archivos separados
+
+Un archivo independiente para cada marca:
+
+- TRT
+- TRT VB
+- AAO
+- AAO VB
+
+Cada archivo puede tener una sola pestaña, siempre que su contenido mantenga
+el mismo formato y corresponda a la marca seleccionada.
+
+## Validaciones
+
+- Las cuatro marcas deben estar presentes.
+- Los archivos no pueden estar vacíos.
+- Se valida que el archivo corresponda a la marca esperada.
+- Se mantienen las mismas columnas y reglas de cálculo.
+- El usuario conserva la carga automática desde Google Sheets.
+- Data Publisher continúa disponible para publicar el periodo oficial.
 
 ## Instalación
 

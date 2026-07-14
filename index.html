@@ -503,7 +503,66 @@
           <div><span class="pill">INGRESOS 360</span><h2>Concentrado general y análisis por marca</h2><p>Procesa las cuatro fuentes y genera una lectura ejecutiva lista para presentar.</p></div>
           <div class="hero-actions">
             <button id="loadSheetsBtn" class="btn primary"><span>↻</span><div><b>Actualizar Google Sheets</b><small>Leer las cuatro pestañas</small></div></button>
-            <label class="btn outline"><input id="fileInput" type="file" accept=".xlsx,.xls" multiple hidden><span>＋</span><div><b>Cargar respaldo Excel</b><small>Uno o varios archivos</small></div></label>
+            <label class="btn outline">
+<div class="smart-import-mode card">
+  <div class="smart-import-head">
+    <div>
+      <small>SMART IMPORT</small>
+      <h3>¿Cómo deseas cargar la información?</h3>
+      <p>Selecciona un archivo con cuatro pestañas o cuatro archivos independientes.</p>
+    </div>
+    <span id="smartImportStatus" class="status neutral">Sin archivos</span>
+  </div>
+
+  <div class="smart-import-tabs">
+    <button id="singleWorkbookModeBtn" class="active" type="button">
+      <span>▤</span>
+      <div><b>Un solo archivo</b><small>TRT, TRT VB, AAO y AAO VB en un mismo Excel</small></div>
+    </button>
+    <button id="fourFilesModeBtn" type="button">
+      <span>▦</span>
+      <div><b>Cuatro archivos</b><small>Un Excel independiente por cada marca</small></div>
+    </button>
+  </div>
+
+  <section id="singleWorkbookPanel" class="smart-import-panel">
+    <label class="smart-file-card primary-file">
+      <input id="fileInput" type="file" accept=".xlsx,.xls" hidden>
+      <span>▤</span>
+      <div><b>Seleccionar archivo consolidado</b><small>Debe contener las cuatro pestañas</small></div>
+    </label>
+  </section>
+
+  <section id="fourFilesPanel" class="smart-import-panel hidden">
+    <div class="four-files-grid">
+      <label class="smart-file-card" data-brand-file-card="TRT">
+        <input id="fileTRT" type="file" accept=".xlsx,.xls" hidden>
+        <span>TRT</span>
+        <div><b>Archivo TRT</b><small id="fileTRTName">Pendiente</small></div>
+      </label>
+      <label class="smart-file-card" data-brand-file-card="TRTVB">
+        <input id="fileTRTVB" type="file" accept=".xlsx,.xls" hidden>
+        <span>TV</span>
+        <div><b>Archivo TRT VB</b><small id="fileTRTVBName">Pendiente</small></div>
+      </label>
+      <label class="smart-file-card" data-brand-file-card="AAO">
+        <input id="fileAAO" type="file" accept=".xlsx,.xls" hidden>
+        <span>AAO</span>
+        <div><b>Archivo AAO</b><small id="fileAAOName">Pendiente</small></div>
+      </label>
+      <label class="smart-file-card" data-brand-file-card="AAOVB">
+        <input id="fileAAOVB" type="file" accept=".xlsx,.xls" hidden>
+        <span>AV</span>
+        <div><b>Archivo AAO VB</b><small id="fileAAOVBName">Pendiente</small></div>
+      </label>
+    </div>
+    <div class="four-files-actions">
+      <button id="processFourFilesBtn" class="btn primary" type="button" disabled>Procesar cuatro archivos</button>
+      <button id="clearFourFilesBtn" class="btn outline" type="button">Limpiar selección</button>
+    </div>
+  </section>
+</div>
+<span>＋</span><div><b>Cargar respaldo Excel</b><small>Uno o varios archivos</small></div></label>
           </div>
         </section>
 

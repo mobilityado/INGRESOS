@@ -1,7 +1,9 @@
 # Changelog
 
-## 2.1
-- Automatic Google Sheets loading after login.
-- Source badge: Google Sheets / Archivo local.
-- Automatic loading state and error message.
-- Manual Excel loading remains available.
+## 3.0
+- Smart Import.
+- Single workbook mode.
+- Four separate files mode.
+- Brand validation.
+- Multi-file processing.
+- Source indicator for four local files.
