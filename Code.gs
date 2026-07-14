@@ -1,5 +1,5 @@
 /**
- * NEXUS ENTERPRISE INTELLIGENCE PLATFORM 2027.2
+ * NEXUS ENTERPRISE INTELLIGENCE PLATFORM 2027.3
  * Autenticación, sesiones y administración de usuarios.
  *
  * USUARIOS admite:
@@ -18,7 +18,7 @@ const DURACION_SESION_SEGUNDOS = 21600;
 const ROLES_VALIDOS = ['USUARIO','SUPERVISOR','GERENCIA','ADMINISTRADOR'];
 
 function doGet() {
-  return respuesta({ error:false, message:'API NEXUS Enterprise 2027.2 activa' });
+  return respuesta({ error:false, message:'API NEXUS Enterprise 2027.3 activa' });
 }
 
 function doPost(e) {
@@ -37,6 +37,9 @@ function doPost(e) {
 
     if (action === 'getData') return obtenerDatos(session);
     if (action === 'getStatus') return obtenerEstado(session);
+    if (action === 'publishData') return publicarDatos(session, data);
+    if (action === 'restoreLastBackup') return restaurarUltimoRespaldo(session);
+    if (action === 'getPublishAudit') return obtenerAuditoriaPublicaciones(session);
     if (action === 'getUsers') return obtenerUsuariosAdmin(session);
     if (action === 'createUser') return crearUsuario(session, data);
     if (action === 'updateUser') return actualizarUsuario(session, data);
@@ -335,6 +338,191 @@ function obtenerUltimosAccesos() {
   values.forEach(row => { if(row[1]) result[row[1]] = row[0]; });
   return result;
 }
+
+
+function exigirPublicador(session) {
+  const role = normalizarRol(session.role);
+  if (!['GERENCIA','ADMINISTRADOR'].includes(role)) {
+    throw new Error('Tu rol no permite publicar información oficial.');
+  }
+}
+
+function publicarDatos(session, data) {
+  exigirPublicador(session);
+
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) throw new Error('Otro usuario está publicando información. Intenta nuevamente.');
+
+  try {
+    validarPayloadPublicacion(data);
+
+    const libro = SpreadsheetApp.openById(ID_HOJA);
+    const backupId = crearRespaldoInterno(libro, session, data);
+    const mapa = { TRT:'TRT', TRTVB:'TRT VB', AAO:'AAO', AAOVB:'AAO VB' };
+
+    Object.keys(mapa).forEach(key => {
+      const sheet = libro.getSheetByName(mapa[key]);
+      if (!sheet) throw new Error('No existe la pestaña ' + mapa[key]);
+
+      const block = data.data[key];
+      const values = [block.headers].concat(block.rows);
+      const oldRows = Math.max(sheet.getLastRow(), 1);
+      const oldCols = Math.max(sheet.getLastColumn(), values[0].length);
+
+      sheet.getRange(1, 1, oldRows, oldCols).clearContent();
+      sheet.getRange(1, 1, values.length, values[0].length).setValues(values);
+      sheet.setFrozenRows(1);
+    });
+
+    registrarPublicacion(session, data, 'OK', backupId, '');
+    PropertiesService.getScriptProperties().setProperty('LAST_BACKUP_ID', backupId);
+
+    return respuesta({
+      error:false,
+      message:'Periodo publicado correctamente. Se creó un respaldo automático.',
+      backupId:backupId
+    });
+  } catch (error) {
+    try { registrarPublicacion(session, data, 'ERROR', '', error.message); } catch (ignored) {}
+    throw error;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function validarPayloadPublicacion(data) {
+  if (!data || !data.data) throw new Error('No se recibió información para publicar.');
+  ['TRT','TRTVB','AAO','AAOVB'].forEach(key => {
+    const block = data.data[key];
+    if (!block || !Array.isArray(block.headers) || !block.headers.length || !Array.isArray(block.rows) || !block.rows.length) {
+      throw new Error(key + ': información incompleta.');
+    }
+    const normalized = block.headers.map(normalizarEncabezado);
+    ['VTA MAN','VTA ABOR','VTA PREPAGO'].forEach(required => {
+      if (!normalized.includes(required)) throw new Error(key + ': falta la columna ' + required);
+    });
+  });
+}
+
+function crearRespaldoInterno(libro, session, data) {
+  const backupId = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd_HHmmss') + '_' + Utilities.getUuid().slice(0,8);
+  const mapa = { TRT:'TRT', TRTVB:'TRT VB', AAO:'AAO', AAOVB:'AAO VB' };
+  const backup = {
+    id:backupId,
+    createdAt:new Date().toISOString(),
+    user:session.username,
+    name:session.name,
+    period:String(data.period || ''),
+    sheets:{}
+  };
+
+  Object.keys(mapa).forEach(key => {
+    const sheet = libro.getSheetByName(mapa[key]);
+    if (!sheet) throw new Error('No existe la pestaña ' + mapa[key]);
+    backup.sheets[key] = sheet.getDataRange().getDisplayValues();
+  });
+
+  const props = PropertiesService.getScriptProperties();
+  props.setProperty('BACKUP_' + backupId, JSON.stringify(backup));
+  const index = JSON.parse(props.getProperty('BACKUP_INDEX') || '[]');
+  index.unshift({id:backupId,createdAt:backup.createdAt,period:backup.period,user:backup.user});
+  props.setProperty('BACKUP_INDEX', JSON.stringify(index.slice(0,10)));
+
+  // Eliminar respaldos antiguos para no exceder el almacenamiento.
+  index.slice(10).forEach(item => props.deleteProperty('BACKUP_' + item.id));
+  return backupId;
+}
+
+function restaurarUltimoRespaldo(session) {
+  exigirPublicador(session);
+  const props = PropertiesService.getScriptProperties();
+  const backupId = props.getProperty('LAST_BACKUP_ID');
+  if (!backupId) throw new Error('No existe un respaldo disponible.');
+
+  const raw = props.getProperty('BACKUP_' + backupId);
+  if (!raw) throw new Error('El respaldo ya no está disponible.');
+  const backup = JSON.parse(raw);
+
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) throw new Error('Otro usuario está actualizando la información.');
+
+  try {
+    const libro = SpreadsheetApp.openById(ID_HOJA);
+    const mapa = { TRT:'TRT', TRTVB:'TRT VB', AAO:'AAO', AAOVB:'AAO VB' };
+
+    Object.keys(mapa).forEach(key => {
+      const values = backup.sheets[key];
+      if (!Array.isArray(values) || !values.length) throw new Error('Respaldo incompleto para ' + key);
+
+      const sheet = libro.getSheetByName(mapa[key]);
+      const oldRows = Math.max(sheet.getLastRow(), 1);
+      const oldCols = Math.max(sheet.getLastColumn(), values[0].length);
+      sheet.getRange(1,1,oldRows,oldCols).clearContent();
+      sheet.getRange(1,1,values.length,values[0].length).setValues(values);
+      sheet.setFrozenRows(1);
+    });
+
+    registrarPublicacion(session, {
+      fileName:'RESTAURACIÓN',
+      period:backup.period || 'Respaldo anterior',
+      summary:{count:0}
+    }, 'RESTAURADO', backupId, '');
+
+    return respuesta({
+      error:false,
+      message:'Se restauró el respaldo del ' + new Date(backup.createdAt).toLocaleString()
+    });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function obtenerHojaPublicaciones() {
+  const libro = SpreadsheetApp.openById(ID_HOJA);
+  let hoja = libro.getSheetByName('PUBLICACIONES');
+  if (!hoja) {
+    hoja = libro.insertSheet('PUBLICACIONES');
+    hoja.appendRow(['FECHA','USUARIO','NOMBRE','ARCHIVO','PERIODO','REGISTROS','ESTADO','BACKUP_ID','NOTAS','ERROR']);
+    hoja.getRange(1,1,1,10).setBackground('#071a31').setFontColor('#ffffff').setFontWeight('bold');
+    hoja.setFrozenRows(1);
+  }
+  return hoja;
+}
+
+function registrarPublicacion(session, data, status, backupId, error) {
+  const hoja = obtenerHojaPublicaciones();
+  hoja.appendRow([
+    new Date(),
+    session.username,
+    session.name,
+    String(data.fileName || ''),
+    String(data.period || ''),
+    Number(data.summary && data.summary.count || 0),
+    status,
+    backupId || '',
+    String(data.notes || ''),
+    error || ''
+  ]);
+  hoja.getRange(hoja.getLastRow(),1).setNumberFormat('dd/mm/yyyy hh:mm:ss');
+}
+
+function obtenerAuditoriaPublicaciones(session) {
+  exigirPublicador(session);
+  const hoja = obtenerHojaPublicaciones();
+  if (hoja.getLastRow() < 2) return respuesta({error:false,records:[]});
+
+  const values = hoja.getRange(2,1,hoja.getLastRow()-1,10).getDisplayValues();
+  const records = values.slice(-50).reverse().map(row => ({
+    date:row[0],
+    user:row[2] || row[1],
+    file:row[3],
+    period:row[4],
+    rows:Number(String(row[5]).replace(/[^0-9.-]/g,'')) || 0,
+    status:row[6]
+  }));
+  return respuesta({error:false,records:records});
+}
+
 
 function normalizarRol(value) {
   const role = normalizarEncabezado(value || 'USUARIO');

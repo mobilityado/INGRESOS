@@ -144,12 +144,13 @@
       <button data-view="comparativos"><span>↗</span>Comparativos</button>
       <button data-view="reportes"><span>▤</span>Reportes</button>
       <button data-view="usuarios" class="admin-nav"><span>👥</span>Usuarios</button>
+      <button data-view="publisher" class="publisher-nav"><span>⇧</span>Data Publisher</button>
       <button data-view="configuracion"><span>⚙</span>Configuración</button>
     </nav>
     <div class="product-build">
         <small>NEXUS ENTERPRISE</small>
-        <b>2027.2</b>
-        <span>Build 2702.0713</span>
+        <b>2027.3</b>
+        <span>Build 2703.0713</span>
       </div>
       <div class="side-footer">
       <span class="online-dot"></span>
@@ -238,6 +239,11 @@
           <button class="workspace-tile reports-tile" data-workspace-go="reportes">
             <span class="tile-icon">▤</span>
             <div><small>SALIDA</small><h3>Reportes</h3><p>PDF ejecutivo, Excel y resumen para correo.</p></div>
+            <b>→</b>
+          </button>
+          <button class="workspace-tile publisher-tile" data-workspace-go="publisher" data-min-role="GERENCIA">
+            <span class="tile-icon">⇧</span>
+            <div><small>DATOS</small><h3>Data Publisher</h3><p>Importa, valida, publica y restaura periodos.</p></div>
             <b>→</b>
           </button>
           <button class="workspace-tile users-tile admin-only" data-workspace-go="usuarios" data-min-role="ADMINISTRADOR">
@@ -821,6 +827,102 @@
         </div>
       </section>
 
+      
+      <section class="view" data-view-panel="publisher">
+        <div class="page-intro">
+          <span class="pill">NEXUS DATA PUBLISHER</span>
+          <h2>Publicación segura de periodos</h2>
+          <p>Importa un archivo Excel, valida las cuatro marcas, crea un respaldo automático y sustituye la información oficial de Google Sheets.</p>
+        </div>
+
+        <section class="publisher-grid">
+          <article class="card publisher-upload-card">
+            <div class="card-title"><small>PASO 1</small><h3>Cargar archivo</h3></div>
+            <label class="publisher-dropzone" id="publisherDropzone">
+              <input id="publisherFileInput" type="file" accept=".xlsx,.xls" hidden>
+              <div class="publisher-drop-icon">⇧</div>
+              <h3>Selecciona o arrastra el Excel</h3>
+              <p>Debe contener TRT, TRT VB, AAO y AAO VB.</p>
+              <span>Formatos admitidos: XLSX y XLS</span>
+            </label>
+            <div id="publisherFileInfo" class="publisher-file-info hidden">
+              <div><small>ARCHIVO</small><b id="publisherFileName">—</b></div>
+              <div><small>TAMAÑO</small><b id="publisherFileSize">—</b></div>
+              <div><small>PERIODO</small><b id="publisherDetectedPeriod">Pendiente</b></div>
+            </div>
+            <div class="publisher-period-fields">
+              <label>Nombre del periodo<input id="publisherPeriodName" placeholder="Ej. JUNIO - JULIO 2026"></label>
+              <label>Observaciones<textarea id="publisherNotes" rows="3" placeholder="Comentarios opcionales"></textarea></label>
+            </div>
+          </article>
+
+          <article class="card publisher-validation-card">
+            <div class="section-head">
+              <div class="card-title"><small>PASO 2</small><h3>Validación</h3></div>
+              <span id="publisherValidationBadge" class="status neutral">Sin archivo</span>
+            </div>
+            <div id="publisherBrandValidation" class="publisher-brand-validation">
+              <article data-pub-brand="TRT"><i></i><div><b>TRT</b><small>Pendiente</small></div><span>—</span></article>
+              <article data-pub-brand="TRTVB"><i></i><div><b>TRTVB</b><small>Pendiente</small></div><span>—</span></article>
+              <article data-pub-brand="AAO"><i></i><div><b>AAO</b><small>Pendiente</small></div><span>—</span></article>
+              <article data-pub-brand="AAOVB"><i></i><div><b>AAOVB</b><small>Pendiente</small></div><span>—</span></article>
+            </div>
+            <div id="publisherValidationMessage" class="message">Carga un archivo para iniciar la validación.</div>
+            <div class="publisher-preview-kpis">
+              <div><span>Registros</span><strong id="publisherTotalRows">0</strong></div>
+              <div><span>Total general</span><strong id="publisherTotalAmount">$0.00</strong></div>
+              <div><span>Canje</span><strong id="publisherCanje">$0.00</strong></div>
+              <div><span>Abordo</span><strong id="publisherAbordo">$0.00</strong></div>
+              <div><span>Prepago</span><strong id="publisherPrepago">$0.00</strong></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="card publisher-preview-card">
+          <div class="section-head">
+            <div class="card-title"><small>PASO 3</small><h3>Vista previa por marca</h3></div>
+            <button id="publisherClearBtn" class="btn compact ghost">Limpiar archivo</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Marca</th><th>Registros</th><th>Canje</th><th>Abordo</th><th>Prepago</th><th>Total</th></tr></thead>
+              <tbody id="publisherPreviewBody">
+                <tr><td colspan="6" class="publisher-empty-cell">Sin información cargada.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="publisher-actions-card card">
+          <div>
+            <small>PASO 4</small>
+            <h3>Publicar periodo oficial</h3>
+            <p>Antes de sustituir la información, NEXUS creará un respaldo automático de las cuatro pestañas.</p>
+          </div>
+          <div class="publisher-action-buttons">
+            <button id="publisherPublishBtn" class="btn primary" disabled>Publicar en Google Sheets</button>
+            <button id="publisherRestoreBtn" class="btn outline">Restaurar último respaldo</button>
+          </div>
+          <div id="publisherProgressWrap" class="load-progress-wrap hidden">
+            <div class="load-progress-meta"><span id="publisherProgressText">Preparando...</span><b id="publisherProgressPct">0%</b></div>
+            <div class="load-progress-track"><i id="publisherProgressBar"></i></div>
+          </div>
+        </section>
+
+        <section class="card publisher-history-card">
+          <div class="section-head">
+            <div class="card-title"><small>AUDITORÍA</small><h3>Publicaciones recientes</h3></div>
+            <button id="publisherReloadAuditBtn" class="btn compact">↻ Actualizar</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Fecha</th><th>Usuario</th><th>Archivo</th><th>Periodo</th><th>Registros</th><th>Estado</th></tr></thead>
+              <tbody id="publisherAuditBody"><tr><td colspan="6" class="publisher-empty-cell">Sin publicaciones registradas.</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
       <section class="view" data-view-panel="configuracion">
         <div class="page-intro"><span class="pill">CONFIGURACIÓN</span><h2>Estado de la plataforma</h2><p>Información técnica y preferencias locales.</p></div>
         <div class="settings-grid">
@@ -837,6 +939,31 @@
 
 <div id="historyModal" class="modal hidden"><div class="modal-card"><div class="section-head"><div><small class="kicker">HISTÓRICO LOCAL</small><h3>Administrar periodos</h3></div><button id="closeModalBtn" class="icon-btn dark">×</button></div><div id="historyAdmin"></div></div></div>
 
+
+
+<div id="publisherConfirmModal" class="modal hidden">
+  <div class="modal-card publisher-confirm-modal">
+    <div class="section-head">
+      <div><small class="kicker">CONFIRMACIÓN</small><h3>Publicar nuevo periodo</h3></div>
+      <button id="publisherCloseConfirmBtn" class="icon-btn dark">×</button>
+    </div>
+    <div class="publisher-confirm-warning">
+      <span>⚠</span>
+      <div>
+        <b>La información actual será sustituida.</b>
+        <p>NEXUS creará un respaldo automático antes de escribir el nuevo archivo.</p>
+      </div>
+    </div>
+    <div class="publisher-confirm-summary">
+      <div><small>ARCHIVO</small><b id="confirmPublisherFile">—</b></div>
+      <div><small>PERIODO</small><b id="confirmPublisherPeriod">—</b></div>
+      <div><small>REGISTROS</small><b id="confirmPublisherRows">0</b></div>
+      <div><small>TOTAL</small><b id="confirmPublisherTotal">$0.00</b></div>
+    </div>
+    <label class="publisher-confirm-check"><input id="publisherConfirmCheck" type="checkbox"> Confirmo que revisé los totales y deseo publicar este periodo.</label>
+    <button id="publisherConfirmPublishBtn" class="btn primary" disabled>Confirmar y publicar</button>
+  </div>
+</div>
 
 <div id="profileModal" class="modal hidden">
   <div class="modal-card profile-modal-card">
@@ -905,8 +1032,8 @@
 </div>
 
 <footer class="enterprise-footer">
-  <span>NEXUS Enterprise 2027.2</span>
-  <small>Build 2702.0713 · Mobility ADO</small>
+  <span>NEXUS Enterprise 2027.3</span>
+  <small>Build 2703.0713 · Mobility ADO</small>
 </footer>
 <div id="toast" class="toast"></div>
 

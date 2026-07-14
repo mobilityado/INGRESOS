@@ -1,55 +1,70 @@
-# NEXUS Enterprise 2027.2
+# NEXUS Enterprise 2027.3 — Data Publisher
 
 **Enterprise Intelligence Platform**  
-**Mobility ADO**  
-**Build 2702.0713**
+**Build 2703.0713**
 
-## Workspace
+## Data Publisher
 
-La pantalla inicial ahora es un espacio de trabajo con mosaicos adaptados al rol:
+Permite cargar un Excel y convertirlo en la nueva fuente oficial de consulta.
 
-- Ingresos 360
-- Command Center
-- Centro de Inteligencia
-- Dirección General
-- Comparativos
-- Reportes
-- Usuarios
-- Configuración
+### Flujo
 
-Los módulos que el usuario no puede abrir se ocultan automáticamente.
+1. Seleccionar o arrastrar el archivo.
+2. Validar las cuatro marcas.
+3. Revisar registros, importes y totales.
+4. Confirmar el periodo.
+5. Crear respaldo automático.
+6. Sustituir TRT, TRT VB, AAO y AAO VB.
+7. Registrar la publicación.
+8. Actualizar NEXUS.
 
-## NEXUS Assistant
+## Seguridad
 
-Se agregó un asistente fijo en la esquina inferior derecha.
+Solo pueden publicar:
 
-Puede:
+- GERENCIA
+- ADMINISTRADOR
 
-- Resumir el periodo.
-- Mostrar alertas.
-- Preparar el módulo de Reportes.
-- Abrir Dirección General cuando el rol lo permite.
-- Responder sobre total general y marca líder.
+Se utiliza `LockService` para impedir publicaciones simultáneas.
 
-El asistente funciona localmente y no utiliza una API externa.
+## Pestañas protegidas
 
-## Conserva
+El proceso solo reemplaza:
 
-- Login seguro.
-- Roles.
-- Administración de usuarios.
-- Ingresos y cuatro marcas.
-- Histórico.
-- Comparativos.
-- Centro de Inteligencia.
-- Dirección General.
-- Command Center.
-- Reportes Excel/PDF.
-- Notificaciones.
+- TRT
+- TRT VB
+- AAO
+- AAO VB
+
+No modifica:
+
+- USUARIOS
+- ACCESOS
+- PUBLICACIONES
+- otras pestañas administrativas
+
+## Auditoría
+
+El script crea automáticamente la pestaña `PUBLICACIONES` con:
+
+- Fecha
+- Usuario
+- Nombre
+- Archivo
+- Periodo
+- Registros
+- Estado
+- ID de respaldo
+- Notas
+- Error
+
+## Restauración
+
+El botón **Restaurar último respaldo** recupera la información anterior.
 
 ## Instalación
 
 1. Sustituye `Code.gs`.
-2. Publica una nueva versión en Apps Script.
+2. Publica una nueva versión de Apps Script.
 3. Reemplaza todos los archivos en GitHub.
 4. Presiona `Ctrl + F5`.

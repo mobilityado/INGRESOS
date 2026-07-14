@@ -1,9 +1,9 @@
 (() => {
-const PRODUCT_VERSION="2027.2";
-const PRODUCT_BUILD="2702.0713";
+const PRODUCT_VERSION="2027.3";
+const PRODUCT_BUILD="2703.0713";
 const BRANDS=["TRT","TRTVB","AAO","AAOVB"],$=id=>document.getElementById(id);
 const money=new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN"});
-const state={sources:{},brands:[],summary:null,charts:[],platformCharts:[],intelligenceCharts:[],directorCharts:[],commandCharts:[],commandAlerts:[],notifications:[]};
+const state={sources:{},brands:[],summary:null,charts:[],platformCharts:[],intelligenceCharts:[],directorCharts:[],commandCharts:[],commandAlerts:[],publisher:null,notifications:[]};
 const notificationKey="recaudacion365-notifications-v15";
 const loadNotifications=()=>{try{return JSON.parse(localStorage.getItem(notificationKey)||"[]")}catch{return[]}};
 const saveNotifications=v=>localStorage.setItem(notificationKey,JSON.stringify(v));
@@ -542,16 +542,17 @@ function renderHomeChart(){
   if(!state.summary)return;
   const canvas=$("homeChart");if(canvas)state.platformCharts.push(new Chart(canvas,{type:"bar",data:{labels:state.brands.map(b=>b.name),datasets:[{label:"Ingreso total",data:state.brands.map(b=>b.total),borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money.format(c.raw)}}},scales:{y:{ticks:{callback:v=>money.format(v)},grid:{color:"rgba(148,163,184,.15)"}},x:{grid:{display:false}}}}}))
 }
-const pageTitles={workspace:"Workspace · Enterprise 2027.2",command:"Command Center · Enterprise 2027.2",inicio:"Centro ejecutivo",ingresos:"Ingresos 360",direccion:"Dirección General",inteligencia:"Centro de Inteligencia",comparativos:"Comparativos",reportes:"Reportes ejecutivos",usuarios:"Usuarios y accesos",configuracion:"Configuración"};
+const pageTitles={workspace:"Workspace · Enterprise 2027.3",command:"Command Center · Enterprise 2027.3",inicio:"Centro ejecutivo",ingresos:"Ingresos 360",direccion:"Dirección General",inteligencia:"Centro de Inteligencia",comparativos:"Comparativos",reportes:"Reportes ejecutivos",usuarios:"Usuarios y accesos",publisher:"Data Publisher",configuracion:"Configuración"};
 function openView(name){
   if(name==="usuarios"&&!canAccess("ADMINISTRADOR")){toast("Tu rol no permite administrar usuarios.");return}
+  if(name==="publisher"&&!canAccess("GERENCIA")){toast("Data Publisher está reservado para Gerencia y Administración.");return}
   if(name==="configuracion"&&!canAccess("GERENCIA")){toast("Tu rol no permite acceder a configuración.");return}
   if(name==="direccion"&&!canAccess("GERENCIA")){toast("Este panel está reservado para Gerencia y Administración.");return}
   if(["inteligencia","comparativos"].includes(name)&&!canAccess("SUPERVISOR")){toast("Tu rol no permite acceder a este módulo.");return}
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.dataset.viewPanel===name));
   document.querySelectorAll(".side-nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===name));
   $("pageTitle").textContent=pageTitles[name]||"NEXUS";$("sidebar").classList.remove("open");window.scrollTo({top:0,behavior:"smooth"});
-  if(name==="workspace")renderWorkspace();if(name==="command")renderCommandCenter();if(name==="direccion")renderDirectorPanel();if(name==="inteligencia")renderIntelligence();if(name==="comparativos")populateCompareSelectors();if(name==="usuarios")loadAdminUsers();if(name==="configuracion")renderSettings();
+  if(name==="publisher")loadPublisherAudit();if(name==="workspace")renderWorkspace();if(name==="command")renderCommandCenter();if(name==="direccion")renderDirectorPanel();if(name==="inteligencia")renderIntelligence();if(name==="comparativos")populateCompareSelectors();if(name==="usuarios")loadAdminUsers();if(name==="configuracion")renderSettings();
 }
 document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>openView(b.dataset.view));
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>openView(b.dataset.go));
@@ -637,6 +638,7 @@ function setUserInterface(user){
   document.querySelectorAll(".admin-only,.admin-nav").forEach(el=>el.classList.toggle("hidden-role",!isAdmin));
 
   // Role-based navigation.
+  document.querySelectorAll('[data-view="publisher"]').forEach(el=>el.classList.toggle("restricted-role",roleLevel(role)<3));
   document.querySelectorAll('[data-view="configuracion"]').forEach(el=>el.classList.toggle("restricted-role",roleLevel(role)<3));
   document.querySelectorAll('[data-view="direccion"]').forEach(el=>el.classList.toggle("restricted-role",roleLevel(role)<3));
   document.querySelectorAll("[data-min-role]").forEach(el=>el.classList.toggle("restricted-role",!canAccess(el.dataset.minRole)));
@@ -881,6 +883,162 @@ $("selfPasswordForm").onsubmit=async e=>{
 };
 
 
+
+
+function publisherSetProgress(percent,text){
+  const wrap=$("publisherProgressWrap");if(!wrap)return;
+  wrap.classList.remove("hidden");
+  $("publisherProgressPct").textContent=`${percent}%`;
+  $("publisherProgressText").textContent=text;
+  $("publisherProgressBar").style.width=`${percent}%`;
+  if(percent>=100)setTimeout(()=>wrap.classList.add("hidden"),900);
+}
+function detectPeriodFromFilename(name){
+  const clean=String(name||"").replace(/\.[^.]+$/,"").replace(/[_-]+/g," ").replace(/\s+/g," ").trim();
+  return clean.toUpperCase();
+}
+function resetPublisher(){
+  state.publisher=null;
+  $("publisherFileInput").value="";
+  $("publisherFileInfo").classList.add("hidden");
+  $("publisherPeriodName").value="";
+  $("publisherNotes").value="";
+  $("publisherValidationBadge").className="status neutral";
+  $("publisherValidationBadge").textContent="Sin archivo";
+  $("publisherValidationMessage").className="message";
+  $("publisherValidationMessage").textContent="Carga un archivo para iniciar la validación.";
+  $("publisherPublishBtn").disabled=true;
+  $("publisherPreviewBody").innerHTML='<tr><td colspan="6" class="publisher-empty-cell">Sin información cargada.</td></tr>';
+  ["publisherTotalRows","publisherTotalAmount","publisherCanje","publisherAbordo","publisherPrepago"].forEach(id=>$(id).textContent=id==="publisherTotalRows"?"0":money.format(0));
+  BRANDS.forEach(b=>{const c=document.querySelector(`[data-pub-brand="${b}"]`);c.className="";c.querySelector("small").textContent="Pendiente";c.querySelector("span").textContent="—"});
+}
+async function parsePublisherFile(file){
+  try{
+    publisherSetProgress(8,"Leyendo archivo Excel...");
+    const wb=XLSX.read(await file.arrayBuffer(),{type:"array",cellDates:true});
+    const loaded={},errors=[];
+    wb.SheetNames.forEach(sn=>{
+      const b=identifyBrand(sn)||identifyBrand(file.name);
+      if(!b||loaded[b])return;
+      try{
+        const matrix=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:"",raw:true});
+        const rows=matrixToRows(matrix);
+        loaded[b]={brand:b,fileName:file.name,sheetName:sn,rows};
+      }catch(e){errors.push(`${b||sn}: ${e.message}`)}
+    });
+    publisherSetProgress(45,"Validando las cuatro marcas...");
+    BRANDS.forEach(b=>{if(!loaded[b])errors.push(`${b}: pestaña no encontrada`)});
+    if(errors.length)throw new Error(errors.join(" | "));
+
+    const brands=BRANDS.map(b=>parseRows(b,loaded[b].rows,loaded[b]));
+    const summary=brands.reduce((a,b)=>({canje:a.canje+b.canje,abordo:a.abordo+b.abordo,prepago:a.prepago+b.prepago,total:a.total+b.total,count:a.count+b.count}),{canje:0,abordo:0,prepago:0,total:0,count:0});
+    state.publisher={file,loaded,brands,summary,period:detectPeriodFromFilename(file.name)};
+    renderPublisherPreview();
+    publisherSetProgress(100,"Archivo validado");
+  }catch(e){
+    resetPublisher();
+    $("publisherValidationBadge").className="status error";
+    $("publisherValidationBadge").textContent="Archivo inválido";
+    $("publisherValidationMessage").className="message danger";
+    $("publisherValidationMessage").textContent=e.message;
+    toast(e.message);
+  }
+}
+function renderPublisherPreview(){
+  const p=state.publisher;if(!p)return;
+  $("publisherFileInfo").classList.remove("hidden");
+  $("publisherFileName").textContent=p.file.name;
+  $("publisherFileSize").textContent=`${(p.file.size/1024/1024).toFixed(2)} MB`;
+  $("publisherDetectedPeriod").textContent=p.period||"No detectado";
+  $("publisherPeriodName").value=p.period;
+  $("publisherValidationBadge").className="status ok";
+  $("publisherValidationBadge").textContent="Archivo válido";
+  $("publisherValidationMessage").className="message success";
+  $("publisherValidationMessage").textContent="Las cuatro marcas y las columnas obligatorias fueron validadas.";
+  $("publisherTotalRows").textContent=p.summary.count.toLocaleString("es-MX");
+  $("publisherTotalAmount").textContent=money.format(p.summary.total);
+  $("publisherCanje").textContent=money.format(p.summary.canje);
+  $("publisherAbordo").textContent=money.format(p.summary.abordo);
+  $("publisherPrepago").textContent=money.format(p.summary.prepago);
+  $("publisherPreviewBody").innerHTML=p.brands.map(b=>`<tr><td><b>${b.name}</b></td><td>${b.count.toLocaleString("es-MX")}</td><td>${money.format(b.canje)}</td><td>${money.format(b.abordo)}</td><td>${money.format(b.prepago)}</td><td><b>${money.format(b.total)}</b></td></tr>`).join("");
+  p.brands.forEach(b=>{const c=document.querySelector(`[data-pub-brand="${b.name}"]`);c.className="ready";c.querySelector("small").textContent=`${b.count.toLocaleString("es-MX")} registros`;c.querySelector("span").textContent="✓"});
+  $("publisherPublishBtn").disabled=false;
+}
+function serializePublisherData(){
+  const p=state.publisher;
+  if(!p)throw new Error("No hay archivo validado.");
+  const data={};
+  BRANDS.forEach(b=>{
+    const rows=p.loaded[b].rows;
+    const headers=Object.keys(rows[0]||{});
+    data[b]={headers,rows:rows.map(r=>headers.map(h=>r[h]??""))};
+  });
+  return data;
+}
+$("publisherFileInput").onchange=e=>{const f=e.target.files?.[0];if(f)parsePublisherFile(f)};
+const dropzone=$("publisherDropzone");
+["dragenter","dragover"].forEach(evt=>dropzone.addEventListener(evt,e=>{e.preventDefault();dropzone.classList.add("dragover")}));
+["dragleave","drop"].forEach(evt=>dropzone.addEventListener(evt,e=>{e.preventDefault();dropzone.classList.remove("dragover")}));
+dropzone.addEventListener("drop",e=>{const f=e.dataTransfer.files?.[0];if(f)parsePublisherFile(f)});
+$("publisherClearBtn").onclick=resetPublisher;
+$("publisherPublishBtn").onclick=()=>{
+  if(!state.publisher)return;
+  $("confirmPublisherFile").textContent=state.publisher.file.name;
+  $("confirmPublisherPeriod").textContent=$("publisherPeriodName").value.trim()||state.publisher.period;
+  $("confirmPublisherRows").textContent=state.publisher.summary.count.toLocaleString("es-MX");
+  $("confirmPublisherTotal").textContent=money.format(state.publisher.summary.total);
+  $("publisherConfirmCheck").checked=false;
+  $("publisherConfirmPublishBtn").disabled=true;
+  $("publisherConfirmModal").classList.remove("hidden");
+};
+$("publisherConfirmCheck").onchange=e=>$("publisherConfirmPublishBtn").disabled=!e.target.checked;
+$("publisherCloseConfirmBtn").onclick=()=>$("publisherConfirmModal").classList.add("hidden");
+$("publisherConfirmModal").onclick=e=>{if(e.target===$("publisherConfirmModal"))$("publisherConfirmModal").classList.add("hidden")};
+$("publisherConfirmPublishBtn").onclick=async()=>{
+  try{
+    const p=state.publisher;
+    if(!p)throw new Error("No hay archivo validado.");
+    const period=$("publisherPeriodName").value.trim()||p.period;
+    if(!period)throw new Error("Escribe el nombre del periodo.");
+    $("publisherConfirmModal").classList.add("hidden");
+    publisherSetProgress(10,"Creando respaldo automático...");
+    const payload={
+      fileName:p.file.name,
+      period,
+      notes:$("publisherNotes").value.trim(),
+      summary:p.summary,
+      data:serializePublisherData()
+    };
+    const result=await apiRequest("publishData",payload);
+    publisherSetProgress(75,"Actualizando información oficial...");
+    addNotification("Periodo publicado",`${period} fue publicado por ${authSession.user.name}.`,"⇧");
+    publisherSetProgress(100,"Publicación completada");
+    toast(result.message||"Periodo publicado correctamente");
+    await loadPublisherAudit();
+    $("loadSheetsBtn").click();
+  }catch(e){publisherSetProgress(100,"La publicación no se completó");toast(e.message)}
+};
+$("publisherRestoreBtn").onclick=async()=>{
+  if(!confirm("¿Deseas restaurar el último respaldo disponible?"))return;
+  try{
+    publisherSetProgress(15,"Buscando último respaldo...");
+    const result=await apiRequest("restoreLastBackup");
+    publisherSetProgress(100,"Respaldo restaurado");
+    addNotification("Respaldo restaurado",result.message||"Se restauró la información anterior.","↶");
+    toast(result.message||"Respaldo restaurado");
+    await loadPublisherAudit();
+    $("loadSheetsBtn").click();
+  }catch(e){publisherSetProgress(100,"No fue posible restaurar");toast(e.message)}
+};
+async function loadPublisherAudit(){
+  if(!$("publisherAuditBody")||!canAccess("GERENCIA"))return;
+  try{
+    const result=await apiRequest("getPublishAudit");
+    const rows=Array.isArray(result.records)?result.records:[];
+    $("publisherAuditBody").innerHTML=rows.length?rows.map(r=>`<tr><td>${escapeHtml(r.date)}</td><td>${escapeHtml(r.user)}</td><td>${escapeHtml(r.file)}</td><td>${escapeHtml(r.period)}</td><td>${Number(r.rows||0).toLocaleString("es-MX")}</td><td><span class="state-pill ${r.status==="OK"?"active":"inactive"}">${escapeHtml(r.status)}</span></td></tr>`).join(""):'<tr><td colspan="6" class="publisher-empty-cell">Sin publicaciones registradas.</td></tr>';
+  }catch(e){$("publisherAuditBody").innerHTML=`<tr><td colspan="6" class="publisher-empty-cell">${escapeHtml(e.message)}</td></tr>`}
+}
+$("publisherReloadAuditBtn").onclick=loadPublisherAudit;
 
 function appendAssistantMessage(text,type="answer"){
   const box=$("assistantConversation");
