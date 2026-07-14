@@ -103,7 +103,7 @@
     </div>
     <span class="startup-eyebrow">NEXUS ENTERPRISE</span>
     <h1>Bienvenido, <span id="startupUserName">Usuario</span></h1>
-    <p>AI Executive Intelligence Platform · Mobility ADO</p>
+    <p>Enterprise Intelligence Operating System · Mobility ADO</p>
     <div class="startup-status">
       <span><i></i>API</span>
       <span><i></i>Google Sheets</span>
@@ -136,6 +136,7 @@
     </div>
     <nav class="side-nav">
       <button class="active" data-view="workspace"><span>▦</span>Workspace</button>
+      <button data-view="forecast" data-min-role="SUPERVISOR"><span>⌁</span>Pronóstico y Metas</button>
       <button data-view="command"><span>◈</span>Command Center</button>
       <button data-view="inicio"><span>⌂</span>Inicio</button>
       <button data-view="ingresos"><span>▥</span>Ingresos 360</button>
@@ -150,8 +151,8 @@
     </nav>
     <div class="product-build">
         <small>NEXUS ENTERPRISE</small>
-        <b>2028.1</b>
-        <span>Build 2801.0713</span>
+        <b>2030</b>
+        <span>Build 3000.0713</span>
       </div>
       <div class="side-footer">
       <span class="online-dot"></span>
@@ -225,6 +226,11 @@
           <button class="workspace-tile ai-tile" data-workspace-go="ai">
             <span class="tile-icon">✦</span>
             <div><small>ASISTENTE</small><h3>NEXUS AI</h3><p>Pregunta, analiza y prepara acciones ejecutivas.</p></div>
+            <b>→</b>
+          </button>
+          <button class="workspace-tile forecast-tile" data-workspace-go="forecast" data-min-role="SUPERVISOR">
+            <span class="tile-icon">⌁</span>
+            <div><small>PLANEACIÓN</small><h3>Pronóstico y Metas</h3><p>Proyección mensual y avance por marca.</p></div>
             <b>→</b>
           </button>
           <button class="workspace-tile intelligence-tile" data-workspace-go="inteligencia" data-min-role="SUPERVISOR">
@@ -662,6 +668,52 @@
       </section>
 
       
+      
+      <section class="view" data-view-panel="forecast">
+        <section class="forecast-hero">
+          <div>
+            <span class="pill">NEXUS 2030 FORECAST ENGINE</span>
+            <h2>Pronóstico y metas ejecutivas</h2>
+            <p>Proyección calculada con el histórico guardado y seguimiento de objetivos por marca.</p>
+          </div>
+          <div class="forecast-confidence">
+            <small>CONFIANZA ESTIMADA</small>
+            <strong id="forecastConfidence">—</strong>
+            <span id="forecastConfidenceDetail">Histórico insuficiente</span>
+          </div>
+        </section>
+
+        <section id="forecastEmpty" class="card empty-block">Guarda al menos dos periodos en el histórico para calcular una proyección.</section>
+
+        <section id="forecastContent" class="hidden">
+          <div class="forecast-kpis">
+            <article><span>Pronóstico siguiente periodo</span><strong id="forecastNext">$0.00</strong><small id="forecastNextDetail">—</small></article>
+            <article><span>Tendencia promedio</span><strong id="forecastTrend">—</strong><small>Promedio de variaciones</small></article>
+            <article><span>Mejor escenario</span><strong id="forecastBest">$0.00</strong><small>Rango superior estimado</small></article>
+            <article><span>Escenario conservador</span><strong id="forecastLow">$0.00</strong><small>Rango inferior estimado</small></article>
+          </div>
+
+          <div class="forecast-grid">
+            <article class="card forecast-chart-card">
+              <div class="card-title"><small>PROYECCIÓN</small><h3>Histórico y siguiente periodo</h3></div>
+              <canvas id="forecastChart"></canvas>
+            </article>
+            <article class="card forecast-explanation-card">
+              <div class="card-title"><small>LECTURA</small><h3>Interpretación automática</h3></div>
+              <div id="forecastExplanation"></div>
+            </article>
+          </div>
+
+          <article class="card goals-card">
+            <div class="section-head">
+              <div class="card-title"><small>METAS POR MARCA</small><h3>Avance del periodo</h3></div>
+              <button id="saveGoalsBtn" class="btn compact">Guardar metas</button>
+            </div>
+            <div id="goalRows" class="goal-rows"></div>
+          </article>
+        </section>
+      </section>
+
       <section class="view" data-view-panel="ai">
         <section class="ai-hero">
           <div>
@@ -1011,7 +1063,13 @@
           <article class="card setting-card admin-only"><h3>Control de acceso</h3><p>Los usuarios se administran desde la pestaña USUARIOS de Google Sheets.</p><div class="access-note"><b>Columnas admitidas</b><code>CONTRASEÑA · USUARIO · NOMBRE · ROL · ACTIVO</code></div></article>
           <article class="card setting-card"><h3>Google Sheets</h3><p>ID configurado</p><code id="sheetIdPreview"></code></article>
           <article class="card setting-card"><h3>Histórico local</h3><p id="historyCount">0 periodos almacenados</p><button id="openHistoryAdminBtn" class="btn compact">Administrar</button></article>
-          <article class="card setting-card"><h3>Apariencia</h3><p>Alterna entre tema claro y oscuro.</p><button id="settingsThemeBtn" class="btn compact">Cambiar apariencia</button></article>
+          <article class="card setting-card"><h3>Apariencia</h3><p>Selecciona el estilo visual de NEXUS.</p>
+      <select id="themeSelector">
+        <option value="light">Claro</option>
+        <option value="dark">Oscuro</option>
+        <option value="auto">Automático</option>
+      </select>
+    </article>
           <article class="card setting-card"><h3>Respaldo</h3><p>Exporta el histórico local a un archivo JSON.</p><button id="exportHistoryBtn" class="btn compact">Exportar histórico</button></article>
         </div>
       </section>
@@ -1114,8 +1172,8 @@
 </div>
 
 <footer class="enterprise-footer">
-  <span>NEXUS Enterprise 2028.1</span>
-  <small>Build 2801.0713 · Mobility ADO</small>
+  <span>NEXUS 2030 Enterprise Suite</span>
+  <small>Build 3000.0713 · Mobility ADO</small>
 </footer>
 <div id="toast" class="toast"></div>
 

@@ -1,57 +1,48 @@
-# NEXUS Enterprise 2028.1 — AI Executive
+# NEXUS 2030 Enterprise Suite
 
-**AI Executive Intelligence Platform**  
+**Enterprise Intelligence Operating System**  
 **Mobility ADO**  
-**Build 2801.0713**
+**Build 3000.0713**
 
-## NEXUS AI Executive
+## Entrega funcional
 
-Nuevo módulo para consultar los datos en lenguaje natural.
+NEXUS 2030 conserva toda la plataforma anterior e incorpora:
 
-Puede responder:
-
-- Qué ocurrió en el periodo.
-- Cuál fue la mejor marca.
-- Qué marca requiere atención.
-- Por qué cambió el total.
-- Qué recomendaciones existen.
-- Cómo preparar un correo para Dirección.
-
-## Acciones ejecutivas
-
-- Generar resumen ejecutivo.
-- Preparar correo para Dirección.
-- Abrir reporte premium.
-- Abrir Panel de Dirección.
-- Copiar contenidos generados.
-
-## Reporte premium
-
-La vista de reporte ahora incluye:
-
-- Código único de reporte.
-- Portada corporativa.
-- Periodo, usuario y fecha.
-- Conclusiones automáticas.
-- Recomendaciones automáticas.
-- Resumen para gerencia.
-- Exportación PDF mediante impresión.
-
-## Conserva
-
-- Workspace.
+- Workspace por roles.
 - Command Center.
-- Data Publisher.
+- Ingresos y cuatro marcas.
+- NEXUS AI Executive.
 - Centro de Inteligencia.
 - Dirección General.
-- Usuarios y roles.
-- Histórico y comparativos.
-- Excel y PDF.
-- NEXUS Assistant flotante.
+- Pronóstico basado en histórico.
+- Metas por marca.
+- Comparativos.
+- Data Publisher con respaldo.
+- Reportes premium.
+- Administración de usuarios.
+- Tema claro, oscuro y automático.
+- Notificaciones y asistente flotante.
+
+## Pronóstico
+
+El pronóstico se calcula localmente mediante:
+
+- Promedio de variaciones históricas.
+- Mayor peso a los tres periodos más recientes.
+- Rango superior e inferior según volatilidad.
+- Confianza estimada según cantidad y estabilidad de los periodos.
+
+No representa una garantía financiera; es una estimación operativa.
+
+## Metas
+
+Las metas por marca se guardan localmente en el navegador. Para compartirlas entre todos los equipos, puede añadirse posteriormente una pestaña `METAS` en Google Sheets.
 
 ## Instalación
 
-1. Sustituye `Code.gs`.
-2. Publica una nueva versión en Apps Script.
+1. Sustituye `Code.gs` en Apps Script.
+2. Publica una nueva versión.
 3. Reemplaza todos los archivos en GitHub.
 4. Presiona `Ctrl + F5`.
+
+La URL `/exec` permanece configurada en `config.js`.

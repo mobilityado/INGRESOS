@@ -1,9 +1,9 @@
 (() => {
-const PRODUCT_VERSION="2028.1";
-const PRODUCT_BUILD="2801.0713";
+const PRODUCT_VERSION="2030";
+const PRODUCT_BUILD="3000.0713";
 const BRANDS=["TRT","TRTVB","AAO","AAOVB"],$=id=>document.getElementById(id);
 const money=new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN"});
-const state={sources:{},brands:[],summary:null,charts:[],platformCharts:[],intelligenceCharts:[],directorCharts:[],commandCharts:[],commandAlerts:[],publisher:null,notifications:[]};
+const state={sources:{},brands:[],summary:null,charts:[],platformCharts:[],intelligenceCharts:[],directorCharts:[],commandCharts:[],forecastCharts:[],commandAlerts:[],publisher:null,notifications:[]};
 const notificationKey="recaudacion365-notifications-v15";
 const loadNotifications=()=>{try{return JSON.parse(localStorage.getItem(notificationKey)||"[]")}catch{return[]}};
 const saveNotifications=v=>localStorage.setItem(notificationKey,JSON.stringify(v));
@@ -11,7 +11,18 @@ function addNotification(title,detail,icon="ℹ"){
   const items=loadNotifications();
   items.unshift({id:Date.now(),title,detail,icon,time:new Date().toLocaleString("es-MX")});
   saveNotifications(items.slice(0,25));
-  renderNotifications();document.querySelectorAll(".today-card,.metric,.executive-kpis article,.director-kpis article").forEach(el=>el.classList.add("smart-hover"));
+  
+const themeKey="nexus2030-theme";
+function applyTheme(value){
+  const mode=value==="auto"?(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):value;
+  document.body.classList.toggle("dark",mode==="dark");
+  localStorage.setItem(themeKey,value);
+  if($("themeSelector"))$("themeSelector").value=value;
+}
+if($("themeSelector"))$("themeSelector").onchange=e=>applyTheme(e.target.value);
+applyTheme(localStorage.getItem(themeKey)||"light");
+
+renderNotifications();document.querySelectorAll(".today-card,.metric,.executive-kpis article,.director-kpis article").forEach(el=>el.classList.add("smart-hover"));
 }
 function renderNotifications(){
   const items=loadNotifications(),list=$("notificationList");
@@ -235,7 +246,7 @@ function renderPlatform(){
   if($("reportCoverUser"))$("reportCoverUser").textContent=authSession?.user?.name||authSession?.user?.username||"Usuario";
   if($("reportCoverDate"))$("reportCoverDate").textContent=new Date().toLocaleString("es-MX");
   $("managementPreview").innerHTML=`<h3>Resumen ejecutivo · ${m} ${y}</h3><p>El ingreso general fue de <b>${money.format(s.total)}</b>, integrado por ${s.count.toLocaleString("es-MX")} registros. ${leader.name} encabezó la recaudación con ${pct(leader.total,s.total)} de participación. ${concepts[0][0]} fue el concepto principal, con ${money.format(concepts[0][1])}.</p>${prev?`<p>En comparación con ${prev.label}, el resultado ${s.total>=prev.total?"aumentó":"disminuyó"} ${Math.abs((s.total-prev.total)/(prev.total||1)*100).toFixed(2)}%.</p>`:"<p>No existe todavía un periodo previo guardado para calcular variación.</p>"}`;
-  renderHomeChart();renderTotalSparkline();renderProactiveBriefing();renderIntelligence();renderDirectorPanel();renderCommandCenter();renderWorkspace();renderAIExecutive();populateCompareSelectors();$("historyCount").textContent=`${hist.length} periodo${hist.length===1?"":"s"} almacenado${hist.length===1?"":"s"}`;if($("historyStatusDot"))$("historyStatusDot").className=hist.length?"ok":"";
+  renderHomeChart();renderTotalSparkline();renderProactiveBriefing();renderIntelligence();renderDirectorPanel();renderCommandCenter();renderWorkspace();renderAIExecutive();renderForecast();populateCompareSelectors();$("historyCount").textContent=`${hist.length} periodo${hist.length===1?"":"s"} almacenado${hist.length===1?"":"s"}`;if($("historyStatusDot"))$("historyStatusDot").className=hist.length?"ok":"";
 }
 
 function getCurrentPreviousPeriod(){
@@ -542,9 +553,10 @@ function renderHomeChart(){
   if(!state.summary)return;
   const canvas=$("homeChart");if(canvas)state.platformCharts.push(new Chart(canvas,{type:"bar",data:{labels:state.brands.map(b=>b.name),datasets:[{label:"Ingreso total",data:state.brands.map(b=>b.total),borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money.format(c.raw)}}},scales:{y:{ticks:{callback:v=>money.format(v)},grid:{color:"rgba(148,163,184,.15)"}},x:{grid:{display:false}}}}}))
 }
-const pageTitles={workspace:"Workspace · Enterprise 2028.1",ai:"NEXUS AI Executive",command:"Command Center · Enterprise 2028.1",inicio:"Centro ejecutivo",ingresos:"Ingresos 360",direccion:"Dirección General",inteligencia:"Centro de Inteligencia",comparativos:"Comparativos",reportes:"Reportes ejecutivos",usuarios:"Usuarios y accesos",publisher:"Data Publisher",configuracion:"Configuración"};
+const pageTitles={workspace:"Workspace · NEXUS 2030",forecast:"Pronóstico y Metas",ai:"NEXUS AI Executive",command:"Command Center · NEXUS 2030",inicio:"Centro ejecutivo",ingresos:"Ingresos 360",direccion:"Dirección General",inteligencia:"Centro de Inteligencia",comparativos:"Comparativos",reportes:"Reportes ejecutivos",usuarios:"Usuarios y accesos",publisher:"Data Publisher",configuracion:"Configuración"};
 function openView(name){
   if(name==="usuarios"&&!canAccess("ADMINISTRADOR")){toast("Tu rol no permite administrar usuarios.");return}
+  if(name==="forecast"&&!canAccess("SUPERVISOR")){toast("Tu rol no permite acceder a Pronóstico y Metas.");return}
   if(name==="publisher"&&!canAccess("GERENCIA")){toast("Data Publisher está reservado para Gerencia y Administración.");return}
   if(name==="configuracion"&&!canAccess("GERENCIA")){toast("Tu rol no permite acceder a configuración.");return}
   if(name==="direccion"&&!canAccess("GERENCIA")){toast("Este panel está reservado para Gerencia y Administración.");return}
@@ -552,7 +564,7 @@ function openView(name){
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.dataset.viewPanel===name));
   document.querySelectorAll(".side-nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===name));
   $("pageTitle").textContent=pageTitles[name]||"NEXUS";$("sidebar").classList.remove("open");window.scrollTo({top:0,behavior:"smooth"});
-  if(name==="ai")renderAIExecutive();if(name==="publisher")loadPublisherAudit();if(name==="workspace")renderWorkspace();if(name==="command")renderCommandCenter();if(name==="direccion")renderDirectorPanel();if(name==="inteligencia")renderIntelligence();if(name==="comparativos")populateCompareSelectors();if(name==="usuarios")loadAdminUsers();if(name==="configuracion")renderSettings();
+  if(name==="forecast")renderForecast();if(name==="ai")renderAIExecutive();if(name==="publisher")loadPublisherAudit();if(name==="workspace")renderWorkspace();if(name==="command")renderCommandCenter();if(name==="direccion")renderDirectorPanel();if(name==="inteligencia")renderIntelligence();if(name==="comparativos")populateCompareSelectors();if(name==="usuarios")loadAdminUsers();if(name==="configuracion")renderSettings();
 }
 document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>openView(b.dataset.view));
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>openView(b.dataset.go));
@@ -638,6 +650,7 @@ function setUserInterface(user){
   document.querySelectorAll(".admin-only,.admin-nav").forEach(el=>el.classList.toggle("hidden-role",!isAdmin));
 
   // Role-based navigation.
+  document.querySelectorAll('[data-view="forecast"]').forEach(el=>el.classList.toggle("restricted-role",roleLevel(role)<2));
   document.querySelectorAll('[data-view="publisher"]').forEach(el=>el.classList.toggle("restricted-role",roleLevel(role)<3));
   document.querySelectorAll('[data-view="configuracion"]').forEach(el=>el.classList.toggle("restricted-role",roleLevel(role)<3));
   document.querySelectorAll('[data-view="direccion"]').forEach(el=>el.classList.toggle("restricted-role",roleLevel(role)<3));
@@ -885,6 +898,63 @@ $("selfPasswordForm").onsubmit=async e=>{
 
 
 
+
+
+const goalsKey="nexus2030-goals";
+const getGoals=()=>{try{return JSON.parse(localStorage.getItem(goalsKey)||"{}")}catch{return{}}};
+function forecastData(){
+  const h=getHistory().sort((a,b)=>a.key.localeCompare(b.key));
+  if(h.length<2)return null;
+  const values=h.map(x=>Number(x.total)||0);
+  const changes=[];
+  for(let i=1;i<values.length;i++)if(values[i-1])changes.push((values[i]-values[i-1])/values[i-1]);
+  const avg=changes.reduce((a,b)=>a+b,0)/(changes.length||1);
+  const recent=changes.slice(-3);
+  const weighted=recent.length?recent.reduce((a,b,i)=>a+b*(i+1),0)/recent.reduce((a,b,i)=>a+i+1,0):avg;
+  const rate=(avg+weighted)/2;
+  const next=values.at(-1)*(1+rate);
+  const volatility=Math.sqrt(changes.reduce((a,c)=>a+Math.pow(c-avg,2),0)/(changes.length||1));
+  const confidence=Math.max(45,Math.min(95,Math.round(90-volatility*180)));
+  return {history:h,values,changes,avg,rate,next,low:next*(1-Math.max(.03,volatility)),high:next*(1+Math.max(.03,volatility)),confidence};
+}
+function renderForecast(){
+  const empty=$("forecastEmpty"),content=$("forecastContent"),f=forecastData();
+  if(!empty||!content)return;
+  if(!f){empty.classList.remove("hidden");content.classList.add("hidden");$("forecastConfidence").textContent="—";return}
+  empty.classList.add("hidden");content.classList.remove("hidden");
+  $("forecastConfidence").textContent=`${f.confidence}%`;
+  $("forecastConfidenceDetail").textContent=`Basado en ${f.history.length} periodos`;
+  $("forecastNext").textContent=money.format(f.next);
+  $("forecastNextDetail").textContent="Estimación del siguiente periodo";
+  $("forecastTrend").textContent=`${f.rate>=0?"+":""}${(f.rate*100).toFixed(2)}%`;
+  $("forecastBest").textContent=money.format(f.high);
+  $("forecastLow").textContent=money.format(f.low);
+  $("forecastExplanation").innerHTML=[
+    `La tendencia promedio histórica es de ${(f.avg*100).toFixed(2)}%.`,
+    `La proyección pondera con mayor importancia los tres periodos más recientes.`,
+    `El rango estimado está entre ${money.format(f.low)} y ${money.format(f.high)}.`,
+    `La confianza calculada es ${f.confidence}% y aumenta al guardar más periodos.`
+  ].map(x=>`<div class="insight"><i>⌁</i><div>${x}</div></div>`).join("");
+
+  state.forecastCharts.forEach(c=>c.destroy());state.forecastCharts=[];
+  const canvas=$("forecastChart");
+  if(canvas){
+    state.forecastCharts.push(new Chart(canvas,{type:"line",data:{labels:[...f.history.map(h=>h.label),"PRONÓSTICO"],datasets:[{label:"Ingreso",data:[...f.values,f.next],tension:.35,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money.format(c.raw)}}},scales:{y:{ticks:{callback:v=>money.format(v)},grid:{color:"rgba(148,163,184,.14)"}},x:{grid:{display:false}}}}}));
+  }
+  renderGoals();
+}
+function renderGoals(){
+  if(!$("goalRows"))return;
+  const goals=getGoals();
+  $("goalRows").innerHTML=BRANDS.map(name=>{
+    const brand=state.brands.find(b=>b.name===name),current=brand?.total||0,target=Number(goals[name]||0),pctGoal=target?Math.min(150,current/target*100):0;
+    return `<div class="goal-row"><b>${name}</b><input type="number" min="0" step="0.01" data-goal-brand="${name}" value="${target||""}" placeholder="Meta"><div class="goal-progress"><i style="width:${Math.min(100,pctGoal)}%"></i></div><span>${target?pctGoal.toFixed(1)+"%":"Sin meta"}</span></div>`;
+  }).join("");
+}
+$("saveGoalsBtn").onclick=()=>{
+  const goals={};document.querySelectorAll("[data-goal-brand]").forEach(i=>goals[i.dataset.goalBrand]=Number(i.value)||0);
+  localStorage.setItem(goalsKey,JSON.stringify(goals));renderGoals();toast("Metas guardadas");
+};
 
 function getAIContext(){
   if(!state.summary)return null;
