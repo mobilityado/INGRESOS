@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#1f4fd6">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%236a5cff'/%3E%3Cstop offset='.5' stop-color='%232b7cff'/%3E%3Cstop offset='1' stop-color='%2344e0ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M32 3 55 16v32L32 61 9 48V16Z' fill='url(%23g)'/%3E%3Cpath d='M20 44V20h7l10 14V20h7v24h-7L27 30v14Z' fill='white'/%3E%3Cpath d='M43 17h8v8M36 31l15-14' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E">
-  <title>NEXUS | Plataforma Ejecutiva</title>
+  <title>NEXUS ONE | Enterprise Intelligence Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
@@ -103,7 +103,7 @@
     </div>
     <span class="startup-eyebrow">NEXUS ENTERPRISE</span>
     <h1>Bienvenido, <span id="startupUserName">Usuario</span></h1>
-    <p>Enterprise Intelligence Operating System · Mobility ADO</p>
+    <p>Enterprise Intelligence Platform · Mobility ADO</p>
     <div class="startup-status">
       <span><i></i>API</span>
       <span><i></i>Google Sheets</span>
@@ -135,20 +135,14 @@
       <div><small>BUSINESS INTELLIGENCE</small><b>NEXUS</b></div>
     </div>
     <nav class="side-nav">
-      <button class="active" data-view="workspace"><span>▦</span>Workspace</button>
-      <button data-view="forecast" data-min-role="SUPERVISOR"><span>⌁</span>Pronóstico y Metas</button>
-      <button data-view="command"><span>◈</span>Command Center</button>
-      <button data-view="inicio"><span>⌂</span>Inicio</button>
-      <button data-view="ingresos"><span>▥</span>Ingresos 360</button>
-      <button data-view="ai"><span>✦</span>NEXUS AI</button>
-      <button data-view="inteligencia"><span>◉</span>Centro de Inteligencia</button>
-      <button data-view="direccion" class="direction-nav"><span>◆</span>Dirección General</button>
-      <button data-view="comparativos"><span>↗</span>Comparativos</button>
-      <button data-view="reportes"><span>▤</span>Reportes</button>
-      <button data-view="usuarios" class="admin-nav"><span>👥</span>Usuarios</button>
-      <button data-view="publisher" class="publisher-nav"><span>⇧</span>Data Publisher</button>
-      <button data-view="configuracion"><span>⚙</span>Configuración</button>
-    </nav>
+<button class="active" data-view="one"><span>◉</span>Inicio</button>
+<button data-view="ingresos"><span>▥</span>Analytics</button>
+<button data-view="ai"><span>✦</span>NEXUS AI</button>
+<button data-view="reportes"><span>▤</span>Reportes</button>
+<button data-view="publisher" class="publisher-nav"><span>⇧</span>Publisher</button>
+<button data-view="configuracion"><span>⚙</span>Configuración</button>
+<button data-view="usuarios" class="admin-nav"><span>👥</span>Usuarios</button>
+</nav>
     <div class="product-build">
         <small>NEXUS ENTERPRISE</small>
         <b>2030</b>
@@ -197,7 +191,14 @@
     <main class="content-shell">
       
       
-      <section class="view active" data-view-panel="workspace">
+      <section class="view active" data-view-panel="one">
+<section class="one-hero glass-panel"><div><span class="one-kicker">NEXUS ONE · ENTERPRISE INTELLIGENCE</span><p id="oneGreetingLabel">Buenos días</p><h2 id="oneGreetingName">Usuario</h2><p>Consulta, analiza, publica y reporta desde una experiencia unificada.</p><div class="one-hero-actions"><button id="oneRefreshBtn">↻ Actualizar datos</button><button id="oneReportBtn">▤ Generar informe</button></div></div><div class="one-health"><div id="oneHealthRing"><strong id="oneHealthScore">—</strong><span>Salud general</span></div><small id="oneHealthMessage">Sin evaluación</small></div></section>
+<section class="one-global-search glass-panel"><span>⌕</span><input id="oneSearchInput" placeholder="¿Qué deseas consultar? Prueba TRT, reporte o publicar..." autocomplete="off"><kbd>Ctrl K</kbd></section><div id="oneSearchResults" class="one-search-results hidden"></div>
+<section class="one-kpis"><article class="glass-panel"><small>INGRESO GENERAL</small><strong id="oneTotal">$0.00</strong><span id="oneTotalTrend">Sin comparativo</span></article><article class="glass-panel"><small>MARCA LÍDER</small><strong id="oneLeader">—</strong><span id="oneLeaderShare">Pendiente</span></article><article class="glass-panel"><small>CONCEPTO PRINCIPAL</small><strong id="oneConcept">—</strong><span id="oneConceptShare">Pendiente</span></article><article class="glass-panel"><small>ALERTAS</small><strong id="oneAlerts">0</strong><span id="oneAlertsDetail">Sin alertas críticas</span></article></section>
+<section class="one-grid"><article class="glass-panel one-panel"><div class="one-title"><div><small>TOP INSIGHTS</small><h3>Lo más importante del periodo</h3></div><button id="oneOpenAI">Abrir NEXUS AI →</button></div><div id="oneInsights"><div class="one-empty">Actualiza los datos para generar hallazgos.</div></div></article><article class="glass-panel one-panel"><div class="one-title"><div><small>ACCIONES RÁPIDAS</small><h3>Continuar trabajo</h3></div></div><div class="one-actions"><button data-one-go="reportes"><span>▤</span><div><b>Generar reporte</b><small>PDF y resumen ejecutivo</small></div></button><button data-one-go="publisher" data-min-role="GERENCIA"><span>⇧</span><div><b>Publicar periodo</b><small>Actualizar Google Sheets</small></div></button><button data-one-go="ingresos"><span>▥</span><div><b>Abrir Analytics</b><small>Marcas y gráficas</small></div></button><button data-one-go="ai"><span>✦</span><div><b>Preguntar a NEXUS</b><small>Resumen y recomendaciones</small></div></button></div></article></section>
+<section class="one-grid"><article class="glass-panel one-panel one-chart"><div class="one-title"><div><small>PANORAMA</small><h3>Participación por marca</h3></div><span id="onePeriodBadge">—</span></div><canvas id="oneBrandChart"></canvas></article><article class="glass-panel one-panel"><div class="one-title"><div><small>ACTIVIDAD</small><h3>Eventos recientes</h3></div></div><div id="oneActivity"></div></article></section>
+</section>
+<section class="view" data-view-panel="workspace">
         <section class="workspace-hero">
           <div>
             <span class="pill">NEXUS ENTERPRISE WORKSPACE</span>
@@ -672,7 +673,7 @@
       <section class="view" data-view-panel="forecast">
         <section class="forecast-hero">
           <div>
-            <span class="pill">NEXUS 2030 FORECAST ENGINE</span>
+            <span class="pill">NEXUS ONE FORECAST ENGINE</span>
             <h2>Pronóstico y metas ejecutivas</h2>
             <p>Proyección calculada con el histórico guardado y seguimiento de objetivos por marca.</p>
           </div>
@@ -1172,9 +1173,10 @@
 </div>
 
 <footer class="enterprise-footer">
-  <span>NEXUS 2030 Enterprise Suite</span>
+  <span>NEXUS ONE</span>
   <small>Build 3000.0713 · Mobility ADO</small>
 </footer>
+<div id="onePalette" class="one-palette hidden"><div class="one-dialog glass-panel"><div class="one-palette-input"><span>⌕</span><input id="onePaletteInput" placeholder="Buscar módulos, marcas o acciones..."><kbd>Esc</kbd></div><div id="onePaletteResults"></div></div></div>
 <div id="toast" class="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>

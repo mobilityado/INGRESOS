@@ -3,7 +3,7 @@ const PRODUCT_VERSION="2030";
 const PRODUCT_BUILD="3000.0713";
 const BRANDS=["TRT","TRTVB","AAO","AAOVB"],$=id=>document.getElementById(id);
 const money=new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN"});
-const state={sources:{},brands:[],summary:null,charts:[],platformCharts:[],intelligenceCharts:[],directorCharts:[],commandCharts:[],forecastCharts:[],commandAlerts:[],publisher:null,notifications:[]};
+const state={sources:{},brands:[],summary:null,charts:[],platformCharts:[],intelligenceCharts:[],directorCharts:[],commandCharts:[],forecastCharts:[],commandAlerts:[],publisher:null,oneCharts:[],notifications:[]};
 const notificationKey="recaudacion365-notifications-v15";
 const loadNotifications=()=>{try{return JSON.parse(localStorage.getItem(notificationKey)||"[]")}catch{return[]}};
 const saveNotifications=v=>localStorage.setItem(notificationKey,JSON.stringify(v));
@@ -246,7 +246,7 @@ function renderPlatform(){
   if($("reportCoverUser"))$("reportCoverUser").textContent=authSession?.user?.name||authSession?.user?.username||"Usuario";
   if($("reportCoverDate"))$("reportCoverDate").textContent=new Date().toLocaleString("es-MX");
   $("managementPreview").innerHTML=`<h3>Resumen ejecutivo · ${m} ${y}</h3><p>El ingreso general fue de <b>${money.format(s.total)}</b>, integrado por ${s.count.toLocaleString("es-MX")} registros. ${leader.name} encabezó la recaudación con ${pct(leader.total,s.total)} de participación. ${concepts[0][0]} fue el concepto principal, con ${money.format(concepts[0][1])}.</p>${prev?`<p>En comparación con ${prev.label}, el resultado ${s.total>=prev.total?"aumentó":"disminuyó"} ${Math.abs((s.total-prev.total)/(prev.total||1)*100).toFixed(2)}%.</p>`:"<p>No existe todavía un periodo previo guardado para calcular variación.</p>"}`;
-  renderHomeChart();renderTotalSparkline();renderProactiveBriefing();renderIntelligence();renderDirectorPanel();renderCommandCenter();renderWorkspace();renderAIExecutive();renderForecast();populateCompareSelectors();$("historyCount").textContent=`${hist.length} periodo${hist.length===1?"":"s"} almacenado${hist.length===1?"":"s"}`;if($("historyStatusDot"))$("historyStatusDot").className=hist.length?"ok":"";
+  renderHomeChart();renderTotalSparkline();renderProactiveBriefing();renderIntelligence();renderDirectorPanel();renderCommandCenter();renderWorkspace();renderAIExecutive();renderForecast();renderNexusOne();populateCompareSelectors();$("historyCount").textContent=`${hist.length} periodo${hist.length===1?"":"s"} almacenado${hist.length===1?"":"s"}`;if($("historyStatusDot"))$("historyStatusDot").className=hist.length?"ok":"";
 }
 
 function getCurrentPreviousPeriod(){
@@ -553,7 +553,7 @@ function renderHomeChart(){
   if(!state.summary)return;
   const canvas=$("homeChart");if(canvas)state.platformCharts.push(new Chart(canvas,{type:"bar",data:{labels:state.brands.map(b=>b.name),datasets:[{label:"Ingreso total",data:state.brands.map(b=>b.total),borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money.format(c.raw)}}},scales:{y:{ticks:{callback:v=>money.format(v)},grid:{color:"rgba(148,163,184,.15)"}},x:{grid:{display:false}}}}}))
 }
-const pageTitles={workspace:"Workspace · NEXUS 2030",forecast:"Pronóstico y Metas",ai:"NEXUS AI Executive",command:"Command Center · NEXUS 2030",inicio:"Centro ejecutivo",ingresos:"Ingresos 360",direccion:"Dirección General",inteligencia:"Centro de Inteligencia",comparativos:"Comparativos",reportes:"Reportes ejecutivos",usuarios:"Usuarios y accesos",publisher:"Data Publisher",configuracion:"Configuración"};
+const pageTitles={one:"NEXUS ONE",workspace:"Workspace · NEXUS 2030",forecast:"Pronóstico y Metas",ai:"NEXUS AI Executive",command:"Command Center · NEXUS 2030",inicio:"Centro ejecutivo",ingresos:"Ingresos 360",direccion:"Dirección General",inteligencia:"Centro de Inteligencia",comparativos:"Comparativos",reportes:"Reportes ejecutivos",usuarios:"Usuarios y accesos",publisher:"Data Publisher",configuracion:"Configuración"};
 function openView(name){
   if(name==="usuarios"&&!canAccess("ADMINISTRADOR")){toast("Tu rol no permite administrar usuarios.");return}
   if(name==="forecast"&&!canAccess("SUPERVISOR")){toast("Tu rol no permite acceder a Pronóstico y Metas.");return}
@@ -564,7 +564,8 @@ function openView(name){
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.dataset.viewPanel===name));
   document.querySelectorAll(".side-nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===name));
   $("pageTitle").textContent=pageTitles[name]||"NEXUS";$("sidebar").classList.remove("open");window.scrollTo({top:0,behavior:"smooth"});
-  if(name==="forecast")renderForecast();if(name==="ai")renderAIExecutive();if(name==="publisher")loadPublisherAudit();if(name==="workspace")renderWorkspace();if(name==="command")renderCommandCenter();if(name==="direccion")renderDirectorPanel();if(name==="inteligencia")renderIntelligence();if(name==="comparativos")populateCompareSelectors();if(name==="usuarios")loadAdminUsers();if(name==="configuracion")renderSettings();
+  if(name==="forecast")renderForecast();if(name==="ai")renderAIExecutive();if(name==="publisher")loadPublisherAudit();if(name==="workspace")renderWorkspace();if(name==="command")renderCommandCenter();if(name==="direccion")renderDirectorPanel();if(name==="inteligencia")renderIntelligence();if(name==="comparativos")populateCompareSelectors();if(name==="usuarios")loadAdminUsers();if(name==="configuracion")$('oneRefreshBtn').onclick=()=>$('loadSheetsBtn').click();$('oneReportBtn').onclick=()=>openView('reportes');$('oneOpenAI').onclick=()=>openView('ai');document.querySelectorAll('[data-one-go]').forEach(b=>b.onclick=()=>openView(b.dataset.oneGo));$('oneSearchInput').oninput=e=>{const q=e.target.value.trim();if(!q){$('oneSearchResults').classList.add('hidden');return}fillOneResults('oneSearchResults',q);$('oneSearchResults').classList.remove('hidden')};document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();$('onePalette').classList.remove('hidden');$('onePaletteInput').value='';fillOneResults('onePaletteResults','');setTimeout(()=>$('onePaletteInput').focus(),20)}if(e.key==='Escape')$('onePalette')?.classList.add('hidden')});$('onePalette').onclick=e=>{if(e.target===$('onePalette'))$('onePalette').classList.add('hidden')};$('onePaletteInput').oninput=e=>fillOneResults('onePaletteResults',e.target.value);
+renderSettings();
 }
 document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>openView(b.dataset.view));
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>openView(b.dataset.go));
@@ -813,7 +814,7 @@ async function restoreSession(){
     const check=await apiRequest("validate");
     authSession.user=check.user;
     sessionStorage.setItem(sessionKey,JSON.stringify(authSession));
-    showApp();openView("workspace");
+    showApp();openView("one");
   }catch(e){
     sessionStorage.removeItem(sessionKey);authSession=null;showLogin();
   }
@@ -827,7 +828,7 @@ $("loginForm").onsubmit=async e=>{
     const result=await apiRequest("login",{username:$("loginUser").value.trim(),password:$("loginPassword").value});
     authSession={token:result.token,user:result.user};
     sessionStorage.setItem(sessionKey,JSON.stringify(authSession));
-    showApp();openView("workspace");toast(`Bienvenido, ${result.user.name}`);addNotification("Inicio de sesión",`Bienvenido, ${result.user.name}.`,"✓");
+    showApp();openView("one");toast(`Bienvenido, ${result.user.name}`);addNotification("Inicio de sesión",`Bienvenido, ${result.user.name}.`,"✓");
   }catch(err){
     error.textContent=err.message;error.classList.remove("hidden");
   }finally{
@@ -902,6 +903,12 @@ $("selfPasswordForm").onsubmit=async e=>{
 
 const goalsKey="nexus2030-goals";
 const getGoals=()=>{try{return JSON.parse(localStorage.getItem(goalsKey)||"{}")}catch{return{}}};
+
+const oneCommands=[{label:"Inicio",desc:"Resumen ejecutivo",view:"one",keys:"inicio resumen"},{label:"Analytics",desc:"Ingresos y marcas",view:"ingresos",keys:"trt trtvb aao aaovb ingresos"},{label:"NEXUS AI",desc:"Preguntas y recomendaciones",view:"ai",keys:"ia resumen alertas"},{label:"Reportes",desc:"PDF y Excel",view:"reportes",keys:"reporte pdf excel"},{label:"Publisher",desc:"Publicar periodo",view:"publisher",role:"GERENCIA",keys:"publicar cargar excel"},{label:"Configuración",desc:"Tema y respaldos",view:"configuracion",role:"GERENCIA",keys:"configuracion respaldo"},{label:"Usuarios",desc:"Roles y accesos",view:"usuarios",role:"ADMINISTRADOR",keys:"usuarios roles"}];
+function oneMatches(q){q=normalize(q);return oneCommands.filter(c=>(!c.role||canAccess(c.role))&&(!q||normalize(c.label+' '+c.desc+' '+c.keys).includes(q)))}
+function fillOneResults(id,q){const t=$(id),rows=oneMatches(q);t.innerHTML=rows.length?rows.map(c=>`<div class="${id==='onePaletteResults'?'one-palette-item':'one-search-item'}" data-one-result="${c.view}"><div><b>${c.label}</b><small>${c.desc}</small></div><span>→</span></div>`).join(''):'<div class="one-empty">Sin resultados.</div>';t.querySelectorAll('[data-one-result]').forEach(e=>e.onclick=()=>{openView(e.dataset.oneResult);$('onePalette')?.classList.add('hidden');$('oneSearchResults')?.classList.add('hidden')})}
+function renderNexusOne(){if(!$('oneGreetingName'))return;$('oneGreetingLabel').textContent=getDayGreeting();$('oneGreetingName').textContent=authSession?.user?.name||authSession?.user?.username||'Usuario';$('onePeriodBadge').textContent=`${$('month').value} ${$('year').value}`;const n=loadNotifications().slice(0,5);$('oneActivity').innerHTML=n.length?n.map(x=>`<div class="one-activity-row"><i>${x.icon}</i><div><b>${escapeHtml(x.title)}</b><small>${escapeHtml(x.detail)} · ${escapeHtml(x.time)}</small></div></div>`).join(''):'<div class="one-empty">Sin actividad reciente.</div>';document.querySelectorAll('[data-one-go]').forEach(b=>b.classList.toggle('restricted-role',!!b.dataset.minRole&&!canAccess(b.dataset.minRole)));if(!state.summary)return;const s=state.summary,bs=[...state.brands].sort((a,b)=>b.total-a.total),lead=bs[0],cs=[["Canje",s.canje],["Abordo",s.abordo],["Prepago",s.prepago]].sort((a,b)=>b[1]-a[1]),prev=getCurrentPreviousPeriod(),chg=prev?((s.total-prev.total)/(prev.total||1)*100):null,alerts=getCommandAlerts().filter(a=>a.icon!=="✓"),score=calculateDirectorScore();$('oneTotal').textContent=money.format(s.total);$('oneTotalTrend').textContent=chg==null?'Sin comparativo':`${chg>=0?'▲':'▼'} ${Math.abs(chg).toFixed(2)}% vs. ${prev.label}`;$('oneLeader').textContent=lead.name;$('oneLeaderShare').textContent=`${pct(lead.total,s.total)} del total`;$('oneConcept').textContent=cs[0][0];$('oneConceptShare').textContent=`${pct(cs[0][1],s.total)} del total`;$('oneAlerts').textContent=alerts.length;$('oneAlertsDetail').textContent=alerts.length?alerts[0].text:'Sin alertas críticas';$('oneHealthScore').textContent=`${score}/100`;$('oneHealthMessage').textContent=score>=80?'Excelente':score>=60?'Atención':'Riesgo';$('oneHealthRing').style.background=`conic-gradient(#79f5e9 0deg,#46dbff ${score*3.6}deg,rgba(255,255,255,.12) ${score*3.6}deg)`;$('oneInsights').innerHTML=[`🏆|${lead.name} lidera con ${pct(lead.total,s.total)}.`,`◉|${cs[0][0]} representa ${pct(cs[0][1],s.total)}.`,`${chg==null?'▥':chg>=0?'↗':'↘'}|${chg==null?'Guarda otro periodo para comparar.':`El total ${chg>=0?'aumentó':'disminuyó'} ${Math.abs(chg).toFixed(2)}%.`}`].map(x=>{const [i,t]=x.split('|');return `<div class="one-insight"><i>${i}</i><div>${t}</div></div>`}).join('');state.oneCharts?.forEach(c=>c.destroy());state.oneCharts=[];if($('oneBrandChart'))state.oneCharts.push(new Chart($('oneBrandChart'),{type:'bar',data:{labels:bs.map(b=>b.name),datasets:[{data:bs.map(b=>b.total),borderRadius:10}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money.format(c.raw)}}},scales:{y:{ticks:{callback:v=>money.format(v)},grid:{color:'rgba(148,163,184,.14)'}},x:{grid:{display:false}}}}}))}
+
 function forecastData(){
   const h=getHistory().sort((a,b)=>a.key.localeCompare(b.key));
   if(h.length<2)return null;

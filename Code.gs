@@ -18,7 +18,7 @@ const DURACION_SESION_SEGUNDOS = 21600;
 const ROLES_VALIDOS = ['USUARIO','SUPERVISOR','GERENCIA','ADMINISTRADOR'];
 
 function doGet() {
-  return respuesta({ error:false, message:'API NEXUS 2030 Enterprise Suite activa' });
+  return respuesta({ error:false, message:'API NEXUS ONE 1.0 activa' });
 }
 
 function doPost(e) {
