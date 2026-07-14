@@ -1,39 +1,39 @@
-# NEXUS Business Intelligence Platform v18
+# NEXUS Business Intelligence Platform v19
 
-La V18 incorpora permisos basados en los roles reales de la pestaña `USUARIOS` y un briefing automático al iniciar.
+## Nuevo panorama ejecutivo
 
-## URL configurada
+La tarjeta que mostraba únicamente la marca líder fue sustituida por un panel de participación con las cuatro marcas:
 
-La aplicación ya está configurada con:
+- TRT
+- TRTVB
+- AAO
+- AAOVB
 
-`https://script.google.com/macros/s/AKfycbxC2mKnafSrn3ngqrzjOqxWcH2Ueh7DEIge0cweju3PHTrRJ7CS5iqQczMpAiWcjLaZIA/exec`
+Cada marca muestra una barra proporcional y su porcentaje dentro del total general.
 
-## Roles reconocidos
+## Nuevo bloque de indicadores
 
-- `ADMINISTRADOR`: acceso total, incluyendo gestión de usuarios.
-- `GERENCIA`: Centro de Inteligencia, comparativos, reportes y configuración.
-- `SUPERVISOR`: ingresos, comparativos y Centro de Inteligencia.
-- `USUARIO`: consulta de indicadores, gráficas y reportes básicos.
+El panorama general ahora contiene:
 
-También se reconocen como equivalentes:
+1. Total general.
+2. Participación de las cuatro marcas.
+3. Composición por concepto: Prepago, Abordo y Canje.
+4. Variación frente al periodo anterior.
+5. Salud del negocio con semáforo e índice de 0 a 100.
 
-- `ADMIN` → `ADMINISTRADOR`
-- `CONSULTA` → `USUARIO`
+## Salud del negocio
 
-## NEXUS AI Briefing
+- Verde: índice igual o superior a 80.
+- Amarillo: índice entre 60 y 79.
+- Rojo: índice inferior a 60.
 
-Al cargar la información se genera automáticamente:
-
-- Marca líder.
-- Concepto dominante.
-- Variación frente al periodo anterior.
-- Marca con menor participación.
+La evaluación considera crecimiento mensual, concentración por marca y dependencia de un solo concepto.
 
 ## Instalación
 
 1. Sustituye `Code.gs` en Apps Script.
-2. Actualiza la implementación mediante **Nueva versión**.
-3. Sube todos los archivos a GitHub.
+2. Actualiza la implementación mediante una nueva versión.
+3. Reemplaza todos los archivos en GitHub.
 4. Presiona `Ctrl + F5`.
 
-No necesitas editar `config.js`: la URL `/exec` ya viene incluida.
+La URL `/exec` continúa configurada en `config.js`.

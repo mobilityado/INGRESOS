@@ -118,9 +118,32 @@ function render(){
   const s=state.summary,m=$("month").value,y=$("year").value,sorted=[...state.brands].sort((a,b)=>b.total-a.total),leader=sorted[0],concepts=[["Canje",s.canje],["Abordo",s.abordo],["Prepago",s.prepago]].sort((a,b)=>b[1]-a[1]),hist=getHistory(),currentKey=`${y}-${String(["ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"].indexOf(m)+1).padStart(2,"0")}`,previous=[...hist].filter(h=>h.key<currentKey).sort((a,b)=>b.key.localeCompare(a.key))[0];
   $("reportTitle").textContent=`INGRESOS GENERALES ${m} ${y}`;$("generatedAt").textContent=`Actualizado ${new Date().toLocaleString("es-MX")}`;
   $("totalKpi").textContent=money.format(s.total);$("totalRows").textContent=`${s.count.toLocaleString("es-MX")} registros`;
-  $("leaderKpi").textContent=leader.name;$("leaderShare").textContent=`${pct(leader.total,s.total)} del total`;
-  $("conceptKpi").textContent=concepts[0][0];$("conceptShare").textContent=`${pct(concepts[0][1],s.total)} del total`;
-  if(previous){const v=(s.total-previous.total)/(previous.total||1)*100;$("variationKpi").textContent=`${v>=0?"+":""}${v.toFixed(2)}%`;$("variationDetail").textContent=`vs. ${previous.label}`}else{$("variationKpi").textContent="Sin histórico";$("variationDetail").textContent="Guarda otro mes para comparar"}
+  const brandList=$("brandParticipationList");
+  if(brandList){
+    brandList.innerHTML=[...state.brands]
+      .sort((a,b)=>b.total-a.total)
+      .map(b=>`<div class="brand-participation-row">
+        <b>${b.name}</b>
+        <div class="brand-mini-track"><i style="width:${Math.max(2,b.total/(s.total||1)*100).toFixed(2)}%"></i></div>
+        <small>${pct(b.total,s.total)}</small>
+      </div>`).join("");
+  }
+
+  const conceptList=$("conceptCompositionList");
+  if(conceptList){
+    const conceptRows=[
+      {name:"Prepago",value:s.prepago},
+      {name:"Abordo",value:s.abordo},
+      {name:"Canje",value:s.canje}
+    ].sort((a,b)=>b.value-a.value);
+    conceptList.innerHTML=conceptRows.map(c=>`<div class="concept-composition-row">
+      <b>${c.name}</b>
+      <div class="concept-mini-track"><i style="width:${Math.max(2,c.value/(s.total||1)*100).toFixed(2)}%"></i></div>
+      <small>${pct(c.value,s.total)}</small>
+    </div>`).join("");
+  }
+
+      if(previous){const v=(s.total-previous.total)/(previous.total||1)*100;$("variationKpi").textContent=`${v>=0?"+":""}${v.toFixed(2)}%`;$("variationDetail").textContent=`vs. ${previous.label}`}else{$("variationKpi").textContent="Sin histórico";$("variationDetail").textContent="Guarda otro mes para comparar"}
   if(previous){
     const d=(s.total-previous.total)/(previous.total||1)*100;
     $("totalDelta").className=`kpi-delta ${d>=0?"positive-delta":"negative-delta"}`;
@@ -131,8 +154,28 @@ function render(){
     $("totalDelta").className="kpi-delta neutral-delta";$("totalDelta").textContent="Sin comparativo";
     $("variationTrend").className="kpi-delta neutral-delta";$("variationTrend").textContent="Sin tendencia";
   }
-  $("leaderDelta").textContent=`${pct(leader.total,s.total)} del total`;
-  $("conceptDelta").textContent=`${pct(concepts[0][1],s.total)} del total`;
+      
+  let healthScore=65;
+  if(previous){
+    const growth=(s.total-previous.total)/(previous.total||1)*100;
+    healthScore+=Math.max(-25,Math.min(25,growth*2));
+  }
+  const leaderShareValue=leader.total/(s.total||1)*100;
+  const conceptShareValue=concepts[0][1]/(s.total||1)*100;
+  healthScore+=leaderShareValue<45?8:leaderShareValue<60?2:-7;
+  healthScore+=conceptShareValue<70?7:conceptShareValue<82?1:-6;
+  healthScore=Math.max(0,Math.min(100,Math.round(healthScore)));
+
+  if($("healthScoreKpi"))$("healthScoreKpi").textContent=`${healthScore}/100`;
+  if($("healthTrafficLight")){
+    $("healthTrafficLight").className=`mini-traffic ${healthScore>=80?"green":healthScore>=60?"yellow":"red"}`;
+  }
+  if($("healthScoreDetail"))$("healthScoreDetail").textContent=healthScore>=80?"Desempeño sólido":healthScore>=60?"Requiere seguimiento":"Atención prioritaria";
+  if($("healthScoreLabel")){
+    $("healthScoreLabel").className=`kpi-delta ${healthScore>=80?"positive-delta":healthScore>=60?"neutral-delta":"negative-delta"}`;
+    $("healthScoreLabel").textContent=healthScore>=80?"Excelente":healthScore>=60?"Atención":"Riesgo";
+  }
+
   [["canjeKpi",s.canje],["abordoKpi",s.abordo],["prepagoKpi",s.prepago]].forEach(([i,v])=>$(i).textContent=money.format(v));$("canjePct").textContent=pct(s.canje,s.total);$("abordoPct").textContent=pct(s.abordo,s.total);$("prepagoPct").textContent=pct(s.prepago,s.total);$("avgTicketKpi").textContent=money.format(s.total/(s.count||1));
   $("summaryBody").innerHTML=state.brands.map(b=>`<tr><td><b>${b.name}</b></td><td>${money.format(b.canje)}</td><td>${money.format(b.abordo)}</td><td>${money.format(b.prepago)}</td><td><b>${money.format(b.total)}</b></td><td>${b.count.toLocaleString("es-MX")}</td><td>${pct(b.total,s.total)}</td></tr>`).join("");
   $("summaryFoot").innerHTML=`<tr><td>GENERAL</td><td>${money.format(s.canje)}</td><td>${money.format(s.abordo)}</td><td>${money.format(s.prepago)}</td><td>${money.format(s.total)}</td><td>${s.count.toLocaleString("es-MX")}</td><td>100%</td></tr>`;

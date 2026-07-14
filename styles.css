@@ -342,3 +342,129 @@ a{color:#3676ec}
   .briefing-header .btn{width:100%}
   .header-role-badge{display:none}
 }
+
+/* NEXUS V19 — Executive KPI layout */
+.executive-kpis-v19{
+  display:grid!important;
+  grid-template-columns:1.05fr 1.45fr 1.25fr 1fr 1fr!important;
+  gap:13px!important;
+}
+.executive-kpis-v19 article{
+  min-height:150px;
+  padding:18px!important;
+  border-radius:18px!important;
+  color:#fff;
+  background:
+    radial-gradient(circle at 95% 0%,rgba(122,247,232,.15),transparent 33%),
+    linear-gradient(145deg,#102165,#2459c3 55%,#2d95cf)!important;
+}
+.executive-kpis-v19 article>span{
+  display:block;
+  color:#d8e8ff!important;
+  font-size:9px!important;
+  font-weight:700;
+  letter-spacing:.15px;
+}
+.executive-kpis-v19 article>strong{
+  display:block;
+  font-size:clamp(22px,2.25vw,31px)!important;
+  margin:10px 0 7px!important;
+}
+.executive-kpis-v19 article>small{
+  display:block;
+  color:#c6d9ef!important;
+  font-size:8px!important;
+}
+.kpi-brand-card,.kpi-concepts-card{
+  background:
+    radial-gradient(circle at 100% 0%,rgba(122,247,232,.18),transparent 34%),
+    linear-gradient(145deg,#17266f,#2c64c8 55%,#35a8d0)!important;
+}
+.kpi-health-card{
+  background:
+    radial-gradient(circle at 100% 0%,rgba(122,247,232,.13),transparent 34%),
+    linear-gradient(145deg,#17215c,#3254a9 55%,#3d85c6)!important;
+}
+.brand-participation-list,.concept-composition-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:12px;
+}
+.brand-participation-row,.concept-composition-row{
+  display:grid;
+  grid-template-columns:42px 1fr auto;
+  gap:8px;
+  align-items:center;
+}
+.brand-participation-row b,.concept-composition-row b{
+  font-size:8px;
+  color:#fff;
+}
+.brand-participation-row small,.concept-composition-row small{
+  color:#d9e8f8!important;
+  font-size:7px!important;
+  font-weight:700;
+  white-space:nowrap;
+}
+.brand-mini-track,.concept-mini-track{
+  height:6px;
+  border-radius:999px;
+  overflow:hidden;
+  background:rgba(255,255,255,.16);
+}
+.brand-mini-track i,.concept-mini-track i{
+  display:block;
+  height:100%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#8c81ff,#62cfff,#7af7e8);
+}
+.brand-participation-empty{
+  color:#d6e4f4;
+  font-size:8px;
+  margin-top:10px;
+}
+.health-score-wrap{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  margin-top:16px;
+}
+.health-score-wrap strong{
+  font-size:28px!important;
+  margin:0!important;
+}
+.health-score-wrap small{
+  color:#c7d9ec!important;
+  font-size:8px!important;
+}
+.mini-traffic{
+  width:43px;
+  height:43px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  background:rgba(5,19,44,.35);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
+}
+.mini-traffic i{
+  width:21px;
+  height:21px;
+  border-radius:50%;
+  display:block;
+  background:#8995a8;
+  box-shadow:0 0 14px rgba(137,149,168,.35);
+}
+.mini-traffic.green i{background:#27d398;box-shadow:0 0 18px rgba(39,211,152,.7)}
+.mini-traffic.yellow i{background:#f3be45;box-shadow:0 0 18px rgba(243,190,69,.7)}
+.mini-traffic.red i{background:#ef6464;box-shadow:0 0 18px rgba(239,100,100,.7)}
+@media(max-width:1200px){
+  .executive-kpis-v19{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .kpi-brand-card,.kpi-concepts-card{grid-column:span 1}
+}
+@media(max-width:700px){
+  .executive-kpis-v19{grid-template-columns:1fr!important}
+  .executive-kpis-v19 article{min-height:auto}
+}

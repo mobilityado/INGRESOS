@@ -292,12 +292,49 @@
             <div><small class="kicker">PANORAMA GENERAL</small><h2 id="reportTitle">INGRESOS GENERALES</h2><p id="generatedAt"></p></div>
             <div class="action-row"><button id="exportBtn" class="btn compact">↓ Excel</button><button id="printBtn" class="btn compact">▣ PDF / Imprimir</button></div>
           </div>
-          <div class="executive-kpis">
-            <article><span>Total general</span><strong id="totalKpi">$0.00</strong><small id="totalRows">0 registros</small><em id="totalDelta" class="kpi-delta neutral-delta">Sin comparativo</em></article>
-            <article><span>Marca líder</span><strong id="leaderKpi">—</strong><small id="leaderShare">—</small><em id="leaderDelta" class="kpi-delta neutral-delta">Participación actual</em></article>
-            <article><span>Concepto principal</span><strong id="conceptKpi">—</strong><small id="conceptShare">—</small><em id="conceptDelta" class="kpi-delta neutral-delta">Distribución actual</em></article>
-            <article><span>Variación mensual</span><strong id="variationKpi">Sin histórico</strong><small id="variationDetail">Guarda al menos dos meses</small><em id="variationTrend" class="kpi-delta neutral-delta">Sin tendencia</em></article>
+          
+          <div class="executive-kpis executive-kpis-v19">
+            <article class="kpi-total-card">
+              <span>Total general</span>
+              <strong id="totalKpi">$0.00</strong>
+              <small id="totalRows">0 registros</small>
+              <em id="totalDelta" class="kpi-delta neutral-delta">Sin comparativo</em>
+            </article>
+
+            <article class="kpi-brand-card">
+              <span>Participación por marca</span>
+              <div id="brandParticipationList" class="brand-participation-list">
+                <div class="brand-participation-empty">Sin información</div>
+              </div>
+            </article>
+
+            <article class="kpi-concepts-card">
+              <span>Composición por concepto</span>
+              <div id="conceptCompositionList" class="concept-composition-list">
+                <div class="brand-participation-empty">Sin información</div>
+              </div>
+            </article>
+
+            <article class="kpi-variation-card">
+              <span>Variación mensual</span>
+              <strong id="variationKpi">Sin histórico</strong>
+              <small id="variationDetail">Guarda otro mes para comparar</small>
+              <em id="variationTrend" class="kpi-delta neutral-delta">Sin tendencia</em>
+            </article>
+
+            <article class="kpi-health-card">
+              <span>Salud del negocio</span>
+              <div class="health-score-wrap">
+                <div id="healthTrafficLight" class="mini-traffic neutral"><i></i></div>
+                <div>
+                  <strong id="healthScoreKpi">—</strong>
+                  <small id="healthScoreDetail">Sin evaluación</small>
+                </div>
+              </div>
+              <em id="healthScoreLabel" class="kpi-delta neutral-delta">Pendiente</em>
+            </article>
           </div>
+
           <div class="metric-grid">
             <article class="metric"><span>Canje</span><strong id="canjeKpi"></strong><small id="canjePct"></small></article>
             <article class="metric"><span>Abordo</span><strong id="abordoKpi"></strong><small id="abordoPct"></small></article>
