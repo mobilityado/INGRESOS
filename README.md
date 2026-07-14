@@ -1,33 +1,39 @@
-# NEXUS Business Intelligence Platform v17
+# NEXUS Business Intelligence Platform v18
 
-## Centro de Inteligencia
+La V18 incorpora permisos basados en los roles reales de la pestaña `USUARIOS` y un briefing automático al iniciar.
 
-La V17 conserva todas las funciones de la V16.1 y agrega un módulo de interpretación automática:
+## URL configurada
 
-- Semáforo ejecutivo general.
-- Índice del periodo de 0 a 100.
-- Fortaleza principal.
-- Punto de atención.
-- Nivel de concentración.
-- Resumen automático para dirección.
-- Variación de cada marca frente al periodo anterior.
-- Oportunidades y alertas.
-- Brief ejecutivo listo para copiar.
-- Gráficas de crecimiento y composición.
+La aplicación ya está configurada con:
 
-## Criterios del semáforo
+`https://script.google.com/macros/s/AKfycbxC2mKnafSrn3ngqrzjOqxWcH2Ueh7DEIge0cweju3PHTrRJ7CS5iqQczMpAiWcjLaZIA/exec`
 
-- Verde: crecimiento general igual o superior a 3%.
-- Amarillo: resultado entre -3% y 3%.
-- Rojo: disminución superior a 3%.
-- Neutral: no existe un periodo anterior guardado.
+## Roles reconocidos
 
-El análisis se realiza localmente mediante reglas matemáticas. No utiliza servicios externos ni comparte información con una IA.
+- `ADMINISTRADOR`: acceso total, incluyendo gestión de usuarios.
+- `GERENCIA`: Centro de Inteligencia, comparativos, reportes y configuración.
+- `SUPERVISOR`: ingresos, comparativos y Centro de Inteligencia.
+- `USUARIO`: consulta de indicadores, gráficas y reportes básicos.
+
+También se reconocen como equivalentes:
+
+- `ADMIN` → `ADMINISTRADOR`
+- `CONSULTA` → `USUARIO`
+
+## NEXUS AI Briefing
+
+Al cargar la información se genera automáticamente:
+
+- Marca líder.
+- Concepto dominante.
+- Variación frente al periodo anterior.
+- Marca con menor participación.
 
 ## Instalación
 
-1. Reemplaza los archivos de GitHub.
-2. Actualiza `Code.gs` mediante una nueva versión en Apps Script.
-3. Conserva la URL `/exec` en `config.js`.
+1. Sustituye `Code.gs` en Apps Script.
+2. Actualiza la implementación mediante **Nueva versión**.
+3. Sube todos los archivos a GitHub.
 4. Presiona `Ctrl + F5`.
-5. Guarda periodos en el histórico para activar los comparativos y el semáforo.
+
+No necesitas editar `config.js`: la URL `/exec` ya viene incluida.

@@ -1,5 +1,5 @@
 /**
- * NEXUS BUSINESS INTELLIGENCE PLATFORM v17
+ * NEXUS BUSINESS INTELLIGENCE PLATFORM v18
  * Autenticación, sesiones y administración de usuarios.
  *
  * USUARIOS admite:
@@ -15,10 +15,10 @@ const HOJA_USUARIOS = 'USUARIOS';
 const HOJA_ACCESOS = 'ACCESOS';
 const MARCAS = { TRT:'TRT', TRTVB:'TRT VB', AAO:'AAO', AAOVB:'AAO VB' };
 const DURACION_SESION_SEGUNDOS = 21600;
-const ROLES_VALIDOS = ['CONSULTA','SUPERVISOR','GERENCIA','ADMIN'];
+const ROLES_VALIDOS = ['USUARIO','SUPERVISOR','GERENCIA','ADMINISTRADOR'];
 
 function doGet() {
-  return respuesta({ error:false, message:'API NEXUS v17 activa' });
+  return respuesta({ error:false, message:'API NEXUS v18 activa' });
 }
 
 function doPost(e) {
@@ -102,7 +102,7 @@ function obtenerSesion(token) {
 }
 
 function exigirAdmin(session) {
-  if (String(session.role).toUpperCase() !== 'ADMIN') throw new Error('No tienes permisos de administrador.');
+  if (normalizarRol(session.role) !== 'ADMINISTRADOR') throw new Error('No tienes permisos de administrador.');
 }
 
 function obtenerUsuariosAdmin(session) {
@@ -255,7 +255,7 @@ function leerUsuarios() {
       password:String(row[h.CONTRASENA] || '').trim(),
       username:String(row[h.USUARIO] || '').trim(),
       name:limpiarNombre(row[h.NOMBRE]),
-      role:validarRol(row[h.ROL] || 'CONSULTA'),
+      role:normalizarRol(row[h.ROL] || 'USUARIO'),
       active:!['NO','INACTIVO','FALSE','0'].includes(String(row[h.ACTIVO] || 'SI').trim().toUpperCase()),
       salt:String(row[h.SALT] || '').trim()
     }));
@@ -336,9 +336,15 @@ function obtenerUltimosAccesos() {
   return result;
 }
 
+function normalizarRol(value) {
+  const role = normalizarEncabezado(value || 'USUARIO');
+  if (['ADMIN','ADMINISTRADOR','ADMINISTRATOR'].includes(role)) return 'ADMINISTRADOR';
+  if (['GERENCIA','GERENTE','MANAGER'].includes(role)) return 'GERENCIA';
+  if (['SUPERVISOR','SUPERVISION'].includes(role)) return 'SUPERVISOR';
+  return 'USUARIO';
+}
 function validarRol(value) {
-  const role = String(value || 'CONSULTA').trim().toUpperCase();
-  return ROLES_VALIDOS.includes(role) ? role : 'CONSULTA';
+  return normalizarRol(value);
 }
 
 function normalizarEncabezado(value) {

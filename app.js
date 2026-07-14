@@ -26,6 +26,18 @@ function setLoadProgress(percent,text){
   $("loadProgressBar").style.width=`${percent}%`;
   if(percent>=100)setTimeout(()=>wrap.classList.add("hidden"),700);
 }
+
+const normalizeRole=value=>{
+  const role=normalize(value||"USUARIO");
+  if(["ADMIN","ADMINISTRADOR","ADMINISTRATOR"].includes(role))return"ADMINISTRADOR";
+  if(["GERENCIA","GERENTE","MANAGER"].includes(role))return"GERENCIA";
+  if(["SUPERVISOR","SUPERVISION"].includes(role))return"SUPERVISOR";
+  if(["CONSULTA","USUARIO","USER"].includes(role))return"USUARIO";
+  return"USUARIO";
+};
+const roleLevel=role=>({USUARIO:1,SUPERVISOR:2,GERENCIA:3,ADMINISTRADOR:4}[normalizeRole(role)]||1);
+const canAccess=(minimum)=>roleLevel(authSession?.user?.role)>=roleLevel(minimum);
+
 const normalize=v=>String(v??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/gi,"").toUpperCase();
 const num=v=>{if(typeof v==="number")return Number.isFinite(v)?v:0;let s=String(v??"").trim().replace(/\$/g,"").replace(/\s/g,"").replace(/[^0-9,.-]/g,"");if(!s||s==="-")return 0;const c=s.lastIndexOf(","),d=s.lastIndexOf(".");if(c>=0&&d>=0){s=c>d?s.replace(/\./g,"").replace(",","."):s.replace(/,/g,"")}else if(c>=0){const dec=s.length-c-1;s=(dec===1||dec===2)?s.replace(/\./g,"").replace(",","."):s.replace(/,/g,"")}else if((s.match(/\./g)||[]).length>1){const p=s.split("."),last=p.pop();s=(last.length<=2?p.join("")+"."+last:p.join("")+last)}const n=Number(s);return Number.isFinite(n)?n:0};
 const pct=(v,t)=>`${(v/(t||1)*100).toFixed(2)}%`;
@@ -178,7 +190,7 @@ function renderPlatform(){
   if($("reportCoverUser"))$("reportCoverUser").textContent=authSession?.user?.name||authSession?.user?.username||"Usuario";
   if($("reportCoverDate"))$("reportCoverDate").textContent=new Date().toLocaleString("es-MX");
   $("managementPreview").innerHTML=`<h3>Resumen ejecutivo · ${m} ${y}</h3><p>El ingreso general fue de <b>${money.format(s.total)}</b>, integrado por ${s.count.toLocaleString("es-MX")} registros. ${leader.name} encabezó la recaudación con ${pct(leader.total,s.total)} de participación. ${concepts[0][0]} fue el concepto principal, con ${money.format(concepts[0][1])}.</p>${prev?`<p>En comparación con ${prev.label}, el resultado ${s.total>=prev.total?"aumentó":"disminuyó"} ${Math.abs((s.total-prev.total)/(prev.total||1)*100).toFixed(2)}%.</p>`:"<p>No existe todavía un periodo previo guardado para calcular variación.</p>"}`;
-  renderHomeChart();renderIntelligence();populateCompareSelectors();$("historyCount").textContent=`${hist.length} periodo${hist.length===1?"":"s"} almacenado${hist.length===1?"":"s"}`;
+  renderHomeChart();renderProactiveBriefing();renderIntelligence();populateCompareSelectors();$("historyCount").textContent=`${hist.length} periodo${hist.length===1?"":"s"} almacenado${hist.length===1?"":"s"}`;
 }
 
 function getCurrentPreviousPeriod(){
@@ -187,6 +199,29 @@ function getCurrentPreviousPeriod(){
   const key=`${$("year").value}-${String(months.indexOf($("month").value)+1).padStart(2,"0")}`;
   return [...getHistory()].filter(h=>h.key<key).sort((a,b)=>b.key.localeCompare(a.key))[0]||null;
 }
+
+function renderProactiveBriefing(){
+  const body=$("briefingBody");
+  if(!body)return;
+  if(!state.summary){
+    body.innerHTML='<div class="briefing-placeholder">Carga la información para recibir un análisis automático del periodo.</div>';
+    return;
+  }
+  const s=state.summary;
+  const sorted=[...state.brands].sort((a,b)=>b.total-a.total);
+  const leader=sorted[0],lowest=sorted.at(-1);
+  const concepts=[["Canje",s.canje],["Abordo",s.abordo],["Prepago",s.prepago]].sort((a,b)=>b[1]-a[1]);
+  const previous=getCurrentPreviousPeriod();
+  const change=previous?((s.total-previous.total)/(previous.total||1)*100):null;
+  const insights=[
+    {icon:"🏆",title:`${leader.name} lidera`,detail:`Aporta ${pct(leader.total,s.total)} del total.`},
+    {icon:"◉",title:`${concepts[0][0]} domina`,detail:`Representa ${pct(concepts[0][1],s.total)} de los ingresos.`},
+    {icon:change==null?"▥":change>=0?"↗":"↘",title:change==null?"Sin comparativo":`${change>=0?"Crecimiento":"Disminución"} ${Math.abs(change).toFixed(2)}%`,detail:previous?`Frente a ${previous.label}.`:"Guarda otro periodo para comparar."},
+    {icon:"◎",title:`${lowest.name} requiere seguimiento`,detail:`Tiene la menor participación: ${pct(lowest.total,s.total)}.`}
+  ];
+  body.innerHTML=insights.map(x=>`<div class="briefing-insight"><i>${x.icon}</i><div><b>${x.title}</b><small>${x.detail}</small></div></div>`).join("");
+}
+
 function renderIntelligence(){
   const empty=$("intelligenceEmpty"),content=$("intelligenceContent");
   if(!empty||!content)return;
@@ -281,6 +316,9 @@ function renderHomeChart(){
 }
 const pageTitles={inicio:"Centro ejecutivo",ingresos:"Ingresos 360",inteligencia:"Centro de Inteligencia",comparativos:"Comparativos",reportes:"Reportes ejecutivos",usuarios:"Usuarios y accesos",configuracion:"Configuración"};
 function openView(name){
+  if(name==="usuarios"&&!canAccess("ADMINISTRADOR")){toast("Tu rol no permite administrar usuarios.");return}
+  if(name==="configuracion"&&!canAccess("GERENCIA")){toast("Tu rol no permite acceder a configuración.");return}
+  if(["inteligencia","comparativos"].includes(name)&&!canAccess("SUPERVISOR")){toast("Tu rol no permite acceder a este módulo.");return}
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.dataset.viewPanel===name));
   document.querySelectorAll(".side-nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===name));
   $("pageTitle").textContent=pageTitles[name]||"NEXUS";$("sidebar").classList.remove("open");window.scrollTo({top:0,behavior:"smooth"});
@@ -320,6 +358,9 @@ function renderSettings(){$("sheetIdPreview").textContent=apiUrl()&&!apiUrl().in
 $("reportPrintBtn").onclick=()=>{if(!state.summary){toast("Primero carga la información");return}openView("ingresos");setTimeout(()=>window.print(),250)};
 $("reportExcelBtn").onclick=()=>{if(!state.summary){toast("Primero carga la información");return}$("exportBtn").click()};
 $("copySummaryBtn").onclick=async()=>{if(!state.summary){toast("Primero carga la información");return}const text=$("managementPreview").innerText;try{await navigator.clipboard.writeText(text);toast("Resumen copiado")}catch{toast("No fue posible copiar automáticamente")}};
+$("refreshBriefingBtn").onclick=()=>{
+  if(state.summary){renderProactiveBriefing();toast("Briefing actualizado")}else $("loadSheetsBtn").click();
+};
 $("copyIntelligenceBriefBtn").onclick=async()=>{
   const text=$("intelligenceBrief")?.innerText||"";
   if(!text){toast("Primero actualiza la información");return}
@@ -328,19 +369,40 @@ $("copyIntelligenceBriefBtn").onclick=async()=>{
 $("exportHistoryBtn").onclick=()=>{const blob=new Blob([JSON.stringify(getHistory(),null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="Ingresos360_Historico.json";a.click();URL.revokeObjectURL(url)};
 
 function setUserInterface(user){
+  const role=normalizeRole(user.role);
+  user.role=role;
   $("userName").textContent=user.name||user.username;
-  $("userRole").textContent=user.role||"CONSULTA";
+  $("userRole").textContent=role;
   $("userInitial").textContent=String(user.name||user.username||"U").trim().charAt(0).toUpperCase();
   $("dropUserName").textContent=user.name||user.username;
   $("dropUserId").textContent=`Usuario: ${user.username}`;
   if($("welcomeUserName"))$("welcomeUserName").textContent=user.name||user.username;
   if($("profileName"))$("profileName").textContent=user.name||user.username;
   if($("profileUsername"))$("profileUsername").textContent=`Usuario: ${user.username}`;
-  if($("profileRole"))$("profileRole").textContent=user.role||"CONSULTA";
+  if($("profileRole")){$("profileRole").textContent=role;$("profileRole").className=`state-pill active role-${role.toLowerCase()}`;}
   if($("profileInitial"))$("profileInitial").textContent=String(user.name||user.username||"U").trim().charAt(0).toUpperCase();
-  const isAdmin=String(user.role||"").toUpperCase()==="ADMIN";
+  if($("headerRoleBadge")){$("headerRoleBadge").textContent=role;$("headerRoleBadge").className=`header-role-badge role-${role.toLowerCase()}`;}
+  if($("briefingGreeting"))$("briefingGreeting").textContent=`Hola, ${user.name||user.username}`;
+  if($("profilePermissions")){
+    const permissions={
+      ADMINISTRADOR:"Acceso total: usuarios, configuración, históricos, reportes y análisis.",
+      GERENCIA:"Acceso ejecutivo: reportes, históricos, comparativos y Centro de Inteligencia.",
+      SUPERVISOR:"Acceso operativo: ingresos, históricos y análisis del periodo.",
+      USUARIO:"Acceso de consulta: indicadores, gráficas y reportes autorizados."
+    };
+    $("profilePermissions").innerHTML=`<b>Permisos del rol ${role}</b><br>${permissions[role]}`;
+  }
+
+  const isAdmin=role==="ADMINISTRADOR";
   document.querySelectorAll(".admin-only,.admin-nav").forEach(el=>el.classList.toggle("hidden-role",!isAdmin));
-  if(!isAdmin && document.querySelector('[data-view-panel="usuarios"]')?.classList.contains("active")) openView("inicio");
+
+  // Role-based navigation.
+  document.querySelectorAll('[data-view="configuracion"]').forEach(el=>el.classList.toggle("restricted-role",roleLevel(role)<3));
+  document.querySelectorAll('[data-view="comparativos"]').forEach(el=>el.classList.toggle("restricted-role",roleLevel(role)<2));
+  document.querySelectorAll('[data-view="inteligencia"]').forEach(el=>el.classList.toggle("restricted-role",roleLevel(role)<2));
+
+  if(!isAdmin && document.querySelector('[data-view-panel="usuarios"]')?.classList.contains("active"))openView("inicio");
+  if(roleLevel(role)<2 && ["inteligencia","comparativos"].some(v=>document.querySelector(`[data-view-panel="${v}"]`)?.classList.contains("active")))openView("inicio");
 }
 function showApp(){
   $("loginScreen").classList.add("hidden");
@@ -399,7 +461,7 @@ async function loadAdminUsers(){
         <td>${escapeHtml(u.username)}</td>
         <td>
           <select class="role-select" data-role-user="${escapeAttr(u.username)}">
-            ${["CONSULTA","SUPERVISOR","GERENCIA","ADMIN"].map(r=>`<option value="${r}" ${r===u.role?"selected":""}>${r}</option>`).join("")}
+            ${["USUARIO","SUPERVISOR","GERENCIA","ADMINISTRADOR"].map(r=>`<option value="${r}" ${r===u.role?"selected":""}>${r}</option>`).join("")}
           </select>
         </td>
         <td><span class="state-pill ${u.active?"active":"inactive"}">${u.active?"ACTIVO":"INACTIVO"}</span></td>

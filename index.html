@@ -128,6 +128,7 @@
       </div>
       <div class="header-tools">
         <span id="headerPeriod" class="period-badge">JUNIO 2026</span>
+        <span id="headerRoleBadge" class="header-role-badge">USUARIO</span>
         <div class="notification-menu">
           <button id="notificationBtn" class="notification-btn" title="Notificaciones">🔔<span id="notificationCount">0</span></button>
           <div id="notificationPanel" class="notification-panel hidden">
@@ -172,6 +173,21 @@
               <div><small>REGISTROS</small><b id="heroRows">0</b></div>
               <div><small>ACTUALIZACIÓN</small><b id="heroUpdated">Pendiente</b></div>
             </div>
+          </div>
+        </section>
+
+        
+        <section id="proactiveBriefing" class="proactive-briefing card">
+          <div class="briefing-header">
+            <div class="briefing-orb">✦</div>
+            <div>
+              <small>NEXUS AI · BRIEFING AUTOMÁTICO</small>
+              <h3 id="briefingGreeting">Bienvenido a NEXUS</h3>
+            </div>
+            <button id="refreshBriefingBtn" class="btn compact">↻ Actualizar</button>
+          </div>
+          <div id="briefingBody" class="briefing-body">
+            <div class="briefing-placeholder">Carga la información para recibir un análisis automático del periodo.</div>
           </div>
         </section>
 
@@ -454,10 +470,10 @@
               <label>Contraseña temporal<input id="newUserPassword" type="password" required minlength="4" placeholder="Contraseña temporal"></label>
               <label>Rol
                 <select id="newUserRole">
-                  <option value="CONSULTA">Consulta</option>
+                  <option value="USUARIO">Usuario</option>
                   <option value="SUPERVISOR">Supervisor</option>
                   <option value="GERENCIA">Gerencia</option>
-                  <option value="ADMIN">Administrador</option>
+                  <option value="ADMINISTRADOR">Administrador</option>
                 </select>
               </label>
               <button class="btn primary" type="submit">Crear usuario</button>
@@ -507,6 +523,7 @@
       <div id="profileInitial" class="profile-avatar">U</div>
       <div><h3 id="profileName">Usuario</h3><p id="profileUsername">—</p><span id="profileRole" class="state-pill active">CONSULTA</span></div>
     </div>
+    <div id="profilePermissions" class="profile-permissions"></div>
     <div class="profile-details">
       <div><small>ÚLTIMO ACCESO</small><b id="profileLastAccess">Sesión actual</b></div>
       <div><small>ESTADO DE SESIÓN</small><b>Activa</b></div>

@@ -290,3 +290,55 @@ a{color:#3676ec}
 .score-excellent{color:#0e9b6c}.score-attention{color:#c4870b}.score-risk{color:#c84646}
 @media(max-width:1050px){.intelligence-status-grid{grid-template-columns:repeat(2,1fr)}.intelligence-main-grid{grid-template-columns:1fr}}
 @media(max-width:700px){.intelligence-status-grid,.intelligence-lists-grid{grid-template-columns:1fr}.score-ring{width:145px;height:145px}.score-ring:before{width:108px;height:108px}}
+
+/* NEXUS V18 — roles and proactive intelligence */
+.header-role-badge{
+  display:inline-flex;align-items:center;padding:7px 10px;border-radius:999px;
+  background:linear-gradient(90deg,rgba(101,88,255,.12),rgba(69,221,255,.16));
+  color:#315fcf;border:1px solid rgba(64,125,220,.15);font-size:8px;font-weight:900;letter-spacing:1px
+}
+.proactive-briefing{
+  margin:15px 0;padding:21px;border-radius:19px;
+  background:
+    radial-gradient(circle at 95% 0%,rgba(69,221,255,.12),transparent 28%),
+    linear-gradient(135deg,rgba(101,88,255,.07),rgba(47,116,255,.05),rgba(69,221,255,.07));
+  border-color:rgba(68,130,225,.19)
+}
+.briefing-header{display:flex;align-items:center;gap:12px}
+.briefing-header>div:nth-child(2){flex:1}
+.briefing-header small{font-size:8px;letter-spacing:1.5px;color:#6558ff;font-weight:900}
+.briefing-header h3{margin:4px 0;font-size:18px}
+.briefing-orb{
+  width:43px;height:43px;border-radius:14px;display:grid;place-items:center;color:#fff;
+  background:linear-gradient(145deg,#6558ff,#2f74ff,#45ddff);
+  box-shadow:0 12px 27px rgba(47,116,255,.25);font-size:20px
+}
+.briefing-body{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+.briefing-insight{
+  padding:14px;border-radius:13px;background:var(--panel);border:1px solid var(--line);
+  display:flex;gap:9px;align-items:flex-start
+}
+.briefing-insight i{
+  width:28px;height:28px;border-radius:9px;display:grid;place-items:center;
+  background:var(--soft);font-style:normal;flex:0 0 auto
+}
+.briefing-insight b,.briefing-insight small{display:block}
+.briefing-insight b{font-size:10px;line-height:1.35}
+.briefing-insight small{font-size:8px;color:var(--muted);line-height:1.45;margin-top:4px}
+.briefing-placeholder{grid-column:1/-1;padding:18px;text-align:center;color:var(--muted);font-size:10px}
+.profile-permissions{
+  padding:12px 14px;border-radius:11px;background:linear-gradient(90deg,rgba(101,88,255,.07),rgba(69,221,255,.08));
+  border:1px solid rgba(67,130,220,.15);font-size:9px;line-height:1.55;margin-bottom:12px
+}
+.role-admin{background:linear-gradient(90deg,#6558ff,#2f74ff)!important;color:#fff!important}
+.role-gerencia{background:#e7efff!important;color:#245bb5!important}
+.role-supervisor{background:#e2f7ee!important;color:#08704d!important}
+.role-usuario{background:#eef2f6!important;color:#5e6c7f!important}
+.restricted-role{display:none!important}
+@media(max-width:1050px){.briefing-body{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){
+  .briefing-body{grid-template-columns:1fr}
+  .briefing-header{align-items:flex-start;flex-wrap:wrap}
+  .briefing-header .btn{width:100%}
+  .header-role-badge{display:none}
+}
